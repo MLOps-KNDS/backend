@@ -15,7 +15,8 @@ DB Scripts is a collection of scripts that help you manage a PostgreSQL database
 
 1. To run these scripts, you need to set your credentials in the
 [database.ini](../app/database.ini) file.
-2. Create and activate a python virtual environment and install requirements from the [requirements.txt](../requirements.txt) file.
+2. Enter the [app](/db_scripts/app) folder in a terminal.
+3. Create and activate a python virtual environment and install requirements from the [requirements.txt](../requirements.txt) file.
 
 On GNU/Linux or macOS, run the following commands in the terminal:
 
