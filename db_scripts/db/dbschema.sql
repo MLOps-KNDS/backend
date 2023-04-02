@@ -1,4 +1,4 @@
--- IMPORTANT!!: On edit, compare this file with the db/dbdelete.sql file
+-- IMPORTANT!!: When editing, compare this file with the db/dbdelete.sql file
 
 -- ml model table
 CREATE table model (

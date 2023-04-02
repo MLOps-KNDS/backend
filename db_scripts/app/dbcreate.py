@@ -16,18 +16,15 @@ async def create_db(conn: psycopg2.extensions.connection) -> dict:
             query = file.read()
     else:
         cursor.close()
-        conn.close()
         return {"status": "error", "message": f"{file_name} not found"}
 
     try:
         cursor.execute(query)
     except psycopg2.errors.DuplicateTable:
         cursor.close()
-        conn.close()
         return {"status": "error", "message": "Some tables already exist"}
     conn.commit()
     cursor.close()
-    conn.close()
     return {"status": "ok"}
 
 if __name__ == "__main__":
