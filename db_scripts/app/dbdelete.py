@@ -1,13 +1,12 @@
 import os
 import psycopg2
 
-""""
-Delete all tables in the database if they exist
-Mainly for testing purposes
-"""
-
 
 async def delete_db(conn: psycopg2.extensions.connection) -> dict:
+    """Deletes tables specified in dbdelete.sql
+    Keyword arguments:
+    conn -- psycopg2 connection object
+    """
     # Check if schema file exists
     file_path = "../db/dbdelete.sql"
     if os.path.exists(file_path):

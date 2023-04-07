@@ -1,9 +1,11 @@
 import psycopg2
 
-""" Show all tables in the database """
-
 
 async def show_db(conn: psycopg2.extensions.connection) -> dict:
+    """Shows all tables in the database
+    Keyword arguments:
+    conn -- psycopg2 connection object
+    """
     cursor = conn.cursor()
     cursor.execute("""SELECT *
                     FROM pg_catalog.pg_tables

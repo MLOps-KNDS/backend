@@ -6,9 +6,13 @@ from configparser import ConfigParser
 
 
 def config_ini(filename="database.ini", section='postgresql') -> dict:
-    # create a parser
+    """Reads the database.ini file and returns a dictionary
+    with the database configuration
+    Keyword arguments:
+    filename -- name of the database.ini file (default database.ini)
+    section -- section of the database.ini file (default postgresql)
+    """
     parser = ConfigParser()
-    # read config file
     parser.read(filename)
 
     # get section, default to postgresql
@@ -26,7 +30,7 @@ def config_ini(filename="database.ini", section='postgresql') -> dict:
 
 
 def config_params() -> dict:
-    # read host, database, user, password script arguments
+    # read script arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("-h", "-H", "--host", type=str, help="Database host")
     parser.add_argument("-d", "-D", "--database", type=str, default="postgres")

@@ -5,6 +5,16 @@ from dbconfig import config_env, config_ini
 
 
 def connect(config: Optional[dict] = None) -> psycopg2.extensions.connection:
+    """Connect to the PostgreSQL database server
+    Keyword arguments:
+    config -- optiona; dictionary with connection parameters in the form
+    {
+        "host": "localhost",
+        "database": "postgres",
+        "user": "postgres",
+        "password": "password"
+    }
+    """
     # Check if config was passed
     if config is not None:
         conn = psycopg2.connect(**config)

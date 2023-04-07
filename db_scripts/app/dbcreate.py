@@ -5,6 +5,10 @@ import psycopg2
 
 
 async def create_db(conn: psycopg2.extensions.connection) -> dict:
+    """Creates tables specified in dbschema.sql
+    Keyword arguments:
+    conn -- psycopg2 connection object
+    """
     cursor = conn.cursor()
     # Check if schema file exists
     file_path = "../db/dbschema.sql"
