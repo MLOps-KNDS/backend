@@ -11,18 +11,17 @@ import sys
 
 sys.path.insert(0, os.path.abspath('..'))
 
-project = 'Backend'
+project = 'backend'
 copyright = '2023, KNDS'
 author = 'KNDS'
-release = '0.0.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.todo",
+    'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.todo',
 ]
 
 templates_path = ['_templates']
