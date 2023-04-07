@@ -4,24 +4,16 @@ This is the main module.
 It contains the FastAPI app.
 """
 
-
 from fastapi import FastAPI
 
 app = FastAPI()
 
-async def get_root() -> dict:
-    """
-    This is the root path.
 
-    :return: A dict with a "Hello" key and a "World" value.
+@app.get("/")
+async def root() -> dict:
     """
-    return {"Hello": "World"}
+    Root endpoint. Returns a simple message for testing purposes.
 
-async def get_item(item_id: int):
+    :return: A "Hello World" message.
     """
-    This is the item path.
-
-    :param item_id: The item id.
-    :return: A dict with an "item_id" key and the item id value.
-    """
-    return {"item_id": item_id}
+    return {"message": "Hello World"}
