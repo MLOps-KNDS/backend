@@ -18,6 +18,5 @@ CREATE table ab_test (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     description VARCHAR(255),
     a_model_id INTEGER NOT NULL REFERENCES model(id),
-    b_model_id INTEGER NOT NULL REFERENCES model(id),
-    description VARCHAR(255)
+    b_model_id INTEGER NOT NULL REFERENCES model(id)
 );
