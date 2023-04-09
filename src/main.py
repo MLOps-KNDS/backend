@@ -6,25 +6,9 @@ It contains the FastAPI app.
 
 from fastapi import FastAPI, Query
 from typing import Optional, Annotated
-from pydantic import BaseModel, Field
+from schemas.models import Model
 
 app = FastAPI()
-
-
-class Model(BaseModel):
-    id: int = Field(title="Model id")
-    name: str = Field(title="Model name")
-    description: str | None = Field(default=None, max_length=500,
-                                    title="Model description")
-    
-    class Config:
-        schema_extra = {
-            "example" : {
-                "id" : 11,
-                "name" : "Model example",
-                "description" : "Usefull model",
-            }
-        }
 
 models = {
     1: Model(id=1, name="Model 1"),
