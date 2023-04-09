@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import Dict, Optional
 from enum import Enum
 import datetime
 
@@ -24,10 +24,17 @@ class MLModel(BaseModel):
 
 
 class PatchMLModel(MLModel):
-    __annotations__ = {k: Optional[v] for k, v in MLModel.__annotations__.items()}
+    """
+    MLModel with all fields optional - for usage with patch request
+    """
+
+    __annotations__ = {
+        field: Optional[field_type]
+        for field, field_type in MLModel.__annotations__.items()
+    }
 
 
-def get_model_by_id(database: List[MLModel], model_id: int) -> MLModel | None:
+def get_model_by_id(database: Dict[int, MLModel], model_id: int) -> MLModel | None:
     """
     Simple function to get model by id from the sample database
 
@@ -35,6 +42,7 @@ def get_model_by_id(database: List[MLModel], model_id: int) -> MLModel | None:
     :param model_id: id of model to get
     :return: model if id was in database or None if wasn't
     """
-    for model in database:
-        if model.id == model_id:
-            return model
+    model = database.get(model_id)
+
+    return model
+
