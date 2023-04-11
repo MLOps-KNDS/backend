@@ -5,8 +5,15 @@ It contains the FastAPI app.
 """
 
 from fastapi import FastAPI
+from datetime import datetime
 
-app = FastAPI()
+from schemas.model import Model
+
+app = FastAPI(
+    title="Backend Service",
+    description="Backend Service for the ML Platform",
+    version="0.1.0",
+)
 
 
 @app.get("/")

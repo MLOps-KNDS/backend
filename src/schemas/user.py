@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, Field, EmailStr
 from enum import Enum
 
 
@@ -10,29 +10,34 @@ class UserRole(Enum):
 
 
 class User(BaseModel):
-    id: int
-    username: str
-    email: EmailStr
+    id: Field(int, description="Unique ID")
+    name: Field(str, description="User name")
+    surname: Field(str, description="User surname")
+    email: Field(EmailStr, description="User email")
 
     class Config:
         orm_mode = True
 
 
 class ModelUserRole(BaseModel):
-    id: int
-    model_id: int
-    user_id: int
-    role: UserRole
+    id: Field(int, description="Unique ID")
+    model_id: Field(int, description="Model ID")
+    user_id: Field(int, description="User ID")
+    role: Field(
+        UserRole, description="User's role. Either owner, admin, reader or writer"
+    )
 
     class Config:
         orm_mode = True
 
 
 class PoolUserRole(BaseModel):
-    id: int
-    pool_id: int
-    user_id: int
-    role: UserRole
+    id: Field(int, description="Unique ID")
+    pool_id: Field(int, description="Pool ID")
+    user_id: Field(int, description="User ID")
+    role: Field(
+        UserRole, description="User's role. Either owner, admin, reader or writer"
+    )
 
     class Config:
         orm_mode = True
