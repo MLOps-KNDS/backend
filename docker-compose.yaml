@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  api:
+    image: "api:latest"
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - API_PORT=8000
+      - API_HOST=0.0.0.0
