@@ -1,3 +1,4 @@
+from typing import Annotated
 from pydantic import BaseModel, Field, EmailStr
 from enum import Enum
 
@@ -10,44 +11,49 @@ class UserRole(Enum):
 
 
 class User(BaseModel):
-    id: Field(int, description="Unique ID")
-    name: Field(str, description="User name")
-    surname: Field(str, description="User surname")
-    email: Field(EmailStr, description="User email")
+    id: Annotated[int, Field(description="Unique ID")]
+    name: Annotated[str, Field(description="User name")]
+    surname: Annotated[str, Field(description="User surname")]
+    email: Annotated[EmailStr, Field(description="User email")]
 
     class Config:
         orm_mode = True
 
 
 class ModelUserRole(BaseModel):
-    id: Field(int, description="Unique ID")
-    model_id: Field(int, description="Model ID")
-    user_id: Field(int, description="User ID")
-    role: Field(
-        UserRole, description="User's role. Either owner, admin, reader or writer"
-    )
+    id: Annotated[int, Field(description="Unique ID")]
+    model_id: Annotated[int, Field(description="Model ID")]
+    user_id: Annotated[int, Field(description="User ID")]
+    role: Annotated[
+        UserRole, 
+        Field(description="User's role. Either owner, admin, reader or writer")
+    ]
 
     class Config:
         orm_mode = True
 
 
 class PoolUserRole(BaseModel):
-    id: Field(int, description="Unique ID")
-    pool_id: Field(int, description="Pool ID")
-    user_id: Field(int, description="User ID")
-    role: Field(
-        UserRole, description="User's role. Either owner, admin, reader or writer"
-    )
+    id: Annotated[int, Field(description="Unique ID")]
+    pool_id: Annotated[int, Field(description="Pool ID")]
+    user_id: Annotated[int, Field(description="User ID")]
+    role: Annotated[
+        UserRole, 
+        Field(description="User's role. Either owner, admin, reader or writer")
+    ]
 
     class Config:
         orm_mode = True
 
 
 class TestUserRole(BaseModel):
-    id: int
-    test_id: int
-    user_id: int
-    role: UserRole
+    id: Annotated[int, Field(description="Unique ID")]
+    test_id: Annotated[int, Field(description="Test ID")]
+    user_id: Annotated[int, Field(description="User ID")]
+    role: Annotated[
+        UserRole, 
+        Field(description="User's role. Either owner, admin, reader or writer")
+    ]
 
     class Config:
         orm_mode = True

@@ -5,9 +5,7 @@ It contains the FastAPI app.
 """
 
 from fastapi import FastAPI
-from datetime import datetime
 
-from schemas.model import Model
 
 app = FastAPI(
     title="Backend Service",

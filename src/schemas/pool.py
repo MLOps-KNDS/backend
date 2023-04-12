@@ -1,3 +1,4 @@
+from typing import Annotated
 from pydantic import BaseModel, Field
 from datetime import datetime
 from enum import Enum
@@ -9,23 +10,26 @@ class PoolModelMode(Enum):
 
 
 class Pool(BaseModel):
-    id: Field(int, description="Unique ID")
-    name: Field(str, description="Pool name")
-    description: Field(str, description="Pool description")
-    created_at: Field(datetime, description="Pool creation date")
-    created_by: Field(int, description="User ID of the creator")
-    updated_at: Field(datetime, description="Pool update date")
-    updated_by: Field(int, description="User ID of the last updater")
+    id: Annotated[int, Field(description="Unique ID")]
+    name: Annotated[str, Field(description="Pool name")]
+    description: Annotated[str, Field(description="Pool description")]
+    created_at: Annotated[datetime, Field(description="Pool creation date")]
+    created_by: Annotated[int, Field(description="User ID of the creator")]
+    updated_at: Annotated[datetime, Field(description="Pool update date")]
+    updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
     class Config:
         orm_mode = True
 
 
 class PoolModel(BaseModel):
-    id: Field(int, description="Unique ID")
-    pool_id: Field(int, description="Pool ID")
-    model_id: Field(int, description="Model ID")
-    mode: Field(PoolModelMode, description="Model's Mode. Either production or staging")
+    id: Annotated[int, Field(description="Unique ID")]
+    pool_id: Annotated[int, Field(description="Pool ID")]
+    model_id: Annotated[int, Field(description="Model ID")]
+    mode: Annotated[
+        PoolModelMode, 
+        Field(description="Model's Mode. Either production or staging")
+    ]
 
     class Config:
         orm_mode = True
