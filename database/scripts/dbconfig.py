@@ -67,17 +67,18 @@ def config_env() -> dict:
     :rtype: dict
     """
     return {
-        "host": os.environ.get("DB_HOST"),
-        "database": os.environ.get("DB_NAME"),
-        "user": os.environ.get("DB_USER"),
-        "password": os.environ.get("DB_PASS"),
+        "host": os.environ.get("POSTGRES_HOST"),
+        "database": os.environ.get("POSTGRES_DB"),
+        "user": os.environ.get("POSTGRES_USER"),
+        "password": os.environ.get("POSTGRES_PASSWORD"),
     }
 
 
 if __name__ == "__main__":
     # Check if environment variables are set
     env_vars_found = True
-    env_vars = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASS"]
+    env_vars = ["POSTGRES_HOST", "POSTGRES_DB",
+                "POSTGRES_USER", "POSTGRES_PASSWORD"]
     for var in env_vars:
         if os.environ.get(var) is None:
             print(f"Environment var {var} not set, looking for database.ini")

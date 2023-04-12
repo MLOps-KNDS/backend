@@ -2,13 +2,14 @@
 
 FROM postgres:latest
 
-COPY app/database.ini .
+COPY scripts/database.ini .
 
-RUN POSTGRES_USER=$(grep -Po '(?<=host = ).*' database.ini) && echo $POSTGRES_USER
-RUN POSTGRES_PASSWORD=$(grep -Po '(?<=password = ).*' database.ini) && echo $POSTGRES_PASSWORD
-RUN POSTGRES_DB=$(grep -Po '(?<=dbname = ).*' database.ini) && echo $POSTGRES_DB
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+ENV POSTGRES_DB=postgres
+ENV POSTGRES_HOST=postgres
 
-COPY app/dbschema.sql /docker-entrypoint-initdb.d/
+COPY definitions/dbschema.sql /docker-entrypoint-initdb.d/
 
 EXPOSE 5432
 

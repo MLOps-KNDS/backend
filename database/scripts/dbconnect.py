@@ -24,7 +24,8 @@ def connect(config: Optional[dict] = None) -> psycopg2.extensions.connection:
 
     # Check if environment variables are set
     env_vars_found = True
-    env_vars = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASS"]
+    env_vars = ["POSTGRES_HOST", "POSTGRES_NAME",
+                "POSTGRES_USER", "POSTGRES_PASS"]
     for var in env_vars:
         if os.environ.get(var) is None:
             print(f"Enviroment var {var} not set, looking for database.ini")

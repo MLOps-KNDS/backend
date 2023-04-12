@@ -9,7 +9,7 @@ CREATE table model (
     model_type VARCHAR(255),
     model_path VARCHAR(255) NOT NULL,
     model_version VARCHAR(255),
-    training_params VARCHAR(255), -- any additional parameters used during training, such as learning rate or batch size
+    training_params VARCHAR(255) -- any additional parameters used during training, such as learning rate or batch size
 );
 
 -- AB test table
