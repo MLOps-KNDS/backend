@@ -1,4 +1,4 @@
-name: CI
+name: Backend CI
 run-name: Running CI pipeline for ${{ github.actor }}
 
 on:
