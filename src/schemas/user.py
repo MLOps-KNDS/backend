@@ -25,8 +25,8 @@ class ModelUserRole(BaseModel):
     model_id: Annotated[int, Field(description="Model ID")]
     user_id: Annotated[int, Field(description="User ID")]
     role: Annotated[
-        UserRole, 
-        Field(description="User's role. Either owner, admin, reader or writer")
+        UserRole,
+        Field(description="User's role. Either owner, admin, reader or writer"),
     ]
 
     class Config:
@@ -38,8 +38,8 @@ class PoolUserRole(BaseModel):
     pool_id: Annotated[int, Field(description="Pool ID")]
     user_id: Annotated[int, Field(description="User ID")]
     role: Annotated[
-        UserRole, 
-        Field(description="User's role. Either owner, admin, reader or writer")
+        UserRole,
+        Field(description="User's role. Either owner, admin, reader or writer"),
     ]
 
     class Config:
@@ -51,8 +51,8 @@ class TestUserRole(BaseModel):
     test_id: Annotated[int, Field(description="Test ID")]
     user_id: Annotated[int, Field(description="User ID")]
     role: Annotated[
-        UserRole, 
-        Field(description="User's role. Either owner, admin, reader or writer")
+        UserRole,
+        Field(description="User's role. Either owner, admin, reader or writer"),
     ]
 
     class Config:

@@ -27,8 +27,7 @@ class PoolModel(BaseModel):
     pool_id: Annotated[int, Field(description="Pool ID")]
     model_id: Annotated[int, Field(description="Model ID")]
     mode: Annotated[
-        PoolModelMode, 
-        Field(description="Model's Mode. Either production or staging")
+        PoolModelMode, Field(description="Model's Mode. Either production or staging")
     ]
 
     class Config:
