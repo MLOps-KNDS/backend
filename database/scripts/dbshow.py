@@ -3,8 +3,13 @@ import psycopg2
 
 async def show_db(conn: psycopg2.extensions.connection) -> dict:
     """Shows all tables in the database
-    Keyword arguments:
-    conn -- psycopg2 connection object
+
+    ...
+    :param conn: Database connection
+    :type conn: psycopg2.extensions.connection
+    ...
+    :return: A dict with status and data
+    :rtype: dict
     """
     cursor = conn.cursor()
     cursor.execute("""SELECT *

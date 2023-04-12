@@ -3,9 +3,17 @@ import psycopg2
 
 
 async def delete_db(conn: psycopg2.extensions.connection) -> dict:
-    """Deletes tables specified in dbdelete.sql
-    Keyword arguments:
-    conn -- psycopg2 connection object
+    """Deletes all tables set in the dbdelete.sql file
+
+    ...
+    :param conn: Database connection
+    :type conn: psycopg2.extensions.connection
+    ...
+    :return: A dict with the status and an optional message
+    :rtype: dict
+    ...
+    :return: A dict with the status and an optional message
+    :rtype: dict
     """
     # Check if schema file exists
     file_path = "../db/dbdelete.sql"

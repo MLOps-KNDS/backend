@@ -2,15 +2,21 @@ import os
 import argparse
 from configparser import ConfigParser
 
-# Get the database configuration from the database.ini file
-
 
 def config_ini(filename="database.ini", section='postgresql') -> dict:
     """Reads the database.ini file and returns a dictionary
     with the database configuration
-    Keyword arguments:
-    filename -- name of the database.ini file (default database.ini)
-    section -- section of the database.ini file (default postgresql)
+
+    ...
+    :param filename: Name of the database.ini file
+    :type filename: str
+    :param section: Section of the database.ini file
+    :type section: str
+    ...
+    :raises Exception: Section not found in the database.ini file
+    ...
+    :return: Database configuration
+    :rtype: dict
     """
     parser = ConfigParser()
     parser.read(filename)
@@ -30,7 +36,13 @@ def config_ini(filename="database.ini", section='postgresql') -> dict:
 
 
 def config_params() -> dict:
-    # read script arguments
+    """Reads the command line arguments and
+    returns a dictionary with the database configuration
+
+    ...
+    :return: Database configuration
+    :rtype: dict
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("-h", "-H", "--host", type=str, help="Database host")
     parser.add_argument("-d", "-D", "--database", type=str, default="postgres")
@@ -47,6 +59,13 @@ def config_params() -> dict:
 
 
 def config_env() -> dict:
+    """Reads the environment variables and
+    returns a dictionary with the database configuration
+
+    ...
+    :return: Database configuration
+    :rtype: dict
+    """
     return {
         "host": os.environ.get("DB_HOST"),
         "database": os.environ.get("DB_NAME"),

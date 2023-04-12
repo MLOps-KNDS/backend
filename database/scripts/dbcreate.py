@@ -1,13 +1,18 @@
 import os
 import psycopg2
 
-"""Create all tables in the database if they don't exist"""
-
 
 async def create_db(conn: psycopg2.extensions.connection) -> dict:
-    """Creates tables specified in dbschema.sql
-    Keyword arguments:
-    conn -- psycopg2 connection object
+    """Creates all tables set in the dbschema.sql file
+
+    ...
+    :param conn: Database connection
+    :type conn: psycopg2.extensions.connection
+    ...
+    :raises psycopg2.errors.DuplicateTable: Some tables already exist
+    ...
+    :return: A dict with the status and an optional message
+    :rtype: dict
     """
     cursor = conn.cursor()
     # Check if schema file exists
