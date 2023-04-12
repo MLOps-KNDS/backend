@@ -16,7 +16,7 @@ DB Scripts is a collection of scripts that help you manage a PostgreSQL database
 1. To run these scripts, you need set your credentials either in the enviroment variables:
 
     ```powershell
-    DB_HOST, DB_NAME, DB_USER, DB_PASS
+    POSTGRES_HOST POSTGRES_NAME POSTGRES_USER POSTGRES_PASS
     ```
 
     script parameters:
