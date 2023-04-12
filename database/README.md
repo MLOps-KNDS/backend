@@ -25,7 +25,7 @@ DB Scripts is a collection of scripts that help you manage a PostgreSQL database
     python3 <script_name>.py --host <host> --name <name> --user <user> --pass <pass>
     ```
 
-    or in the [database.ini](../app/database.ini) file.
+    or in the [database.ini](scripts) file.
 
 2. Enter the [app](/scripts/app) folder in a terminal.
 3. Create and activate a python virtual environment and install requirements from the [requirements.txt](../requirements.txt) file.
@@ -48,19 +48,19 @@ pip install -r requirements.txt
 
 ## Scripts
 
-The available scripts provide convenient functions to develop apps. To run them head to the [app](/scripts/app) folder and type the following command:
+The available scripts provide convenient functions to develop apps. To run them head to the [scripts](scripts) folder and type the following command:
 
 ```bash
 python3 <script_name>.py
 ```
 
-. The scripts are located in the [app](/scripts/app) folder are:
+. The scripts are located in the [scripts](scripts) folder are:
 
-1. [dbconnect.py](/scripts/app/dbconnect.py) - connects to the database and returns the connection object, and also takes an optional config parameter for using in an app
-2. [dbcreate.py](/scripts/app/dbcreate.py) - creates the database and tables
-3. [dbshow.py](/scripts/app/dbshow.py) - shows tables in the database
-4. [dbdelete.py](/scripts/app/dbdelete.py) - drops the database and tables (use with caution)
+1. [dbconnect.py](scripts/dbconnect.py) - connects to the database and returns the connection object, and also takes an optional config parameter for using in an app
+2. [dbcreate.py](scripts/dbcreate.py) - creates the database and tables
+3. [dbshow.py](scripts/dbshow.py) - shows tables in the database
+4. [dbdelete.py](scripts/dbdelete.py) - drops the database and tables (use with caution)
 
 ## Editing the database schema
 
-To make changes to the database schema, change both the [dbdelete.sql](/scripts/dbdelete.sql) and [dbcreate.sql](/scripts/dbcreate.sql) files. Then run the [dbdelete.py](/scripts/app/dbdelete.py) and [dbcreate.py](/scripts/app/dbcreate.py) scripts.
+To make changes to the database schema, change both the [dbdelete.sql](definitions/dbdelete.sql) and [dbschema.sql](definitions/dbschema.sql) files. Then run the [dbdelete.sql](definitions/dbdelete.sql) and [dbcreate.py](definitions/dbcreate.py) scripts.
