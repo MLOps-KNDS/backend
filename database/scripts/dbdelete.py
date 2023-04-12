@@ -34,6 +34,7 @@ async def delete_db(conn: psycopg2.extensions.connection) -> dict:
 if __name__ == "__main__":
     import asyncio
     import dbconnect
+
     conn = dbconnect.connect()
     response = asyncio.run(delete_db(conn))
     conn.close()

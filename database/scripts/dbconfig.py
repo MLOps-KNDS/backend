@@ -3,7 +3,7 @@ import argparse
 from configparser import ConfigParser
 
 
-def config_ini(filename="database.ini", section='postgresql') -> dict:
+def config_ini(filename="database.ini", section="postgresql") -> dict:
     """Reads the database.ini file and returns a dictionary
     with the database configuration
 
@@ -32,6 +32,7 @@ def config_ini(filename="database.ini", section='postgresql') -> dict:
 
     return db
 
+
 # Get config from command line arguments
 
 
@@ -54,7 +55,7 @@ def config_params() -> dict:
         "host": args.host,
         "database": args.database,
         "user": args.user,
-        "password": args.password
+        "password": args.password,
     }
 
 
@@ -77,8 +78,7 @@ def config_env() -> dict:
 if __name__ == "__main__":
     # Check if environment variables are set
     env_vars_found = True
-    env_vars = ["POSTGRES_HOST", "POSTGRES_DB",
-                "POSTGRES_USER", "POSTGRES_PASSWORD"]
+    env_vars = ["POSTGRES_HOST", "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD"]
     for var in env_vars:
         if os.environ.get(var) is None:
             print(f"Environment var {var} not set, looking for database.ini")

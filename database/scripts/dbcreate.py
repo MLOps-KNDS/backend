@@ -36,9 +36,11 @@ async def create_db(conn: psycopg2.extensions.connection) -> dict:
     cursor.close()
     return {"status": "ok"}
 
+
 if __name__ == "__main__":
     import asyncio
     import dbconnect
+
     conn = dbconnect.connect()
     response = asyncio.run(create_db(conn))
     conn.close()
