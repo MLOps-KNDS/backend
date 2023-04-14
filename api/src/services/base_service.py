@@ -3,6 +3,12 @@ This module defines base service class.
 It should be inherited by every other service class.
 
 Base service class defines connection to database using sqlalchemy
+
+
+Example function usage 
+    def read(item: Item, db: Depends(get_db)):
+        result = BaseService().read_iteam(item, db)
+        return result
 """
 from typing import Generator
 from utils.database import SessionLocal
@@ -21,11 +27,3 @@ class BaseService:
             yield db
         finally:
             db.close()
-
-
-"""
-Example function usage 
-    def read(item: Item, db: Depends(get_db)):
-        result = BaseService().read_iteam(item, db)
-        return result
-"""
