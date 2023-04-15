@@ -35,7 +35,7 @@ class ImageBuilder:
         Builds a docker image from model's artifact.
         """
         try:
-            _logger.info(f"Building a docker image with name '{self.name}'...")
+            _logger.info(f"Building a docker image with name {self.name}...")
             mlflow.models.build_docker(
                 model_uri=self.model_uri,
                 name=self.name,
@@ -45,7 +45,7 @@ class ImageBuilder:
             _logger.info(f"Building a docker image with name '{self.name}' finished.")
         except Exception as e:
             _logger.error(
-                f"Building a docker image with name '{self.name}' failed with error: {e}"
+                f"Building a docker image with name {self.name} failed with error: {e}"
             )
 
     def push(self) -> str:
