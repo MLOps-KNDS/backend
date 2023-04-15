@@ -73,15 +73,9 @@ class ImageBuilder:
             ):
                 _logger.debug(line)
             _logger.info(f"Pushing a docker image with name '{self.name}'...")
+            return image_tag
         except Exception as e:
             _logger.error(
                 f"Pushing a docker image with name '{self.name}' failed with error: {e}"
             )
-
-
-if __name__ == "__main__":
-    image_builder = ImageBuilder(
-        name="test2", model_uri="/home/matined/Desktop/saved_model_example"
-    )
-    image_builder.build()
-    image_builder.push()
+            raise e
