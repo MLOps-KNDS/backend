@@ -4,7 +4,7 @@ import mlflow
 
 from src.utils.constants import Constants
 
-logging.basicConfig(level=logging.DEBUG)
+
 _logger = logging.getLogger(__name__)
 
 
@@ -88,5 +88,5 @@ class ImageBuilder:
             decode=True,
         ):
             _logger.debug(line)
-            
+
         return image_tag
