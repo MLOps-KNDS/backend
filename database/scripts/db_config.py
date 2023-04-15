@@ -54,7 +54,7 @@ def config_params() -> dict:
 
     return {
         "host": args.host,
-        "password": args.port,
+        "port": args.port,
         "database": args.database,
         "user": args.user,
         "password": args.password,
@@ -71,7 +71,7 @@ def config_env() -> dict:
     """
     return {
         "host": os.environ.get("POSTGRES_HOST"),
-        "password": os.environ.get("POSTGRES_PORT"),
+        "port": os.environ.get("POSTGRES_PORT"),
         "database": os.environ.get("POSTGRES_DB"),
         "user": os.environ.get("POSTGRES_USER"),
         "password": os.environ.get("POSTGRES_PASSWORD"),
