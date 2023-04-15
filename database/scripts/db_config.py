@@ -48,11 +48,13 @@ def config_params() -> dict:
     parser.add_argument("-h", "-H", "--host", type=str, help="Database host")
     parser.add_argument("-d", "-D", "--database", type=str, default="postgres")
     parser.add_argument("-u", "-U", "--user", type=str, default="postgres")
-    parser.add_argument("-p", "-P", "--password", type=str)
+    parser.add_argument("-P", "--password", type=str)
+    parser.add_argument("-p", "--port", type=str, default="5432")
     args = parser.parse_args()
 
     return {
         "host": args.host,
+        "password": args.port,
         "database": args.database,
         "user": args.user,
         "password": args.password,
@@ -69,6 +71,7 @@ def config_env() -> dict:
     """
     return {
         "host": os.environ.get("POSTGRES_HOST"),
+        "password": os.environ.get("POSTGRES_PORT"),
         "database": os.environ.get("POSTGRES_DB"),
         "user": os.environ.get("POSTGRES_USER"),
         "password": os.environ.get("POSTGRES_PASSWORD"),
@@ -78,7 +81,13 @@ def config_env() -> dict:
 if __name__ == "__main__":
     # Check if environment variables are set
     env_vars_found = True
-    env_vars = ["POSTGRES_HOST", "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD"]
+    env_vars = [
+        "POSTGRES_HOST",
+        "POSTGRES_PORT",
+        "POSTGRES_DB",
+        "POSTGRES_USER",
+        "POSTGRES_PASSWORD",
+    ]
     for var in env_vars:
         if os.environ.get(var) is None:
             print(f"Environment var {var} not set, looking for database.ini")

@@ -1,10 +1,30 @@
-import psycopg2
+from sqlalchemy import create_engine, Connection, text
 import os
 from typing import Optional
-from dbconfig import config_env, config_ini
+from db_config import config_env, config_ini
 
 
-def connect(config: Optional[dict] = None) -> psycopg2.extensions.connection:
+def get_url(config: dict) -> str:
+    """Generates the url for connection
+
+    ...
+    :param config: Database connection config
+    :type config: dict
+    ...
+    :return: Database connection url
+    :rtype: str
+    """
+
+    return "postgresql://{}:{}@{}:{}/{}".format(
+        config["user"],
+        config["password"],
+        config["host"],
+        config["port"],
+        config["dbname"],
+    )
+
+
+def connect(config: Optional[dict] = None) -> Connection:
     """Connects to the database
 
     ...
@@ -12,11 +32,11 @@ def connect(config: Optional[dict] = None) -> psycopg2.extensions.connection:
     :type config: Optional[dict], optional
     ...
     :return: Database connection
-    :rtype: psycopg2.extensions.connection
+    :rtype: Connection
     """
     # Check if config was passed
     if config is not None:
-        conn = psycopg2.connect(**config)
+        conn = create_engine(get_url(config)).connect()
         if conn:
             return conn
         else:
@@ -24,7 +44,13 @@ def connect(config: Optional[dict] = None) -> psycopg2.extensions.connection:
 
     # Check if environment variables are set
     env_vars_found = True
-    env_vars = ["POSTGRES_HOST", "POSTGRES_NAME", "POSTGRES_USER", "POSTGRES_PASS"]
+    env_vars = [
+        "POSTGRES_HOST",
+        "POSTGRES_PORT",
+        "POSTGRES_NAME",
+        "POSTGRES_USER",
+        "POSTGRES_PASS",
+    ]
     for var in env_vars:
         if os.environ.get(var) is None:
             print(f"Enviroment var {var} not set, looking for database.ini")
@@ -35,7 +61,7 @@ def connect(config: Optional[dict] = None) -> psycopg2.extensions.connection:
     else:
         config = config_ini()
 
-    conn = psycopg2.connect(**config)
+    conn = create_engine(get_url(config)).connect()
     if conn:
         return conn
     else:
@@ -46,11 +72,9 @@ if __name__ == "__main__":
     conn = connect()
 
     # get postgresql version
-    cursor = conn.cursor()
-    cursor.execute("SELECT version();")
-    record = cursor.fetchone()
+    record = conn.execute(text("SELECT version();")).fetchone()
+    # record = cursor.fetchone()
     print(f"Connected to {record}")
 
     # close the connection
-    cursor.close()
     conn.close()
