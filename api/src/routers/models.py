@@ -1,11 +1,12 @@
-from fastapi import FastAPI, Query, Path, Body, HTTPException
-from typing import Dict, Annotated, Optional
-import datetime
+from fastapi import APIRouter, Query, Path, Body, HTTPException
+from typing import Annotated, Optional
 
-from ..schemas.model import Model, ModelTest
+from ..schemas.model import Model
+
+from ..dependencies import get_model_by_id, model_db
 
 
-app = FastAPI()
+router = APIRouter(prefix="/api/models", tags=["models"])
 
 
 class PatchModel(Model):
@@ -19,95 +20,8 @@ class PatchModel(Model):
     }
 
 
-# Sample database for testing
-db: Dict[int, Model] = {
-    1: Model(
-        id=1,
-        name="model1",
-        description="test description",
-        created_at=datetime.datetime(2022, 7, 4, 21, 30, 57),
-        created_by=1,
-        updated_at=datetime.datetime(2022, 7, 6, 22, 50, 11),
-        updated_by=12,
-        image_tag="<img1>",
-        source_path="/source/path/1",
-        status="active",
-    ),
-    2: Model(
-        id=2,
-        name="model2",
-        description="test description",
-        created_at=datetime.datetime.now(),
-        created_by=13,
-        image_tag="<img2>",
-        source_path="/source/path/2",
-        status="active",
-    ),
-    3: Model(
-        id=3,
-        name="model3",
-        created_at=datetime.datetime(2022, 7, 6, 22, 50, 12),
-        created_by=1,
-        updated_at=datetime.datetime.now(),
-        updated_by=1,
-        image_tag="<img3>",
-        source_path="/source/path/3",
-    ),
-    4: Model(
-        id=4,
-        name="model4",
-        created_at=datetime.datetime.now(),
-        created_by=1,
-        image_tag="<img4>",
-        source_path="/source/path/4",
-    ),
-    5: Model(
-        id=5,
-        name="model5",
-        created_at=datetime.datetime.now(),
-        created_by=1,
-        image_tag="<img5>",
-        source_path="/source/path/5",
-    ),
-    6: Model(
-        id=6,
-        name="model6",
-        description="test description",
-        created_at=datetime.datetime.now(),
-        created_by=124,
-        image_tag="<img6>",
-        source_path="/source/path/6",
-        status="active",
-    ),
-}
-
-
-def get_model_by_id(database: Dict[int, Model], model_id: int) -> Model | None:
-    """
-    Simple function to get model by id from the sample database
-    :param database: database to get model from
-    :param model_id: id of model to get
-    :return: model if id was in database or None if wasn't
-    """
-    model = database.get(model_id)
-
-    return model
-
-
-@app.get("/api/status")
-async def get_status():
-    """
-    Simple function that allows one to check if the server is running
-
-    :return: ok status if server is running
-    """
-    return {"status": "OK"}
-
-
-@app.get("/api/models/")
-async def get_models(
-    skip: Annotated[int, Query(ge=0)] = 0, limit: Annotated[int, Query(ge=0)] = 3
-):
+@router.get("/")
+async def get_models(skip: int = 0, limit: int = 3):
     """
     Allows retrieval of list of models from database
 
@@ -115,10 +29,10 @@ async def get_models(
     :param limit: how many models to retrieve
     :return: list of models
     """
-    return list(db.values())[skip : skip + limit]
+    return list(model_db.values())[skip : skip + limit]
 
 
-@app.get("/api/models/{model_id}")
+@router.get("/{model_id}")
 async def get_single_model(model_id: Annotated[int, Path(title="id of model to get")]):
     """
     Allows retrieval of a model by it's designated id
@@ -129,13 +43,13 @@ async def get_single_model(model_id: Annotated[int, Path(title="id of model to g
     model is not found
     :return: model
     """
-    model = get_model_by_id(db, model_id)
+    model = get_model_by_id(model_db, model_id)
     if not model:
         raise HTTPException(status_code=404, detail="model not found")
     return model
 
 
-@app.patch("/api/models/{model_id}", response_model=Model)
+@router.patch("/{model_id}", response_model=Model)
 async def update_model(
     model_id: Annotated[int, Path(title="id of model to update")],
     new_fields: Annotated[PatchModel, Body(description="fields of model to update")],
@@ -150,10 +64,10 @@ async def update_model(
     model is not found
     :return: updated model
     """
-    model = get_model_by_id(db, model_id)
+    model = get_model_by_id(model_db, model_id)
     if not model:
         raise HTTPException(status_code=404, detail="model not found")
     update_data = new_fields.dict(exclude_unset=True)
     updated_model = model.copy(update=update_data)
-    db[model_id] = updated_model
+    model_db[model_id] = updated_model
     return updated_model

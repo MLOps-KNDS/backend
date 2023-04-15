@@ -12,19 +12,22 @@ class ModelStatus(str, Enum):
 class Model(BaseModel):
     id: Annotated[int, Field(description="Unique ID")]
     name: Annotated[str, Field(description="Model name")]
-    description: Annotated[str, Field(description="Model description")]
+    description: Annotated[str | None, Field(description="Model description")] = None
     created_at: Annotated[datetime, Field(description="Model creation date")]
     created_by: Annotated[int, Field(description="User ID of the creator")]
-    updated_at: Annotated[datetime, Field(description="Model update date")]
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
-    image_tag: str = Annotated[None, Field(description="Docker image tag")]
-    source_path: str = Annotated[
-        None, Field(description="Path to the model source code")
-    ]
-    status: ModelStatus = Annotated[
-        ModelStatus.INACTIVE,
-        Field(description="Model status. Either active or inactive"),
-    ]
+    updated_at: Annotated[
+        datetime | None, Field(description="Model update date")
+    ] = None
+    updated_by: Annotated[
+        int | None, Field(description="User ID of the last updater")
+    ] = None
+    image_tag: Annotated[
+        str | None, Field(description="User ID of the last updater")
+    ] = None
+    source_path: Annotated[
+        str | None, Field(description="Path to the model source code")
+    ] = None
+    status: ModelStatus = ModelStatus.INACTIVE
 
     class Config:
         orm_mode = True
