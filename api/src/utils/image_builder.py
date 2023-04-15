@@ -54,6 +54,8 @@ class ImageBuilder:
 
         :return: uri of the pushed image
         """
+        if not self.is_built:
+            raise Exception("Image is not built yet.")
         try:
             _logger.info(f"Pushing a docker image with name '{self.name}'...")
             client = docker.from_env()
