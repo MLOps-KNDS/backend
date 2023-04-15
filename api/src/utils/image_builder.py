@@ -4,7 +4,6 @@ import mlflow
 
 from src.utils.constants import Constants
 
-logging.basicConfig(level=logging.DEBUG)
 _logger = logging.getLogger(__name__)
 
 
@@ -15,12 +14,11 @@ class ImageBuilder:
 
     Example:
     >>> image_builder = ImageBuilder(
-    >>>    name="test2", 
+    >>>    name="test2",
     >>>    model_uri="runs://f7b2b1e1d1e84b3e8b2b1e1d1e8bb3e8/model",
     >>> )
     >>> image_builder.build()
     >>> image_builder.push()
-
     """
 
     def __init__(self, name: str, model_uri: str) -> None:
