@@ -71,7 +71,7 @@ class ImageBuilder:
             name=self.name,
             env_manager=Constants.MLFLOW_ENV_MANAGER,
         )
-    
+
     def __push_image_to_gcr(self) -> str:
         client = docker.from_env()
         client.login(
