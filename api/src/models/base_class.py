@@ -1,5 +1,5 @@
 from typing import Any
-
+import re
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 
 
@@ -11,4 +11,7 @@ class Base:
     # Generate __tablename__ automatically
     @declared_attr
     def __tablename__(cls) -> str:
-        return cls.__name__.lower()
+        words = re.sub(r"([A-Z])", r" \1", cls.__name__).split()
+        for i, word in enumerate(words):
+            words[i] = word.lower()
+        return "_".join(words)
