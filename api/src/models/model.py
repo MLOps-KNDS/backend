@@ -1,12 +1,13 @@
 from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey
 from base_class import Base
 
-from enum import Enum
+from enum import Enum as En
 
 
-class StatusEnum(Enum):
+class StatusEnum(En):
     active = "active"
     inactive = "inactive"
+
 
 class Model(Base):
     id = Column(Integer, primary_key=True)
@@ -19,6 +20,7 @@ class Model(Base):
     image_tag = Column(String(255))
     source_path = Column(String(255))
     status = Column(Enum(StatusEnum), nullable=False)
+
 
 class ModelTest(Base):
     id = Column(Integer, primary_key=True)

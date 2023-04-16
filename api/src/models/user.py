@@ -2,7 +2,10 @@ from sqlalchemy import Column, Integer, String, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 from base_class import Base
 
-class RoleEnum(Enum):
+from enum import Enum as En
+
+
+class RoleEnum(En):
     owner = "owner"
     admin = "admin"
     reader = "reader"

@@ -1,7 +1,10 @@
 from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey
 from base_class import Base
 
-class PoolModelModeEnum(Enum):
+from enum import Enum as En
+
+
+class PoolModelModeEnum(En):
     PRODUCTION = "production"
     STAGING = "staging"
 

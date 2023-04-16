@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from base_class import Base
+
 
 class Test(Base):
     id = Column(Integer, primary_key=True)
@@ -9,5 +10,3 @@ class Test(Base):
     created_by = Column(Integer, ForeignKey("user.id"), primary_key=True)
     updated_at = Column(DateTime, nullable=False)
     updated_by = Column(Integer, ForeignKey("user.id"), primary_key=True)
-
-
