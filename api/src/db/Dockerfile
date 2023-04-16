@@ -2,14 +2,12 @@
 
 FROM postgres:latest
 
-COPY scripts/database.ini .
+COPY database.ini .
 
 ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=postgres
 ENV POSTGRES_DB=postgres
 ENV POSTGRES_HOST=postgres
-
-COPY definitions/dbschema.sql /docker-entrypoint-initdb.d/
 
 EXPOSE 5432
 

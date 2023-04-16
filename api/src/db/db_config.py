@@ -3,20 +3,20 @@ import argparse
 from configparser import ConfigParser
 
 
-def config_ini(filename="database.ini", section="postgresql") -> dict:
+def config_ini(
+    filename: str = os.path.join("src", "db", "database.ini"),
+    section: str = "postgresql",
+) -> dict:
     """Reads the database.ini file and returns a dictionary
     with the database configuration
 
     ...
     :param filename: Name of the database.ini file
-    :type filename: str
     :param section: Section of the database.ini file
-    :type section: str
     ...
     :raises Exception: Section not found in the database.ini file
     ...
     :return: Database configuration
-    :rtype: dict
     """
     parser = ConfigParser()
     parser.read(filename)
@@ -42,7 +42,6 @@ def config_params() -> dict:
 
     ...
     :return: Database configuration
-    :rtype: dict
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-h", "-H", "--host", type=str, help="Database host")
@@ -67,14 +66,13 @@ def config_env() -> dict:
 
     ...
     :return: Database configuration
-    :rtype: dict
     """
     return {
-        "host": os.environ.get("POSTGRES_HOST"),
-        "port": os.environ.get("POSTGRES_PORT"),
-        "database": os.environ.get("POSTGRES_DB"),
-        "user": os.environ.get("POSTGRES_USER"),
-        "password": os.environ.get("POSTGRES_PASSWORD"),
+        "host": os.environ.get("POSTGRES_HOST", "localhost"),
+        "port": os.environ.get("POSTGRES_PORT", "5432"),
+        "database": os.environ.get("POSTGRES_DB", "postgres"),
+        "user": os.environ.get("POSTGRES_USER", "postgres"),
+        "password": os.environ.get("POSTGRES_PASSWORD", "postgres"),
     }
 
 
