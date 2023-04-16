@@ -32,7 +32,6 @@ def connect(config: Optional[dict] = None) -> Connection:
     :type config: Optional[dict], optional
     ...
     :return: Database connection
-    :rtype: Connection
     """
     # Check if config was passed
     if config is not None:
