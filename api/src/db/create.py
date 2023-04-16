@@ -1,3 +1,42 @@
+from src.models.base_class import Base
+from sqlalchemy import create_engine
+from session import get_url
+from sqlalchemy.engine import Engine
+import logging
+
+_logger = logging.getLogger(__name__)
+
+
+async def create_db(engine: Engine) -> dict:
+    """Creates all tables from ORM models
+
+    ...
+    :param engine: Database connection
+    ...
+    :return: A dict with the status and an optional message
+    """
+    _logger.info("Creating database from ORM models...")
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        _logger.error(f"Creating database from ORM models failed with error {e}")
+        raise e
+    else:
+        _logger.info("Creating database from ORM models finished")
+        return {"status": "ok"}
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    # print(config_ini())
+    engine = create_engine(get_url(), pool_pre_ping=True)
+
+    response = asyncio.run(create_db(engine))
+    print(response)
+
+
+"""
 import os
 import argparse
 from configparser import ConfigParser
@@ -7,7 +46,7 @@ def config_ini(
     filename: str = os.path.join("src", "db", "database.ini"),
     section: str = "postgresql",
 ) -> dict:
-    """Reads the database.ini file and returns a dictionary
+    Reads the database.ini file and returns a dictionary
     with the database configuration
 
     ...
@@ -15,9 +54,7 @@ def config_ini(
     :param section: Section of the database.ini file
     ...
     :raises Exception: Section not found in the database.ini file
-    ...
     :return: Database configuration
-    """
     parser = ConfigParser()
     parser.read(filename)
 
@@ -34,39 +71,12 @@ def config_ini(
 
 
 # Get config from command line arguments
-
-
-def config_params() -> dict:
-    """Reads the command line arguments and
-    returns a dictionary with the database configuration
-
-    ...
-    :return: Database configuration
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-h", "-H", "--host", type=str, help="Database host")
-    parser.add_argument("-d", "-D", "--database", type=str, default="postgres")
-    parser.add_argument("-u", "-U", "--user", type=str, default="postgres")
-    parser.add_argument("-P", "--password", type=str)
-    parser.add_argument("-p", "--port", type=str, default="5432")
-    args = parser.parse_args()
-
-    return {
-        "host": args.host,
-        "port": args.port,
-        "database": args.database,
-        "user": args.user,
-        "password": args.password,
-    }
-
-
 def config_env() -> dict:
-    """Reads the environment variables and
+    Reads the environment variables and
     returns a dictionary with the database configuration
 
     ...
     :return: Database configuration
-    """
     return {
         "host": os.environ.get("POSTGRES_HOST", "localhost"),
         "port": os.environ.get("POSTGRES_PORT", "5432"),
@@ -96,3 +106,4 @@ if __name__ == "__main__":
     else:
         config = config_ini()
     print(config)
+"""
