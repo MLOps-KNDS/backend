@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from base_class import Base
+from models.base_class import Base
 
 from enum import Enum as En
 
@@ -11,7 +11,7 @@ class StatusEnum(En):
 
 
 class Model(Base):
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, unique=True)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     created_at = Column(DateTime, nullable=False)
@@ -21,13 +21,13 @@ class Model(Base):
     image_tag = Column(String(255))
     source_path = Column(String(255))
     status = Column(Enum(StatusEnum), nullable=False)
-    creator = relationship("Creator", backref="created_models")
-    updater = relationship("Updater", backref="created_models")
+    creator = relationship("User", backref="created_models")
+    updater = relationship("User", backref="updated_models")
 
 
 class ModelTest(Base):
-    id = Column(Integer, primary_key=True)
-    model_id = Column(Integer, ForeignKey("model.id"), primary_key=True)
-    test_id = Column(Integer, ForeignKey("test.id"), primary_key=True)
+    id = Column(Integer, primary_key=True, unique=True)
+    model_id = Column(Integer, ForeignKey("model.id"), nullable=False)
+    test_id = Column(Integer, ForeignKey("test.id"), nullable=False)
     model = relationship("Model", backref="models")
     test = relationship("Test", backref="tests")
