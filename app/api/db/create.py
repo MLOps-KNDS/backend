@@ -21,7 +21,7 @@ def create_db(engine: Engine) -> dict:
     """
     _logger.info("Creating database from ORM models...")
     try:
-        models.base.Base.metadata.create_all(bind=engine)
+        models.base.Base.metadata.create_all(bind=engine, checkfirst=True)
     except Exception as e:
         _logger.error(f"Creating database from ORM models failed with error {e}")
         raise e
@@ -35,7 +35,3 @@ def main() -> None:
     Function calls creation of database
     """
     create_db(engine)
-
-
-if __name__ == "__main__":
-    main()
