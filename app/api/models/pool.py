@@ -2,10 +2,10 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from models.base_class import Base
 
-from enum import Enum as En
+import enum
 
 
-class PoolModelModeEnum(En):
+class PoolModelModeEnum(enum.Enum):
     PRODUCTION = "production"
     STAGING = "staging"
 
