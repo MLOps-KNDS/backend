@@ -27,7 +27,7 @@ class Model(Base):
 
 class ModelTest(Base):
     id = Column(Integer, primary_key=True, unique=True)
-    model_id = Column(Integer, ForeignKey("model.id"), primary_key=False)
-    test_id = Column(Integer, ForeignKey("test.id"), primary_key=False)
+    model_id = Column(Integer, ForeignKey("model.id"), primary_key=True)
+    test_id = Column(Integer, ForeignKey("test.id"), primary_key=True)
     model = relationship("Model", backref="models")
     test = relationship("Test", backref="tests")
