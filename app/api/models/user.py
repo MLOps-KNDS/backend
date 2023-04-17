@@ -37,3 +37,7 @@ class TestUserRole(Base):
 
 class PoolUserRole(Base):
     pool_id = Column(Integer, ForeignKey("pool.id"), primary_key=True)
+    user_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
+    role = Column(Enum(RoleEnum), nullable=False)
+    pool = relationship("Pool", backref="pool_roles")
+    user = relationship("User", backref="pool_users")
