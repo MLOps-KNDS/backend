@@ -6,15 +6,14 @@ with each start of the program.
 """
 
 from models.base_class import Base
-from db.session import engine
-from sqlalchemy import Engine
+from session import SessionLocal
+from sqlalchemy.orm import Session
 import logging
-import asyncio
 
 _logger = logging.getLogger(__name__)
 
 
-async def create_db(engine: Engine) -> dict:
+async def create_db(db: Session) -> dict:
     """Creates all tables from ORM models
 
     :param db: Database session
@@ -22,7 +21,7 @@ async def create_db(engine: Engine) -> dict:
     """
     _logger.info("Creating database from ORM models...")
     try:
-        Base.metadata.create_all(bind=engine, checkfirst=True)
+        Base.metadata.create_all(bind=db, checkfirst=True)
     except Exception as e:
         _logger.error(f"Creating database from ORM models failed with error {e}")
         raise e
@@ -35,4 +34,6 @@ def main() -> None:
     """
     Function calls creation of database
     """
-    asyncio.run(create_db(engine))
+    db = SessionLocal()
+    create_db(db)
+    db.close()
