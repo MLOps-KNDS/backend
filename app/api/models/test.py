@@ -8,8 +8,9 @@ class Test(Base):
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     created_at = Column(DateTime, nullable=False)
-    created_by = Column(Integer, ForeignKey("user.id"), primary_key=True)
+    created_by = Column(Integer, ForeignKey("user.id"))
     updated_at = Column(DateTime, nullable=False)
-    updated_by = Column(Integer, ForeignKey("user.id"), primary_key=True)
+    updated_by = Column(Integer, ForeignKey("user.id"))
+
     creator = relationship("User", backref="created_tests")
     updater = relationship("User", backref="updated_tests")

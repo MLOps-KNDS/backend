@@ -4,9 +4,9 @@ from models.base_class import Base
 import enum
 
 
-class StatusEnum(enum.Enum):
-    active = "active"
-    inactive = "inactive"
+class Status(enum.Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
 
 
 class Model(Base):
@@ -19,14 +19,16 @@ class Model(Base):
     updated_by = Column(Integer, ForeignKey("user.id"), primary_key=True)
     image_tag = Column(String(255))
     source_path = Column(String(255))
-    status = Column(Enum(StatusEnum), nullable=False)
-    creator = relationship("User", backref="created_models")
-    updater = relationship("User", backref="updated_models")
+    status = Column(Enum(Status), nullable=False)
+
+    creator = relationship("User", back_populates="created_models")
+    updater = relationship("User", back_populates="updated_models")
 
 
 class ModelTest(Base):
     id = Column(Integer, primary_key=True, unique=True)
     model_id = Column(Integer, ForeignKey("model.id"), primary_key=True)
     test_id = Column(Integer, ForeignKey("test.id"), primary_key=True)
-    model = relationship("Model", backref="models")
-    test = relationship("Test", backref="tests")
+
+    model = relationship("Model", back_populates="model_test")
+    test = relationship("Test", back_populates="model_test")

@@ -5,10 +5,11 @@ This main() function from this method should be called
 with each start of the program.
 """
 
-import models.base
-from db.session import engine
-from sqlalchemy import Engine
 import logging
+from sqlalchemy import Engine
+
+import models
+from db.session import engine
 
 _logger = logging.getLogger(__name__)
 
@@ -21,17 +22,10 @@ def create_db(engine: Engine) -> dict:
     """
     _logger.info("Creating database from ORM models...")
     try:
-        models.base.Base.metadata.create_all(bind=engine, checkfirst=True)
+        models.Base.metadata.create_all(bind=engine, checkfirst=True)
     except Exception as e:
         _logger.error(f"Creating database from ORM models failed with error {e}")
         raise e
     else:
         _logger.info("Creating database from ORM models finished")
         return {"status": "ok"}
-
-
-def main() -> None:
-    """
-    Function calls creation of database
-    """
-    create_db(engine)
