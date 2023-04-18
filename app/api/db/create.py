@@ -9,7 +9,6 @@ import logging
 from sqlalchemy import Engine
 
 import models
-from db.session import engine
 
 _logger = logging.getLogger(__name__)
 
