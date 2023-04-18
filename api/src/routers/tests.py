@@ -1,15 +1,18 @@
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, Path, Query
+from fastapi.responses import JSONResponse
 from typing import List, Annotated
 
-from ..schemas.test import Test
-from ..dependencies import get_model_by_id, test_db
+from src.schemas.test import Test
+from src.utils.utility_functions import test_db, get_model_by_id
 
 
 router = APIRouter(prefix="/api/tests", tags=["tests"])
 
 
 @router.get("/")
-async def get_tests(skip: int = 0, limit: int = 3) -> List[Test]:
+async def get_tests(
+    skip: Annotated[int, Query(ge=0)] = 0, limit: Annotated[int, Query(ge=0)] = 3
+) -> List[Test]:
     """
     Allows retrieval of list of tests from database
 
@@ -33,5 +36,5 @@ async def get_test_by_id(test_id: Annotated[int, Path(title="id of model to get"
     """
     test = get_model_by_id(test_db, test_id)
     if not test:
-        raise HTTPException(status_code=404, detail="test not found")
+        return JSONResponse(status_code=404, content={"message": "test not found"})
     return test

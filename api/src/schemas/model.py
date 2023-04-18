@@ -12,15 +12,11 @@ class ModelStatus(str, Enum):
 class Model(BaseModel):
     id: Annotated[int, Field(description="Unique ID")]
     name: Annotated[str, Field(description="Model name")]
-    description: Annotated[str | None, Field(description="Model description")] = None
+    description: Annotated[str, Field(description="Model description")]
     created_at: Annotated[datetime, Field(description="Model creation date")]
     created_by: Annotated[int, Field(description="User ID of the creator")]
-    updated_at: Annotated[
-        datetime | None, Field(description="Model update date")
-    ] = None
-    updated_by: Annotated[
-        int | None, Field(description="User ID of the last updater")
-    ] = None
+    updated_at: Annotated[datetime, Field(description="Model update date")]
+    updated_by: Annotated[int, Field(description="User ID of the last updater")]
     image_tag: Annotated[
         str | None, Field(description="User ID of the last updater")
     ] = None
