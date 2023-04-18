@@ -20,6 +20,7 @@ app = FastAPI(
     title="Backend Service",
     description="Backend Service for the ML Platform",
     version="0.1.0",
+    lifespan=init
 )
 
 
