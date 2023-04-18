@@ -1,6 +1,5 @@
 from typing import Annotated
 from pydantic import BaseModel, Field
-from datetime import datetime
 
 
 class CreateTest(BaseModel):
