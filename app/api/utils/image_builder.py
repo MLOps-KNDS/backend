@@ -2,7 +2,7 @@ import logging
 import docker
 import mlflow
 
-from app.api.utils.constants import Constants
+from utils.constants import Constants
 
 
 _logger = logging.getLogger(__name__)
