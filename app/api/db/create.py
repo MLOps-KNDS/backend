@@ -6,7 +6,8 @@ with each start of the program.
 """
 
 import logging
-from sqlalchemy import Engine
+from sqlalchemy import Engine, text
+
 
 import models
 
@@ -21,6 +22,12 @@ def create_db(engine: Engine) -> dict:
     """
     _logger.info("Creating database from ORM models...")
     try:
+        # Create schema core
+        with engine.connect() as conn:
+            conn.execute(text("CREATE SCHEMA IF NOT EXISTS core"))
+            conn.commit()
+
+        # Create all tables
         models.Base.metadata.create_all(bind=engine, checkfirst=True)
     except Exception as e:
         _logger.error(f"Creating database from ORM models failed with error {e}")
