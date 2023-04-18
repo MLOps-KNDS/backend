@@ -3,57 +3,40 @@ from pydantic import BaseModel, Field, EmailStr
 from enum import Enum
 
 
-class UserRole(Enum):
+class Role(Enum):
     OWNER = "owner"
     ADMIN = "admin"
     READER = "reader"
     WRITER = "writer"
 
 
-class User(BaseModel):
-    id: Annotated[int, Field(description="Unique ID")]
+class ResourceType(Enum):
+    MODEL = "model"
+    TEST = "test"
+    POOL = "pool"
+
+
+class AddUser(BaseModel):
     name: Annotated[str, Field(description="User name")]
     surname: Annotated[str, Field(description="User surname")]
     email: Annotated[EmailStr, Field(description="User email")]
 
-    class Config:
-        orm_mode = True
+
+class UpdateUser(BaseModel):
+    id: Annotated[int, Field(description="User ID")]
+    name: Annotated[str, Field(description="User name")]
+    surname: Annotated[str, Field(description="User surname")]
+    email: Annotated[EmailStr, Field(description="User email")]
 
 
-class ModelUserRole(BaseModel):
-    id: Annotated[int, Field(description="Unique ID")]
-    model_id: Annotated[int, Field(description="Model ID")]
+class UserAddRole(BaseModel):
     user_id: Annotated[int, Field(description="User ID")]
-    role: Annotated[
-        UserRole,
-        Field(description="User's role. Either owner, admin, reader or writer"),
-    ]
-
-    class Config:
-        orm_mode = True
+    role: Annotated[Role, Field(description="User role")]
+    resource_type: Annotated[ResourceType, Field(description="Resource type")]
+    resource_id: Annotated[int, Field(description="Resource ID")]
 
 
-class PoolUserRole(BaseModel):
-    id: Annotated[int, Field(description="Unique ID")]
-    pool_id: Annotated[int, Field(description="Pool ID")]
+class UserDeleteRole(BaseModel):
     user_id: Annotated[int, Field(description="User ID")]
-    role: Annotated[
-        UserRole,
-        Field(description="User's role. Either owner, admin, reader or writer"),
-    ]
-
-    class Config:
-        orm_mode = True
-
-
-class TestUserRole(BaseModel):
-    id: Annotated[int, Field(description="Unique ID")]
-    test_id: Annotated[int, Field(description="Test ID")]
-    user_id: Annotated[int, Field(description="User ID")]
-    role: Annotated[
-        UserRole,
-        Field(description="User's role. Either owner, admin, reader or writer"),
-    ]
-
-    class Config:
-        orm_mode = True
+    resource_type: Annotated[ResourceType, Field(description="Resource type")]
+    resource_id: Annotated[int, Field(description="Resource ID")]
