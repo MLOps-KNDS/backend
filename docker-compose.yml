@@ -10,15 +10,13 @@ services:
     environment:
       - API_PORT=8000
       - API_HOST=0.0.0.0
+      - POSTGRES_PASSWORD=postgres 
+      - POSTGRES_HOST=database
   database:
-    image: "database:latest"
-    build:
-      context: ./database
-      dockerfile: Dockerfile
+    image: "postgres:latest"
     ports:
       - "5432:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
-      - POSTGRES_HOST=postgres
