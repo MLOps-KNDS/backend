@@ -6,7 +6,7 @@ ENV API_HOST=0.0.0.0
 WORKDIR /app
 
 COPY requirements.txt .
-COPY src .
+COPY api .
 
 RUN pip install -r requirements.txt
 
