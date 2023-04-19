@@ -16,27 +16,29 @@ class ResourceType(Enum):
     POOL = "pool"
 
 
-class AddUser(BaseModel):
+class BaseUser(BaseModel):
     name: Annotated[str, Field(description="User name")]
     surname: Annotated[str, Field(description="User surname")]
     email: Annotated[EmailStr, Field(description="User email")]
 
 
-class UpdateUser(BaseModel):
+class UserCreate(BaseUser):
+    pass
+
+
+class UserUpdate(BaseUser):
     id: Annotated[int, Field(description="User ID")]
-    name: Annotated[str, Field(description="User name")]
-    surname: Annotated[str, Field(description="User surname")]
-    email: Annotated[EmailStr, Field(description="User email")]
 
 
-class UserAddRole(BaseModel):
+class BaseUserRole(BaseModel):
     user_id: Annotated[int, Field(description="User ID")]
+    resource_type: Annotated[ResourceType, Field(description="Resource type")]
+    resource_id: Annotated[int, Field(description="Resource ID")]
+
+
+class UserAddRole(BaseUserRole):
     role: Annotated[Role, Field(description="User role")]
-    resource_type: Annotated[ResourceType, Field(description="Resource type")]
-    resource_id: Annotated[int, Field(description="Resource ID")]
 
 
-class UserDeleteRole(BaseModel):
-    user_id: Annotated[int, Field(description="User ID")]
-    resource_type: Annotated[ResourceType, Field(description="Resource type")]
-    resource_id: Annotated[int, Field(description="Resource ID")]
+class UserDeleteRole(BaseUserRole):
+    pass

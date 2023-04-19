@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 import time
 from db.create import create_db
 from db.session import engine
-
+from routers import user
 
 @asynccontextmanager
 async def init(app: FastAPI):
@@ -25,6 +25,7 @@ app = FastAPI(
     lifespan=init,
 )
 
+app.include_router(user.router)
 
 @app.get("/")
 async def root() -> dict:
