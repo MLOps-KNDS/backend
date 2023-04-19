@@ -11,6 +11,7 @@ from db.create import create_db
 from db.session import engine
 from routers import user
 
+
 @asynccontextmanager
 async def init(app: FastAPI):
     time.sleep(5)
@@ -26,6 +27,7 @@ app = FastAPI(
 )
 
 app.include_router(user.router)
+
 
 @app.get("/")
 async def root() -> dict:
