@@ -1,9 +1,12 @@
 from typing import Any
 import re
-from sqlalchemy.ext.declarative import as_declarative, declared_attr
+from sqlalchemy.orm import as_declarative, declared_attr
+from sqlalchemy import MetaData
+
+metadata_obj = MetaData(schema="core")
 
 
-@as_declarative()
+@as_declarative(metadata=metadata_obj)
 class Base:
     id: Any
     __name__: str
