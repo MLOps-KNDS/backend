@@ -30,12 +30,12 @@ class User(Base):
 
     tests_roles = relationship("TestUserRole", back_populates="user")
 
+
 class ModelUserRole(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     model_id = Column(Integer, ForeignKey("model.id"), primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
     role = Column(Enum(Role), nullable=False)
-
 
     model = relationship("Model", back_populates="users_role")
     user = relationship("User", back_populates="models_role")
