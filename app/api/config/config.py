@@ -3,11 +3,11 @@ from typing import Optional, Dict, Any
 
 
 class Settings(BaseSettings):
-    POSTGRES_HOST: str = "database"
-    POSTGRES_PORT: str = "5432"
-    POSTGRES_NAME: str = "postgres"
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "localhost")
+    POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", "5433")
+    POSTGRES_NAME: str = os.getenv("POSTGRES_NAME", "postgres")
+    POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
+    POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "postgres")
 
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
