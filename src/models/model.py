@@ -18,7 +18,7 @@ class MLModel(BaseModel):
 
         :param update_data: Dictionary with changed fields.
         :type update_data: dict
-        
+
         """
         for key, value in update_data.items():
             if hasattr(self, key):

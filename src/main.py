@@ -8,18 +8,38 @@ from fastapi import FastAPI, HTTPException
 from models.model import MLModel
 from typing import List
 from uuid import uuid4, UUID
+
 app = FastAPI()
 
 # Example data
 models_from_db: List[MLModel] = [
-    MLModel(id=uuid4(), name="Logistic Regression", description="Binary classification model", created_by=123, updated_by=456, image_tag="v1.0", source_path="/path/to/source"),
-    MLModel(id=uuid4(), name="Random Forest", description="Ensemble model for classification and regression", created_by=789, updated_by=123, image_tag="v2.0", source_path="/path/to/source"),
-    MLModel(id=uuid4(), name="Support Vector Machine", description="Linear model for classification and regression", created_by=456, updated_by=789, image_tag="v1.1", source_path="/path/to/source"),
-    MLModel(id=uuid4(), name="K-Nearest Neighbors", description="Non-parametric model for classification and regression", created_by=123, updated_by=456, image_tag="v1.2", source_path="/path/to/source"),
-    MLModel(id=uuid4(), name="Naive Bayes", description="Probabilistic model for classification", created_by=789, updated_by=123, image_tag="v2.1", source_path="/path/to/source"),
-    MLModel(id=uuid4(), name="Decision Tree", description="Tree-based model for classification and regression", created_by=456, updated_by=789, image_tag="v1.3", source_path="/path/to/source"),
-    MLModel(id=uuid4(), name="Gradient Boosting", description="Ensemble model for classification and regression", created_by=123, updated_by=456, image_tag="v1.4", source_path="/path/to/source"),
-    MLModel(id=uuid4(), name="Neural Network", description="Deep learning model for classification and regression", created_by=789, updated_by=123, image_tag="v2.2", source_path="/path/to/source")
+    MLModel(
+        id=uuid4(),
+        name="Logistic Regression",
+        description="Binary classification model",
+        created_by=123,
+        updated_by=456,
+        image_tag="v1.0",
+        source_path="/path/to/source",
+    ),
+    MLModel(
+        id=uuid4(),
+        name="Random Forest",
+        description="Ensemble model for classification and regression",
+        created_by=789,
+        updated_by=123,
+        image_tag="v2.0",
+        source_path="/path/to/source",
+    ),
+    MLModel(
+        id=uuid4(),
+        name="Support Vector Machine",
+        description="Linear model for classification and regression",
+        created_by=456,
+        updated_by=789,
+        image_tag="v1.1",
+        source_path="/path/to/source",
+    ),
 ]
 
 
@@ -73,7 +93,7 @@ async def fetch_model_skip_limit(skip: int, limit: int) -> List[MLModel]:
 
     :return: Models indicated by skip and limit values.
     """
-    return models_from_db[skip:skip+limit]
+    return models_from_db[skip : skip + limit]
 
 
 @app.patch("/api/models/{id}")
