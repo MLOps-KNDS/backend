@@ -39,7 +39,6 @@ async def fetch_models() -> List[MLModel]:
     Display all ML Models.
 
     :return: All ML Models.
-    :rtype: List[MLModel]
     """
     return models_from_db
 
@@ -55,7 +54,6 @@ async def fetch_model_by_id(id: UUID) -> MLModel:
     :raises HTTPException: If the value of id does not match any model.
 
     :return: ML Model with given id.
-    :rtype: MLModel
     """
     for model in models_from_db:
         if model.id == id:
@@ -74,7 +72,6 @@ async def fetch_model_skip_limit(skip: int, limit: int) -> List[MLModel]:
     :type limit: int
 
     :return: Models indicated by skip and limit values.
-    :rtype: List[MLModel]
     """
     return models_from_db[skip:skip+limit]
 
@@ -92,7 +89,6 @@ async def update_model(id: UUID, updates: dict) -> MLModel:
     :raises HTTPException: If the value of id does not match any model.
 
     :return: Updated model.
-    :rtype: MLModel
     """
     index: int = -1
     for i, ml in enumerate(models_from_db):
