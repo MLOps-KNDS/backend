@@ -19,10 +19,14 @@ class Pool(Base):
     updated_at = Column(DateTime, nullable=False)
     updated_by = Column(Integer, ForeignKey("user.id"), nullable=False)
 
-    creator = relationship("User", foreign_keys=created_by, backref="created_pools")
-    updater = relationship("User", foreign_keys=updated_by, backref="updated_pools")
+    creator = relationship(
+        "User", foreign_keys="Pool.created_by", backref="created_pools"
+    )
+    updater = relationship(
+        "User", foreign_keys="Pool.updated_by", backref="updated_pools"
+    )
 
-    models = relationship("ModelTest", back_populates="pool")
+    models = relationship("PoolModel", back_populates="pool")
 
     users_roles = relationship("PoolUserRole", back_populates="pool")
 

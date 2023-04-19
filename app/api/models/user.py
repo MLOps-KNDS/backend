@@ -18,11 +18,19 @@ class User(Base):
     surname = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False)
 
-    created_models = relationship("Model", back_populates="creator")
-    updated_models = relationship("Model", back_populates="updater")
+    created_models = relationship(
+        "Model", foreign_keys="Model.created_by", back_populates="creator"
+    )
+    updated_models = relationship(
+        "Model", foreign_keys="Model.updated_by", back_populates="updater"
+    )
 
-    created_tests = relationship("Test", back_populates="creator")
-    updated_tests = relationship("Test", back_populates="updater")
+    created_tests = relationship(
+        "Test", foreign_keys="Test.created_by", back_populates="creator"
+    )
+    updated_tests = relationship(
+        "Test", foreign_keys="Test.updated_by", back_populates="updater"
+    )
 
     models_roles = relationship("ModelUserRole", back_populates="user")
 
@@ -37,8 +45,8 @@ class ModelUserRole(Base):
     user_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
     role = Column(Enum(Role), nullable=False)
 
-    model = relationship("Model", back_populates="users_role")
-    user = relationship("User", back_populates="models_role")
+    model = relationship("Model", back_populates="users_roles")
+    user = relationship("User", back_populates="models_roles")
 
 
 class PoolUserRole(Base):
@@ -47,8 +55,8 @@ class PoolUserRole(Base):
     user_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
     role = Column(Enum(Role), nullable=False)
 
-    pool = relationship("Pool", backref="users_roles")
-    user = relationship("User", backref="pools_roles")
+    pool = relationship("Pool", back_populates="users_roles")
+    user = relationship("User", back_populates="pools_roles")
 
 
 class TestUserRole(Base):
@@ -57,5 +65,5 @@ class TestUserRole(Base):
     user_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
     role = Column(Enum(Role), nullable=False)
 
-    test = relationship("Test", backref="users_roles")
-    user = relationship("User", backref="tests_roles")
+    test = relationship("Test", back_populates="users_roles")
+    user = relationship("User", back_populates="tests_roles")
