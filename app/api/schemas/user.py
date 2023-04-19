@@ -1,16 +1,30 @@
 from typing import Annotated
 from pydantic import BaseModel, Field, EmailStr
-from enum import Enum
+from enum import Enum, EnumMeta
 
 
-class Role(Enum):
+#  creates possibility to do for example:  if "onwer" in Role
+class MetaEnum(EnumMeta):
+    def __contains__(cls, item):
+        try:
+            cls(item)
+        except ValueError:
+            return False
+        return True
+
+
+class BaseEnum(Enum, metaclass=MetaEnum):
+    pass
+
+
+class Role(BaseEnum):
     OWNER = "owner"
     ADMIN = "admin"
     READER = "reader"
     WRITER = "writer"
 
 
-class ResourceType(Enum):
+class ResourceType(BaseEnum):
     MODEL = "model"
     TEST = "test"
     POOL = "pool"
@@ -28,6 +42,16 @@ class UserCreate(BaseUser):
 
 class UserUpdate(BaseUser):
     id: Annotated[int, Field(description="User ID")]
+
+
+class User(BaseUser):
+    id: Annotated[int, Field(description="User ID")]
+
+    # here we have to implement the class that represents the
+    # User class in models.user module
+
+    class Config:
+        orm_mode = True
 
 
 class BaseUserRole(BaseModel):
