@@ -2,8 +2,8 @@ from fastapi import APIRouter, Path, Query
 from fastapi.responses import JSONResponse
 from typing import List, Annotated
 
-from src.schemas.test import Test
-from src.utils.utility_functions import test_db, get_model_by_id
+from api.schemas.test import Test
+from api.utils.utility_functions import test_db, get_model_by_id
 
 
 router = APIRouter(prefix="/api/tests", tags=["tests"])

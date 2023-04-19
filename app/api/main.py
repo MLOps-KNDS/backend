@@ -4,8 +4,8 @@ It contains the FastAPI app.
 """
 
 from fastapi import FastAPI
-from src.routers import models
-from src.routers import tests
+from api.routers import models
+from api.routers import tests
 
 app = FastAPI(
     title="Backend Service",

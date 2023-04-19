@@ -23,7 +23,9 @@ class Model(BaseModel):
     source_path: Annotated[
         str | None, Field(description="Path to the model source code")
     ] = None
-    status: ModelStatus = ModelStatus.INACTIVE
+    status: Annotated[
+        ModelStatus, Field(description="Model status")
+    ] = ModelStatus.INACTIVE
 
     class Config:
         orm_mode = True

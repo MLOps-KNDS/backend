@@ -3,9 +3,9 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from typing import Annotated, Optional
 
-from src.schemas.model import Model
+from api.schemas.model import Model
 
-from src.utils.utility_functions import model_db, get_model_by_id
+from api.utils.utility_functions import model_db, get_model_by_id
 
 
 router = APIRouter(prefix="/api/models", tags=["models"])

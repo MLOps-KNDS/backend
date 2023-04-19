@@ -1,8 +1,8 @@
 import datetime
 from typing import Dict
 
-from src.schemas.model import Model
-from src.schemas.test import Test
+from api.schemas.model import Model
+from api.schemas.test import Test
 
 
 # Sample database for testing

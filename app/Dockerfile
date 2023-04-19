@@ -6,8 +6,8 @@ ENV API_HOST=0.0.0.0
 WORKDIR /app
 
 COPY requirements.txt .
-COPY src ./src
+COPY app ./api
 
 RUN pip install -r requirements.txt
 
-CMD uvicorn src.main:app --host $API_HOST --port $API_PORT
+CMD uvicorn api.main:app --host $API_HOST --port $API_PORT

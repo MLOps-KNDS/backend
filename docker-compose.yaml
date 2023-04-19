@@ -3,7 +3,7 @@ services:
   api:
     image: "api:latest"
     build:
-      context: ./api
+      context: ./app
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
