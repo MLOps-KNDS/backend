@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 
-class ModelStatus(str, Enum):
+class Status(Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
 
@@ -24,8 +24,8 @@ class Model(BaseModel):
         str | None, Field(description="Path to the model source code")
     ] = None
     status: Annotated[
-        ModelStatus, Field(description="Model status")
-    ] = ModelStatus.INACTIVE
+        Status, Field(description="Model status")
+    ] = Status.INACTIVE
 
     class Config:
         orm_mode = True
@@ -38,3 +38,20 @@ class ModelTest(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class CreateModel(BaseModel):
+    name: Annotated[str, Field(description="Model name")]
+    description: Annotated[str, Field(description="Model description")]
+    created_by: Annotated[int, Field(description="User ID of the creator")]
+    source_path: Annotated[str, Field(description="Path to the model source code")]
+    status: Annotated[Status, Field(description="Model status")]
+
+
+class UpdateModel(BaseModel):
+    id: Annotated[int, Field(description="Model ID")]
+    name: Annotated[str, Field(description="Model name")]
+    description: Annotated[str, Field(description="Model description")]
+    updated_by: Annotated[int, Field(description="User ID of the last updater")]
+    source_path: Annotated[str, Field(description="Path to the model source code")]
+    status: Annotated[Status, Field(description="Model status")]
