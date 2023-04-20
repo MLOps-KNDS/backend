@@ -30,8 +30,16 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return user
 
 
-@router.post("/users/delete/{user_id}")
+@router.patch("/users/update/")
+def update_user(user_data: user_schemas.UserUpdate, db: Session = Depends(get_db)):
+    user = user_services.get_user_by_id(db=db, id=user_data.id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found!")
+    return user_services.update_user(db=db, user_data=user_data)
+
+
+@router.delete("/users/delete/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     if not user_services.get_user_by_id(db=db, id=user_id):
         raise HTTPException(status_code=404, detail="User not found!")
-    return user_services.delete_user(user_id=user_id, db=db)
+    return user_services.delete_user(db=db, id=user_id)

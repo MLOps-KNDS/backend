@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, EmailStr
 from enum import Enum, EnumMeta
 
 
-#  creates possibility to do for example:  if "onwer" in Role
+#  creates possibility to do for example:  if "owner" in Role
 class MetaEnum(EnumMeta):
     def __contains__(cls, item):
         try:
@@ -42,6 +42,9 @@ class UserCreate(BaseUser):
 
 class UserUpdate(BaseUser):
     id: Annotated[int, Field(description="User ID")]
+    name: str | None = None
+    surname: str | None = None
+    email: EmailStr | None = None
 
 
 class User(BaseUser):
