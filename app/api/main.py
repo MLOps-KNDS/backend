@@ -7,8 +7,17 @@ It contains the FastAPI app.
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import time
+
 from db.create import create_db
 from db.session import engine
+from utils.image_builder import ImageBuilder
+
+
+image_builder = ImageBuilder(
+    name="test2",
+    model_uri="/mnt/saved_model",
+)
+image_builder.build()
 
 
 @asynccontextmanager
