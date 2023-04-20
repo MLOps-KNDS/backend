@@ -17,7 +17,7 @@ def create_user(user_data: user_schemas.UserCreate, db: Session = Depends(get_db
 
 
 @router.get("/users/", response_model=List[user_schemas.User])
-def read_users(skip: int = 0, limit: int = 1000, db: Session = Depends(get_db)):
+def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = user_services.get_users(skip=skip, limit=limit, db=db)
     return users
 
