@@ -36,15 +36,15 @@ class BaseUser(BaseModel):
     email: Annotated[EmailStr, Field(description="User email")]
 
 
-class UserCreate(BaseUser):
+class UserPut(BaseUser):
     pass
 
 
-class UserUpdate(BaseUser):
-    id: Annotated[int, Field(description="User ID")]
+class UserPatch(BaseUser):
     name: str | None = None
     surname: str | None = None
-    email: EmailStr | None = None
+    email: EmailStr
+    new_email: EmailStr | None = None
 
 
 class User(BaseUser):
@@ -63,7 +63,7 @@ class BaseUserRole(BaseModel):
     resource_id: Annotated[int, Field(description="Resource ID")]
 
 
-class UserAddRole(BaseUserRole):
+class UserPatchRole(BaseUserRole):
     role: Annotated[Role, Field(description="User role")]
 
 
