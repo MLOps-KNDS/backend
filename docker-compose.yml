@@ -8,7 +8,6 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - /home/matined/Desktop/saved_model_example:/mnt/saved_model
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
     environment:
