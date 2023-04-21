@@ -10,7 +10,6 @@ import time
 
 from db.create import create_db
 from db.session import engine
-from utils.image_builder import ImageBuilder
 
 
 @asynccontextmanager
