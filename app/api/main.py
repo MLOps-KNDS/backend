@@ -13,13 +13,6 @@ from db.session import engine
 from utils.image_builder import ImageBuilder
 
 
-image_builder = ImageBuilder(
-    name="test2",
-    model_uri="/mnt/saved_model",
-)
-image_builder.build()
-
-
 @asynccontextmanager
 async def init(app: FastAPI):
     time.sleep(5)
