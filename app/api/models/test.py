@@ -13,10 +13,10 @@ class Test(Base):
     updated_by = Column(Integer, ForeignKey("user.id"))
 
     creator = relationship(
-        "User", foreign_keys=created_by, back_populates="created_tests"
+        "User", foreign_keys="Test.created_by", back_populates="created_tests"
     )
     updater = relationship(
-        "User", foreign_keys=updated_by, back_populates="updated_tests"
+        "User", foreign_keys="Test.updated_by", back_populates="updated_tests"
     )
 
     models = relationship("ModelTest", back_populates="test")

@@ -22,15 +22,17 @@ class Model(Base):
     status = Column(Enum(Status), nullable=False)
 
     creator = relationship(
-        "User", foreign_keys=created_by, back_populates="created_models"
+        "User", foreign_keys="Model.created_by", back_populates="created_models"
     )
-    updater = relationship("User", foreign_keys=updated_by, backref="updated_models")
+    updater = relationship(
+        "User", foreign_keys="Model.updated_by", back_populates="updated_models"
+    )
 
     tests = relationship("ModelTest", back_populates="model")
 
     pools = relationship("PoolModel", back_populates="model")
 
-    users_role = relationship("ModelUserRole", back_populates="model")
+    users_roles = relationship("ModelUserRole", back_populates="model")
 
 
 class ModelTest(Base):
