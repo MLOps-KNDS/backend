@@ -3,10 +3,12 @@ This module provides services which are used
 to send requests directly to the database
 """
 
+from datetime import datetime
 from sqlalchemy.orm import Session
+from fastapi.responses import JSONResponse
+
 from schemas import pool as pool_schemas
 from models import pool as pool_models
-from fastapi.responses import JSONResponse
 
 
 class PoolService:
@@ -60,6 +62,10 @@ class PoolService:
         :return: the newly-inserted pool record
         """
         db_pool = pool_models.Pool(**pool_data.dict())
+        creation_time = datetime.utcnow()
+        db_pool.updated_by = db_pool.created_by
+        db_pool.created_at = creation_time
+        db_pool.updated_at = creation_time
         db.add(db_pool)
         db.commit()
         db.refresh(db_pool)
@@ -76,16 +82,18 @@ class PoolService:
 
         :return: the updated pool record
         """
-        db_pool = cls.get_pool_by_id(db=db, id=id)
+        db_pool = PoolService.get_pool_by_id(db=db, id=id)
         for key, value in pool_data.dict(exclude_none=True).items():
             setattr(db_pool, key, value)
+        db_pool.updated_by = pool_data.updated_by
+        db_pool.updated_at = datetime.utcnow()
         db.add(db_pool)
         db.commit()
         db.refresh(db_pool)
         return db_pool
 
     @classmethod
-    def delete_pool(db: Session, id: int) -> JSONResponse:
+    def delete_pool(cls, db: Session, id: int) -> JSONResponse:
         """
         Deletes a pool record from the database
 

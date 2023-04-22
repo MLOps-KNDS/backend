@@ -1,4 +1,5 @@
 from typing import Annotated
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 from schemas.commons import BaseEnum
@@ -12,22 +13,22 @@ class ModelMode(BaseEnum):
 class BasePool(BaseModel):
     name: Annotated[str, Field(description="Pool name")]
     description: Annotated[str, Field(description="Pool description")]
-    created_by: Annotated[int, Field(description="User ID of the creator")]
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 
 class PoolPut(BasePool):
-    pass
+    created_by: Annotated[int, Field(description="User ID of the creator")]
 
 
 class PoolPatch(BasePool):
-    name: str | None = None
-    description: str | None = None
-    updated_by: int
+    updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 
 class Pool(BasePool):
     id: Annotated[int, Field(description="User ID")]
+    created_by: Annotated[int, Field(description="User ID of the creator")]
+    created_at: Annotated[datetime, Field(description="Creation date")]
+    updated_by: Annotated[int, Field(description="User ID of the last updater")]
+    updated_at: Annotated[datetime, Field(description="Last update date")]
 
     class Config:
         orm_mode = True
