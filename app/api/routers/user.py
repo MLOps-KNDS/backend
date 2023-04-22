@@ -66,7 +66,7 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
     return user
 
 
-@router.patch("/")
+@router.patch("/{user_id}")
 def patch_user(user_data: user_schemas.UserPatch, db: Session = Depends(get_db)):
     """
     Updates the information of an existing user with the provided data and
@@ -80,18 +80,18 @@ def patch_user(user_data: user_schemas.UserPatch, db: Session = Depends(get_db))
     :raise HTTPException: 404 status code with "User not found!" message
     if the specified user ID does not exist in the database.
     """
-    user = user_services.get_user_by_email(db=db, email=user_data.email)
+    user = user_services.get_user_by_id(db=db, id=user_data.id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found!")
     return user_services.patch_user(db=db, user_data=user_data)
 
 
-@router.delete("/{email}")
-def delete_user(email: str, db: Session = Depends(get_db)):
+@router.delete("/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db)):
     """
     Deletes the user with the specified email.
 
-    :param email: The email of the user to be deleted.
+    :param id: The id of the user to be deleted.
     :param db: Database session
 
     :return: the updated user record
@@ -99,6 +99,6 @@ def delete_user(email: str, db: Session = Depends(get_db)):
     :raise HTTPException: 404 status code with "User not found!" message
     if the specified user ID does not exist in the database.
     """
-    if not user_services.get_user_by_email(db=db, email=email):
+    if not user_services.get_user_by_id(db=db, id=user_id):
         raise HTTPException(status_code=404, detail="User not found!")
-    return user_services.delete_user(db=db, email=email)
+    return user_services.delete_user(db=db, id=user_id)
