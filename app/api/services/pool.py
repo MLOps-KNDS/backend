@@ -24,7 +24,7 @@ class PoolService:
         Returns a list of pool data, with optional pagination
 
         :param skip: (optional) the number of records to skip (default: 0)
-        :param limit: (optional) the maximum number of records to retrieve (default: 100)
+        :param limit: (optional) the max number of records to retrieve (default: 100)
 
         :return: a list of pool data, where skip < user_id <= skip+limit
         """

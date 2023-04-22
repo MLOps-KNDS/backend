@@ -135,7 +135,8 @@ def get_pool_model(pool_id: int, model_id: int, db: Session = Depends(get_db)):
 @router.put("/{pool_id}/models")
 def put_pool_model(pool_id: int, db: Session = Depends(get_db)):
     """
-    Creates a new model in pool with the given information and returns the model information.
+    Creates a new model in pool with the given information 
+    and returns the model information.
 
     :param pool_id: pool ID
     :param db: Database session
