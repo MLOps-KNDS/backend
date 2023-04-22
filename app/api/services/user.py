@@ -49,6 +49,7 @@ def get_users(
 
     return db.query(user_models.User).offset(skip).limit(limit).all()
 
+
 def put_user(db: Session, user_data: user_schemas.UserPut) -> user_models.User:
     """
     Inserts a new user record into the database
@@ -76,6 +77,7 @@ def patch_user(
     :param user_data: the user data to update
 
     :return: the updated user record
+    """
     db_user = get_user_by_id(db=db, id=user_id)
     for key, value in user_data.dict(exclude_none=True).items():
         setattr(db_user, key, value)
