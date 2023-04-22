@@ -91,7 +91,7 @@ def delete_user(db: Session, id: str) -> JSONResponse:
     """
     Deletes a user record from the database
 
-    :param db: Database sessioner
+    :param db: Database session
     :param id: the user ID to delete
 
     :return: a json with a "detail" key indicating success
