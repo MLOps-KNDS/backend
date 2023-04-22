@@ -3,6 +3,8 @@ from kubernetes import client, config
 
 _logger = logging.getLogger(__name__)
 
+config.load_incluster_config()
+
 
 class ModelDeployment:
     def __init__(
@@ -35,19 +37,30 @@ class ModelDeployment:
             raise e
 
     def __deploy_to_k8s(self):
-        v1 = client.CoreV1Api()
+        v1 = client.AppsV1Api()
         deployment = self.__create_deployment()
         res = v1.create_namespaced_deployment(namespace="default", body=deployment)
 
     def __create_deployment(self):
-        metadata = client.V1ObjectMeta(name=self.image_tag)
-        containers = client.V1Container(name="model-test", image=self.image_tag)
-        pod_spec = client.V1PodSpec(containers=containers)
-        pod_template_spec = client.V1PodTemplateSpec(spec=pod_spec)
+        metadata = client.V1ObjectMeta(
+            name=self.image_tag, labels={"model": self.image_tag}
+        )
+
+        containers = client.V1Container(name=self.image_tag, image=self.image_tag)
+
+        pod_spec = client.V1PodSpec(containers=[containers])
+
+        pod_template_spec = client.V1PodTemplateSpec(metadata=metadata, spec=pod_spec)
+
+        label_selector = client.V1LabelSelector(match_labels={"model": self.image_tag})
         deployment_spec = client.V1DeploymentSpec(
-            replicas=self.replicas, template=pod_template_spec
+            replicas=self.replicas, template=pod_template_spec, selector=label_selector
         )
-        deployment = client.V1Pod(
-            metadata=metadata, spec=deployment_spec, kind="Deployment"
+
+        deployment = client.V1Deployment(
+            kind="Deployment",
+            metadata=metadata,
+            spec=deployment_spec,
         )
+
         return deployment
