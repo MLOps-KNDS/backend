@@ -34,12 +34,14 @@ def get_user_by_email(db: Session, email: str) -> user_models.User | None:
     return db.query(user_models.User).filter(user_models.User.email == email).first()
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 100) -> List[user_models.User] | None:
+def get_users(
+    db: Session, skip: int = 0, limit: int = 100
+) -> List[user_models.User] | None:
     """
     Returns a list of user data, with optional pagination
 
     :param db: Database session
-    :param skip: (optional) the number of records to skip (default: 0) 
+    :param skip: (optional) the number of records to skip (default: 0)
     :param limit: (optional) the maximum number of records to retrieve (default: 100)
 
     :return: a list of user data, where skip < user_id < limit
@@ -64,16 +66,19 @@ def put_user(db: Session, user_data: user_schemas.UserPut) -> user_models.User:
     return db_user
 
 
-def patch_user(db: Session, user_data: user_schemas.UserPatch) -> user_models.User:
+def patch_user(
+    db: Session, user_id: int, user_data: user_schemas.UserPatch
+) -> user_models.User:
     """
     Updates an existing user record in the database
 
     :param db: Database session
+    :param user_id: the user ID to patch
     :param user_data: the user data to update
 
     :return: the updated user record
     """
-    db_user = get_user_by_id(db=db, id=user_data.id)
+    db_user = get_user_by_id(db=db, id=user_id)
     for key, value in user_data.dict(exclude_none=True).items():
         setattr(db_user, key, value)
     db.add(db_user)

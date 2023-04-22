@@ -67,11 +67,14 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.patch("/{user_id}")
-def patch_user(user_data: user_schemas.UserPatch, db: Session = Depends(get_db)):
+def patch_user(
+    user_id: int, user_data: user_schemas.UserPatch, db: Session = Depends(get_db)
+):
     """
     Updates the information of an existing user with the provided data and
     returns the updated user information.
 
+    :param user_id: the user ID to patch
     :param user_data: the information of the new user to be created.
     :param db: Database session
 
@@ -80,10 +83,10 @@ def patch_user(user_data: user_schemas.UserPatch, db: Session = Depends(get_db))
     :raise HTTPException: 404 status code with "User not found!" message
     if the specified user ID does not exist in the database.
     """
-    user = user_services.get_user_by_id(db=db, id=user_data.id)
+    user = user_services.get_user_by_id(db=db, id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found!")
-    return user_services.patch_user(db=db, user_data=user_data)
+    return user_services.patch_user(db=db, user_id=user_id, user_data=user_data)
 
 
 @router.delete("/{user_id}")
