@@ -10,7 +10,11 @@ import time
 
 from db.create import create_db
 from db.session import engine
-from routers import user
+
+from routers import (
+    user,
+    pool,
+)
 
 
 @asynccontextmanager
@@ -28,6 +32,7 @@ app = FastAPI(
 )
 
 app.include_router(user.router)
+app.include_router(pool.router)
 
 
 @app.get("/")
