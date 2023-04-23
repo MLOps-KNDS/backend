@@ -50,7 +50,7 @@ class ModelDeployment:
             _logger.info(f"Deploying a docker image with tag {self.image_tag} finished")
         except Exception as e:
             _logger.error(
-                f"Deploying a docker image with tag {self.image_tag} failed with error: {e}"
+                f"Deploying an image with tag {self.image_tag} failed with error: {e}"
             )
             raise e
 
@@ -58,11 +58,9 @@ class ModelDeployment:
         v1 = client.AppsV1Api()
         deployment = self.__create_deployment()
         service = self.__create_service()
-        deploy_result = v1.create_namespaced_deployment(
-            namespace="default", body=deployment
-        )
+        v1.create_namespaced_deployment(namespace="default", body=deployment)
         v1 = client.CoreV1Api()
-        service_result = v1.create_namespaced_service(namespace="default", body=service)
+        v1.create_namespaced_service(namespace="default", body=service)
 
     def __create_deployment(self):
 
