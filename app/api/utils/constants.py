@@ -9,3 +9,6 @@ class Constants:
 
     # MLflow
     MLFLOW_ENV_MANAGER = os.environ.get("MLFLOW_ENV_MANAGER", "conda")
+
+    # Kubernetes cluster
+    K8S_NAMESPACE_MODELS = "models"

@@ -1,6 +1,8 @@
 import logging
 from kubernetes import client, config
 
+from utils.constants import Constants
+
 _logger = logging.getLogger(__name__)
 
 config.load_incluster_config()
@@ -39,11 +41,10 @@ class ModelDeployment:
         self.memory_limit: str = memory_limit
         self.memory_request: str = memory_request
 
-    def deploy(self):
+    def deploy(self) -> None:
         """
         Deploys a docker image to a kubernetes cluster.
         """
-
         try:
             _logger.info(f"Deploying a docker image with tag {self.image_tag}...")
             self.__deploy_to_k8s()
@@ -54,16 +55,19 @@ class ModelDeployment:
             )
             raise e
 
-    def __deploy_to_k8s(self):
+    def __deploy_to_k8s(self) -> None:
         v1 = client.AppsV1Api()
         deployment = self.__create_deployment()
         service = self.__create_service()
-        v1.create_namespaced_deployment(namespace="default", body=deployment)
+        v1.create_namespaced_deployment(
+            namespace=Constants.K8S_NAMESPACE_MODELS, body=deployment
+        )
         v1 = client.CoreV1Api()
-        v1.create_namespaced_service(namespace="default", body=service)
+        v1.create_namespaced_service(
+            namespace=Constants.K8S_NAMESPACE_MODELS, body=service
+        )
 
-    def __create_deployment(self):
-
+    def __create_deployment(self) -> client.V1Deployment:
         container = client.V1Container(
             name=self.name,
             image=self.image_tag,
@@ -93,8 +97,7 @@ class ModelDeployment:
         )
         return deployment
 
-    def __create_service(self):
-
+    def __create_service(self) -> client.V1Service:
         port = client.V1ServicePort(protocol="TCP", port=8001, target_port=80)
 
         spec = client.V1ServiceSpec(
@@ -109,3 +112,22 @@ class ModelDeployment:
             spec=spec,
         )
         return service
+
+    @classmethod
+    def delete(cls, name: str) -> None:
+        """
+        Deletes deployment and service.
+
+        :param name: Name of the deployment and service
+        """
+        v1 = client.AppsV1Api()
+
+        v1.delete_namespaced_deployment(
+            name=name, namespace=Constants.K8S_NAMESPACE_MODELS
+        )
+
+        v1 = client.CoreV1Api()
+
+        v1.delete_namespaced_service(
+            name=name, namespace=Constants.K8S_NAMESPACE_MODELS
+        )
