@@ -3,15 +3,15 @@ from typing import Optional, Dict, Any
 
 
 class Settings(BaseSettings):
-    POSTGRES_HOST: str
+    POSTGRES_HOST: str = "database"
     POSTGRES_PORT: str = "5432"
     POSTGRES_NAME: str = "postgres"
     POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str
+    POSTGRES_PASSWORD: str = "postgres"
 
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
-    @validator("SQLALCHEMY_DATABASE_URI", pre=True)
+    @validator("SQLALCHEMY_DATABASE_URI", pre=True, allow_reuse=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
             return v
