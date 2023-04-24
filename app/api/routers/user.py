@@ -4,10 +4,9 @@ functions for handling user-related requests.
 """
 
 from fastapi import APIRouter, Depends, HTTPException
-from typing import List
 from sqlalchemy.orm import Session
 from schemas import user as user_schemas
-from services import user as user_services
+from services.user import UserService
 from services.deps import get_db
 
 
@@ -27,12 +26,12 @@ def put_user(user_data: user_schemas.UserPut, db: Session = Depends(get_db)):
     :raise HTTPException: 400 status code with "Email already registered"
     message if the provided email already exists in the database.
     """
-    if user_services.get_user_by_email(db=db, email=user_data.email):
+    if UserService.get_user_by_email(db=db, email=user_data.email):
         raise HTTPException(status_code=400, detail="Email already registered")
-    return user_services.put_user(db=db, user_data=user_data)
+    return UserService.put_user(db=db, user_data=user_data)
 
 
-@router.get("/", response_model=List[user_schemas.User])
+@router.get("/", response_model=list[user_schemas.User])
 def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
     Retrieves a list of users with pagination options (skip, limit).
@@ -43,7 +42,7 @@ def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 
     :return: a list of user data, where skip < user_id < limit
     """
-    users = user_services.get_users(skip=skip, limit=limit, db=db)
+    users = UserService.get_users(skip=skip, limit=limit, db=db)
     return users
 
 
@@ -60,7 +59,7 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
     :raise HTTPException: 404 status code with "User not found!" message
     if the specified user ID does not exist in the database.
     """
-    user = user_services.get_user_by_id(db=db, id=user_id)
+    user = UserService.get_user_by_id(db=db, id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found!")
     return user
@@ -83,10 +82,10 @@ def patch_user(
     :raise HTTPException: 404 status code with "User not found!" message
     if the specified user ID does not exist in the database.
     """
-    user = user_services.get_user_by_id(db=db, id=user_id)
+    user = UserService.get_user_by_id(db=db, id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found!")
-    return user_services.patch_user(db=db, user_id=user_id, user_data=user_data)
+    return UserService.patch_user(db=db, user_id=user_id, user_data=user_data)
 
 
 @router.delete("/{user_id}")
@@ -102,6 +101,6 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     :raise HTTPException: 404 status code with "User not found!" message
     if the specified user ID does not exist in the database.
     """
-    if not user_services.get_user_by_id(db=db, id=user_id):
+    if not UserService.get_user_by_id(db=db, id=user_id):
         raise HTTPException(status_code=404, detail="User not found!")
-    return user_services.delete_user(db=db, id=user_id)
+    return UserService.delete_user(db=db, id=user_id)
