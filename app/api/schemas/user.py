@@ -30,8 +30,7 @@ class UserPut(BaseUser):
 class UserPatch(BaseUser):
     name: str | None = None
     surname: str | None = None
-    email: EmailStr
-    new_email: EmailStr | None = None
+    email: EmailStr | None = None
 
 
 class User(BaseUser):

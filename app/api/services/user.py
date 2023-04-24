@@ -9,85 +9,97 @@ from models import user as user_models
 from fastapi.responses import JSONResponse
 
 
-def get_user_by_id(db: Session, id: int):
-    """
-    Returns the user data found by user id
+class UserService:
+    @classmethod
+    def get_user_by_id(cls, db: Session, id: int) -> user_models.User | None:
+        """
+        Returns the user data found by user id
 
-    :param id: the user ID to retrieve
+        :param db: Database session
+        :param id: the user ID to retrieve
 
-    :return: the user data corresponding to the given ID or None if not found
-    """
-    a = db.query(user_models.User).filter(user_models.User.id == id).first()
-    print(type(a))
-    return db.query(user_models.User).filter(user_models.User.id == id).first()
+        :return: the user data corresponding to the given ID or None if not found
+        """
+        return db.query(user_models.User).filter(user_models.User.id == id).first()
 
+    @classmethod
+    def get_user_by_email(cls, db: Session, email: str) -> user_models.User | None:
+        """
+        Returns the user data found by user email
 
-def get_user_by_email(db: Session, email: str):
-    """
-    Returns the user data found by user email
+        :param db: Database session
+        :param email: the user email to retrieve
 
-    :param email: the user email to retrieve
+        :return: the user data corresponding to the given email or None if not found
+        """
+        return (
+            db.query(user_models.User).filter(user_models.User.email == email).first()
+        )
 
-    :return: the user data corresponding to the given email or None if not found
-    """
-    return db.query(user_models.User).filter(user_models.User.email == email).first()
+    @classmethod
+    def get_users(
+        cls, db: Session, skip: int = 0, limit: int = 100
+    ) -> list[user_models.User] | None:
+        """
+        Returns a list of user data, with optional pagination
 
+        :param db: Database session
+        :param skip: (optional) the number of records to skip (default: 0)
+        :param limit: (optional) the maximum number of records to retrieve
+        (default: 100)
 
-def get_users(db: Session, skip: int = 0, limit: int = 100):
-    """
-    Returns a list of user data, with optional pagination
+        :return: a list of user data, where skip < user_id < limit
+        """
 
-    :param skip: (optional) the number of records to skip (default: 0)
-    :param limit: (optional) the maximum number of records to retrieve (default: 100)
+        return db.query(user_models.User).offset(skip).limit(limit).all()
 
-    :return: a list of user data, where skip < user_id < limit
-    """
+    @classmethod
+    def put_user(cls, db: Session, user_data: user_schemas.UserPut) -> user_models.User:
+        """
+        Inserts a new user record into the database
 
-    return db.query(user_models.User).offset(skip).limit(limit).all()
+        :param db: Database session
+        :param user_data: the user data to insert
 
+        :return: the newly-inserted user record
+        """
+        db_user = user_models.User(**user_data.dict())
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
 
-def put_user(db: Session, user_data: user_schemas.UserPut):
-    """
-    Inserts a new user record into the database
+    @classmethod
+    def patch_user(
+        cls, db: Session, user_id: int, user_data: user_schemas.UserPatch
+    ) -> user_models.User:
+        """
+        Updates an existing user record in the database
 
-    :param user_data: the user data to insert
+        :param db: Database session
+        :param user_id: the user ID to patch
+        :param user_data: the user data to update
 
-    :return: the newly-inserted user record
-    """
-    db_user = user_models.User(**user_data.dict())
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+        :return: the updated user record
+        """
+        db_user = UserService.get_user_by_id(db=db, id=user_id)
+        for key, value in user_data.dict(exclude_none=True).items():
+            setattr(db_user, key, value)
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
 
+    @classmethod
+    def delete_user(cls, db: Session, id: str) -> JSONResponse:
+        """
+        Deletes a user record from the database
 
-def patch_user(db: Session, user_data: user_schemas.UserPatch):
-    """
-    Updates an existing user record in the database
+        :param db: Database sessioner
+        :param id: the user ID to delete
 
-    :param user_data: the user data to update
-
-    :return: the updated user record
-    """
-    db_user = get_user_by_email(db=db, email=user_data.email)
-    for key, value in user_data.dict(exclude_none=True).items():
-        setattr(db_user, key, value)
-    if user_data.new_email:
-        setattr(db_user, "email", user_data.new_email)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
-
-def delete_user(db: Session, email: str):
-    """
-    Deletes a user record from the database
-
-    :param id: the user ID to delete
-
-    :return: a json with a "detail" key indicating success
-    """
-    db.query(user_models.User).filter(user_models.User.email == email).delete()
-    db.commit()
-    return JSONResponse({"detail": "success"})
+        :return: a json with a "detail" key indicating success
+        """
+        db.query(user_models.User).filter(user_models.User.id == id).delete()
+        db.commit()
+        return JSONResponse({"detail": "success"}, status_code=200)
