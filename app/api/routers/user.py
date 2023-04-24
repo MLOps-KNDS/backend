@@ -5,9 +5,9 @@ functions for handling user-related requests.
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from schemas import user as user_schemas
-from services.user import UserService
-from services.deps import get_db
+from services import get_db, UserService
 
 
 router = APIRouter(prefix="/user", tags=["user"])

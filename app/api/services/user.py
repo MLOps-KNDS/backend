@@ -4,9 +4,10 @@ to send requests directly to the database
 """
 
 from sqlalchemy.orm import Session
+from fastapi.responses import JSONResponse
+
 from schemas import user as user_schemas
 from models import user as user_models
-from fastapi.responses import JSONResponse
 
 
 class UserService:
