@@ -12,3 +12,5 @@ class Constants:
 
     # Kubernetes cluster
     K8S_NAMESPACE_MODELS = "models"
+    K8S_DEPLOYMENT_PORT = 8000
+    K8S_SERVICE_PORT = 80

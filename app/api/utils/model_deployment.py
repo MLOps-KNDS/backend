@@ -44,6 +44,8 @@ class ModelDeployment:
     def deploy(self) -> None:
         """
         Deploys a docker image to a kubernetes cluster.
+
+        :raises: Any exception which may occur
         """
         try:
             _logger.info(f"Deploying a docker image with tag {self.image_tag}...")
@@ -62,16 +64,20 @@ class ModelDeployment:
         v1.create_namespaced_deployment(
             namespace=Constants.K8S_NAMESPACE_MODELS, body=deployment
         )
+        print("Deployment ready")
         v1 = client.CoreV1Api()
         v1.create_namespaced_service(
             namespace=Constants.K8S_NAMESPACE_MODELS, body=service
         )
+        print("Service ready")
 
     def __create_deployment(self) -> client.V1Deployment:
         container = client.V1Container(
             name=self.name,
             image=self.image_tag,
-            ports=[client.V1ContainerPort(container_port=80)],
+            ports=[
+                client.V1ContainerPort(container_port=Constants.K8S_DEPLOYMENT_PORT)
+            ],
             resources=client.V1ResourceRequirements(
                 requests={"cpu": self.cpu_request, "memory": self.memory_request},
                 limits={"cpu": self.cpu_limit, "memory": self.memory_limit},
@@ -98,7 +104,11 @@ class ModelDeployment:
         return deployment
 
     def __create_service(self) -> client.V1Service:
-        port = client.V1ServicePort(protocol="TCP", port=8001, target_port=80)
+        port = client.V1ServicePort(
+            protocol="TCP",
+            port=Constants.K8S_SERVICE_PORT,
+            target_port=Constants.K8S_DEPLOYMENT_PORT,
+        )
 
         spec = client.V1ServiceSpec(
             selector={"model": self.name},
@@ -116,18 +126,31 @@ class ModelDeployment:
     @classmethod
     def delete(cls, name: str) -> None:
         """
-        Deletes deployment and service.
+        Deletes deployment and service with a given name.
 
+        :raises: Any exception which may occur
         :param name: Name of the deployment and service
         """
         v1 = client.AppsV1Api()
-
-        v1.delete_namespaced_deployment(
-            name=name, namespace=Constants.K8S_NAMESPACE_MODELS
-        )
+        try:
+            _logger.info(f"Deleteing deployment with name {name}...")
+            v1.delete_namespaced_deployment(
+                name=name, namespace=Constants.K8S_NAMESPACE_MODELS
+            )
+            _logger.info(f"Deleteing deployment with name {name} finished.")
+        except Exception as e:
+            _logger.error(
+                f"Deleteing deployment with name {name} failed with error: {e}"
+            )
+            raise e
 
         v1 = client.CoreV1Api()
-
-        v1.delete_namespaced_service(
-            name=name, namespace=Constants.K8S_NAMESPACE_MODELS
-        )
+        try:
+            _logger.info(f"Deleteing service with name {name}...")
+            v1.delete_namespaced_service(
+                name=name, namespace=Constants.K8S_NAMESPACE_MODELS
+            )
+            _logger.info(f"Deleteing service with name {name} finished.")
+        except Exception as e:
+            _logger.error(f"Deleteing service with name {name} failed with error: {e}")
+            raise
