@@ -38,6 +38,8 @@ class User(Base):
 
     tests_roles = relationship("TestUserRole", back_populates="user")
 
+    gates = relationship("GateUserRole", back_populates="user")
+
 
 class ModelUserRole(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)

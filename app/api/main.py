@@ -14,6 +14,7 @@ from db.session import engine
 from routers import (
     user,
     pool,
+    gate,
 )
 
 
@@ -33,6 +34,7 @@ app = FastAPI(
 
 app.include_router(user.router)
 app.include_router(pool.router)
+app.include_router(gate.router)
 
 
 @app.get("/")

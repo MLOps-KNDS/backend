@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum
 from sqlalchemy.orm import relationship
-
-from models import Base
+from models.base_class import Base
+from models.user import Role
 
 
 class Gate(Base):
@@ -22,7 +22,7 @@ class Gate(Base):
 
     pools = relationship("GatePool", back_populates="gate")
 
-    users = relationship("GateUserRole", back_populates="gate")
+    users_roles = relationship("GateUserRole", back_populates="gate")
 
 
 class GatePool(Base):
@@ -38,6 +38,7 @@ class GateUserRole(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     gate_id = Column(Integer, ForeignKey("gate.id"), primary_key=True)
     user_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
+    role = Column(Enum(Role), nullable=False)
 
-    gate = relationship("Gate", back_populates="users")
+    gate = relationship("Gate", back_populates="users_roles")
     user = relationship("User", back_populates="gates")

@@ -1,16 +1,12 @@
 from typing import Annotated
 from datetime import datetime
-from user import Role
+from schemas.user import Role
 from pydantic import BaseModel, Field
 
 
 class BaseGate(BaseModel):
     name: Annotated[str, Field(description="Gate name")]
     description: Annotated[str, Field(description="Gate surname")]
-
-
-class GatePut(BaseGate):
-    created_by: Annotated[int, Field(description="User ID of the creator")]
 
 
 class GatePatch(BaseGate):
@@ -26,6 +22,10 @@ class Gate(BaseGate):
 
     class Config:
         orm_mode = True
+
+
+class GatePut(Gate):
+    created_by: Annotated[int, Field(description="User ID of the creator")]
 
 
 class GatePostAddPool(BaseModel):

@@ -30,6 +30,8 @@ class Pool(Base):
 
     users_roles = relationship("PoolUserRole", back_populates="pool")
 
+    gates = relationship("GatePool", back_populates="pool")
+
 
 class PoolModel(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
