@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from models.base_class import Base
+from models.user import User
 import enum
 
 
@@ -22,7 +23,9 @@ class Model(Base):
     status = Column(Enum(Status), nullable=False)
 
     creator = relationship(
-        "User", foreign_keys=created_by, back_populates="created_models"
+        "User",
+        foreign_keys=created_by,
+        back_populates="created_models",
     )
     updater = relationship("User", foreign_keys=updated_by, backref="updated_models")
 

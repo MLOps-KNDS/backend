@@ -8,8 +8,8 @@ from contextlib import asynccontextmanager
 import time
 from db.create import create_db
 from db.session import engine
-from api.routers import models
-from api.routers import tests
+from routers import models
+from routers import tests
 
 
 @asynccontextmanager
