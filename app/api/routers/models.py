@@ -9,13 +9,13 @@ from services import model as model_services
 from services.deps import get_db
 
 
-router = APIRouter(prefix="/api/models", tags=["models"])
+router = APIRouter(prefix="/models", tags=["models"])
 
 
 @router.get("/", response_model=list[model_schemas.Model])
 async def get_models(
     skip: Annotated[int, Query(ge=0)] = 0,
-    limit: Annotated[int, Query(ge=0)] = 3,
+    limit: Annotated[int, Query(ge=0)] = 100,
     db: Session = Depends(get_db),
 ):
     """
@@ -39,9 +39,7 @@ async def get_single_model(
     from database
 
     :param model_id: id of model to get
-    :raises: HTTPException with status code 404 when
-    model is not found
-    :return: model
+    :return: model or a message indicating that a model was not found
     """
     model = model_services.ModelService.get_model_by_id(db=db, model_id=model_id)
     if not model:
@@ -84,8 +82,6 @@ async def add_model_to_database(
 ):
     """
     Allows adding a new model to the database.
-    If there exists a model in the database with the
-    same id as the new model, the old model will be replaced,
 
     :param new_model: new model to add to database
     :param model_id: id of model to add/update
@@ -109,5 +105,5 @@ async def delete_model(
     :return: JSON response indicating successful deletion
     """
     if not model_services.ModelService.get_model_by_id(db=db, model_id=model_id):
-        return JSONResponse(status_code=400, content={"message": "model not found"})
+        return JSONResponse(status_code=404, content={"message": "model not found"})
     return model_services.ModelService.delete_model(db=db, model_id=model_id)

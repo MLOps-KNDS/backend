@@ -1,10 +1,11 @@
 from typing import Annotated
 from pydantic import BaseModel, Field
 from datetime import datetime
-from enum import Enum
+
+import enum
 
 
-class Status(Enum):
+class Status(str, enum.Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
 

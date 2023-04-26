@@ -10,7 +10,7 @@ from schemas import model as model_schemas
 class ModelService:
     @classmethod
     def get_models(
-        cls, db: Session, skip: int = 0, limit: int = 3
+        cls, db: Session, skip: int = 0, limit: int = 100
     ) -> List[model_models.Model] | None:
         """
         Returns list of models with pagination

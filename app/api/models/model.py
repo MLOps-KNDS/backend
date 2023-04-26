@@ -1,11 +1,10 @@
 from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from models.base_class import Base
-from models.user import User
 import enum
 
 
-class Status(enum.Enum):
+class Status(str, enum.Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
 
