@@ -1,35 +1,45 @@
 from typing import Annotated
 from pydantic import BaseModel, Field
 from datetime import datetime
-from enum import Enum
+
+from schemas.commons import BaseEnum
 
 
-class ModelMode(Enum):
+class ModelMode(BaseEnum):
     PRODUCTION = "production"
     STAGING = "staging"
 
 
-class CreatePool(BaseModel):
+class BasePool(BaseModel):
     name: Annotated[str, Field(description="Pool name")]
     description: Annotated[str, Field(description="Pool description")]
+
+
+class PoolPut(BasePool):
     created_by: Annotated[int, Field(description="User ID of the creator")]
 
 
-class UpdatePool(BaseModel):
-    id: Annotated[int, Field(description="Pool ID")]
-    name: Annotated[str, Field(description="Pool name")]
-    description: Annotated[str, Field(description="Pool description")]
+class PoolPatch(BasePool):
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 
-class PoolAddModel(BaseModel):
-    pool_id: Annotated[int, Field(description="Pool ID")]
+class Pool(BasePool):
+    id: Annotated[int, Field(description="User ID")]
+    created_by: Annotated[int, Field(description="User ID of the creator")]
+    created_at: Annotated[datetime, Field(description="Creation date")]
+    updated_by: Annotated[int, Field(description="User ID of the last updater")]
+    updated_at: Annotated[datetime, Field(description="Last update date")]
+
+    class Config:
+        orm_mode = True
+
+
+class PoolPostAddModel(BaseModel):
     model_id: Annotated[int, Field(description="Model ID")]
     mode: Annotated[ModelMode, Field(description="Model mode")]
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 
-class PoolRemoveModel(BaseModel):
-    pool_id: Annotated[int, Field(description="Pool ID")]
+class PoolPostRemoveModel(BaseModel):
     model_id: Annotated[int, Field(description="Model ID")]
     updated_by: Annotated[int, Field(description="User ID of the last updater")]

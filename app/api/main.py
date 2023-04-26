@@ -6,10 +6,15 @@ It contains the FastAPI app.
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import time
+
 from db.create import create_db
 from db.session import engine
 from routers import models
-from routers import tests
+
+from routers import (
+    user,
+    pool,
+)
 
 
 @asynccontextmanager
@@ -27,7 +32,8 @@ app = FastAPI(
 )
 
 app.include_router(models.router)
-app.include_router(tests.router)
+app.include_router(user.router)
+app.include_router(pool.router)
 
 
 @app.get("/")

@@ -1,13 +1,19 @@
-FROM python:3.10
+FROM continuumio/anaconda3:latest
 
 ENV API_PORT=8000
 ENV API_HOST=0.0.0.0
 
 WORKDIR /app
 
+# Install docker
+RUN curl -fsSL https://get.docker.com | sh
+
+RUN conda create -n virtualenv python=3.10
+
 COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+RUN conda run -n virtualenv --no-capture-output pip install -r requirements.txt
+
 COPY api .
 
-CMD uvicorn main:app --host $API_HOST --port $API_PORT
+CMD conda run -n virtualenv --no-capture-output python -m uvicorn main:app --host $API_HOST --port $API_PORT
