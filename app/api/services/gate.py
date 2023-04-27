@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 from schemas import gate as gate_schemas
 from models import gate as gate_models
+from datetime import datetime
 
 
 class GateService:
@@ -62,6 +63,10 @@ class GateService:
         :return: the newly-inserted gate record
         """
         db_gate = gate_models.Gate(**gate_data.dict())
+        creation_time = datetime.utcnow()
+        db_gate.updated_by = db_gate.created_by
+        db_gate.created_at = creation_time
+        db_gate.updated_at = creation_time
         db.add(db_gate)
         db.commit()
         db.refresh(db_gate)

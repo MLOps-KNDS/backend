@@ -24,7 +24,7 @@ class Gate(BaseGate):
         orm_mode = True
 
 
-class GatePut(Gate):
+class GatePut(BaseGate):
     created_by: Annotated[int, Field(description="User ID of the creator")]
 
 
