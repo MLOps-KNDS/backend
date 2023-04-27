@@ -10,13 +10,14 @@ that creates a new testing session on each call. This allows tests to interact
 with the testing database in isolation from the development database.
 """
 
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from db.create import create_db
-from ..test_config.config import settings
+
 from main import app
-from fastapi.testclient import TestClient
+from db.create import create_db
 from services.deps import get_db
+from ..test_config.config import settings
 
 engine = create_engine(settings.TEST_SQLALCHEMY_DATABASE_URI, pool_pre_ping=True)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
