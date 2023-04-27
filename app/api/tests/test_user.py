@@ -26,7 +26,7 @@ def test_user():
     - GET /user/: retrieves a list of all existing users.
     - DELETE /user/{user_id}: deletes an existing user with the given ID.
 
-    This function assumes that the API is running and accessible at the URL, 
+    This function assumes that the API is running and accessible at the URL,
     set on the test_config.config.settings.
     """
 
