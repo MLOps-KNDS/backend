@@ -1,3 +1,8 @@
+"""
+This module contains the API routes and their corresponding
+functions for handling user-related requests.
+"""
+
 from fastapi import APIRouter, Path, Body, Query, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder

@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
-from typing import List
 from datetime import datetime
 
 from models import model as model_models
@@ -11,7 +10,7 @@ class ModelService:
     @classmethod
     def get_models(
         cls, db: Session, skip: int = 0, limit: int = 100
-    ) -> List[model_models.Model] | None:
+    ) -> list[model_models.Model] | None:
         """
         Returns list of models with pagination
 
