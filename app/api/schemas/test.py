@@ -15,6 +15,7 @@ class TestPut(BaseTest):
 class TestPatch(BaseTest):
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
+
 class Test(BaseTest):
     created_by: Annotated[int, Field(description="User ID of the creator")]
     created_at: Annotated[datetime, Field(description="Creation date")]

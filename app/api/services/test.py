@@ -36,6 +36,7 @@ class TestService:
         :return: the test data corresponding to the given ID or None if not found
         """
         return db.query(test_models.Test).filter(test_models.Test.id == id).first()
+
     @classmethod
     def get_test_by_name(cls, db: Session, name: str) -> test_models.Test:
         """
