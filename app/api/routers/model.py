@@ -10,8 +10,7 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 
 from schemas import model as model_schemas
-from services import model as model_services
-from services.deps import get_db
+from services import ModelService, get_db
 
 
 router = APIRouter(prefix="/models", tags=["models"])
@@ -32,7 +31,7 @@ async def get_models(
 
     :return: a list of model data, where skip <= model_id < skip + limit
     """
-    models = model_services.ModelService.get_models(db=db, skip=skip, limit=limit)
+    models = ModelService.get_models(db=db, skip=skip, limit=limit)
     return models
 
 
@@ -50,7 +49,7 @@ async def get_single_model(
     :return: the pool data corresponding to the given ID or a message with status code
     404 indicating that the model was not found
     """
-    model = model_services.ModelService.get_model_by_id(db=db, model_id=model_id)
+    model = ModelService.get_model_by_id(db=db, model_id=model_id)
     if not model:
         return JSONResponse(status_code=404, content={"message": "model not found"})
     return model
@@ -72,12 +71,10 @@ async def update_model(
     model is not found
     :return: updated model
     """
-    model = model_services.ModelService.get_model_by_id(db, model_id)
+    model = ModelService.get_model_by_id(db, model_id)
     if not model:
         return JSONResponse(status_code=404, content={"message": "model not found"})
-    up_model = model_services.ModelService.patch_model(
-        db=db, model_id=model_id, model=new_fields
-    )
+    up_model = ModelService.patch_model(db=db, model_id=model_id, model=new_fields)
     up_model_encoded = jsonable_encoder(up_model)
     return JSONResponse(status_code=200, content=up_model_encoded)
 
@@ -97,7 +94,7 @@ async def add_model_to_database(
 
     :return: the newly-inserted model record
     """
-    db_model = model_services.ModelService.put_model(db=db, model=new_model)
+    db_model = ModelService.put_model(db=db, model=new_model)
     model_encoded = jsonable_encoder(db_model)
     return JSONResponse(status_code=201, content=model_encoded)
 
@@ -115,6 +112,6 @@ async def delete_model(
 
     :return: a json with a "detail" key indicating success
     """
-    if not model_services.ModelService.get_model_by_id(db=db, model_id=model_id):
+    if not ModelService.get_model_by_id(db=db, model_id=model_id):
         return JSONResponse(status_code=404, content={"message": "model not found"})
-    return model_services.ModelService.delete_model(db=db, model_id=model_id)
+    return ModelService.delete_model(db=db, model_id=model_id)

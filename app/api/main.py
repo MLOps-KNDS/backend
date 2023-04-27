@@ -9,11 +9,11 @@ import time
 
 from db.create import create_db
 from db.session import engine
-from routers import models
 
 from routers import (
     user,
     pool,
+    model,
 )
 
 
@@ -31,7 +31,7 @@ app = FastAPI(
     lifespan=init,
 )
 
-app.include_router(models.router)
+app.include_router(model.router)
 app.include_router(user.router)
 app.include_router(pool.router)
 
