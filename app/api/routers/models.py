@@ -19,11 +19,13 @@ async def get_models(
     db: Session = Depends(get_db),
 ):
     """
-    Allows retrieval of list of models from database
+    Retrieves a list of models with pagination options (skip, limit).
 
-    :param skip: starting point to retrieve models from
-    :param limit: how many models to retrieve
-    :return: list of models
+    :param db: Database session
+    :param skip: (optional) the number of records to skip (default: 0)
+    :param limit: (optional) the maximum number of records to retrieve (default: 100)
+
+    :return: a list of model data, where skip <= model_id < skip + limit
     """
     models = model_services.ModelService.get_models(db=db, skip=skip, limit=limit)
     return models
@@ -35,11 +37,13 @@ async def get_single_model(
     db: Session = Depends(get_db),
 ):
     """
-    Allows retrieval of a model by it's designated id
-    from database
+    Retrieves the information of a specific pool by ID.
 
-    :param model_id: id of model to get
-    :return: model or a message indicating that a model was not found
+    :param pool_id: pool ID
+    :param db: Database session
+
+    :return: the pool data corresponding to the given ID or a message with status code
+    404 indicating that the model was not found
     """
     model = model_services.ModelService.get_model_by_id(db=db, model_id=model_id)
     if not model:
@@ -81,11 +85,12 @@ async def add_model_to_database(
     db: Session = Depends(get_db),
 ):
     """
-    Allows adding a new model to the database.
+    Creates a new model with the given information and returns the model information.
 
-    :param new_model: new model to add to database
-    :param model_id: id of model to add/update
-    :return: newly added model
+    :param new_model: the information of the new model to be created.
+    :param db: Database session
+
+    :return: the newly-inserted model record
     """
     db_model = model_services.ModelService.put_model(db=db, model=new_model)
     model_encoded = jsonable_encoder(db_model)
@@ -98,11 +103,12 @@ async def delete_model(
     db: Session = Depends(get_db),
 ):
     """
-    Deletes model from database
+    Deletes the pool with the given ID.
 
+    :param pool_id: pool ID
     :param db: Database session
-    :param model_id: id of model to delete
-    :return: JSON response indicating successful deletion
+
+    :return: a json with a "detail" key indicating success
     """
     if not model_services.ModelService.get_model_by_id(db=db, model_id=model_id):
         return JSONResponse(status_code=404, content={"message": "model not found"})
