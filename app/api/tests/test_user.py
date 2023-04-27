@@ -26,10 +26,8 @@ def test_user():
     - GET /user/: retrieves a list of all existing users.
     - DELETE /user/{user_id}: deletes an existing user with the given ID.
 
-    This function assumes that the API is running and accessible at the default
-    URL.
-
-    GENERATED WITH OPENAI
+    This function assumes that the API is running and accessible at the URL, 
+    set on the test_config.config.settings.
     """
 
     # put_user
@@ -72,7 +70,7 @@ def test_user():
     data = response.json()
     assert len(data) > 1
 
-    # delete_userse
+    # delete_users
     for model in data:
         del_response = client.delete(f"{ROUTE}{model['id']}")
         assert del_response.status_code == 200
