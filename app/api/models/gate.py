@@ -27,8 +27,8 @@ class Gate(Base):
 
 class GatePool(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    gate_id = Column(Integer, ForeignKey("gate.id"), primary_key=True)
-    pool_id = Column(Integer, ForeignKey("pool.id"), primary_key=True)
+    gate_id = Column(Integer, ForeignKey("gate.id"))
+    pool_id = Column(Integer, ForeignKey("pool.id"))
 
     gate = relationship("Gate", back_populates="pools")
     pool = relationship("Pool", back_populates="gates")
@@ -36,8 +36,8 @@ class GatePool(Base):
 
 class GateUserRole(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    gate_id = Column(Integer, ForeignKey("gate.id"), primary_key=True)
-    user_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
+    gate_id = Column(Integer, ForeignKey("gate.id"))
+    user_id = Column(Integer, ForeignKey("user.id"))
     role = Column(Enum(Role), nullable=False)
 
     gate = relationship("Gate", back_populates="users_roles")

@@ -39,11 +39,11 @@ class GatePostRemovePool(BaseModel):
 
 
 class GatePostAddUser(BaseModel):
-    pool_id: Annotated[int, Field(description="Pool ID")]
+    user_id: Annotated[int, Field(description="User ID")]
     role: Annotated[Role, Field(description="User role")]
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 
 class GatePostRemoveUser(BaseModel):
-    pool_id: Annotated[int, Field(description="Pool ID")]
+    user_id: Annotated[int, Field(description="User ID")]
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
