@@ -1,8 +1,13 @@
 """
-This module provides a function to create a test session with a TestClient that can be used to test FastAPI endpoints.
-The test session uses a testing database created with the create_db function from the db.create module.
-It also overrides the get_db dependency of the FastAPI app with a function that creates a new testing session on each call.
-This allows tests to interact with the testing database in isolation from the development database.
+This module provides a function to create a test session with a TestClient
+that can be used to test FastAPI endpoints.
+
+The test session uses a testing
+database created with the create_db function from the db.create module.
+
+It also overrides the get_db dependency of the FastAPI app with a function
+that creates a new testing session on each call. This allows tests to interact
+with the testing database in isolation from the development database.
 """
 
 from sqlalchemy import create_engine
@@ -18,6 +23,11 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 
 def create_test_session() -> TestClient:
+    """
+    creates a test session with a TestClient that can be used to test FastAPI endpoints.
+
+    :return: TestClient session
+    """
     create_db(engine=engine)
 
     def override_get_db():
