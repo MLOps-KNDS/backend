@@ -105,7 +105,7 @@ def test_user_delete(client):
     response = client.put(ROUTE, json=dict(test_user))
     user_id = response.json()["id"]
 
-    del_response = client.delete(f"{ROUTE}{user_id}")
+    response = client.delete(f"{ROUTE}{user_id}")
 
-    assert del_response.status_code == 200
-    assert del_response.json() == {"detail": "success"}
+    assert response.status_code == 200
+    assert response.json() == {"detail": "success"}
