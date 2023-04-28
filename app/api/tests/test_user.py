@@ -31,7 +31,8 @@ def test_user_put(client):
         name="test_name", surname="test_surname", email="test_email@abc.com"
     )
     response = client.put(ROUTE, json=dict(test_user))
-    assert response.status_code == 200
+
+    assert response.status_code == 200, response.text
     assert "id" in response.json()
 
 
@@ -40,7 +41,6 @@ def test_user_patch(client):
         name="test_name", surname="test_surname", email="test_email@abc.com"
     )
     response = client.put(ROUTE, json=dict(test_user))
-    assert response.status_code == 200
     user_id = response.json()["id"]
 
     test_user_patch = user_schemas.UserPatch(
@@ -49,14 +49,15 @@ def test_user_patch(client):
         email="test_patch_email@abc.com",
     )
     response = client.patch(f"{ROUTE}{user_id}", json=dict(test_user_patch))
-    assert response.status_code == 200
-    data = response.json()
-    assert data == {
+    expected_output = {
         "id": user_id,
         "name": "test_patch_name",
         "surname": "test_patch_surname",
         "email": "test_patch_email@abc.com",
     }
+
+    assert response.status_code == 200, response.text
+    assert response.json() == expected_output
 
 
 def test_user_get(client):
@@ -64,17 +65,18 @@ def test_user_get(client):
         name="test_name", surname="test_surname", email="test_email@abc.com"
     )
     response = client.put(ROUTE, json=dict(test_user))
-    assert response.status_code == 200
     user_id = response.json()["id"]
 
     response = client.get(f"{ROUTE}{user_id}")
-    assert response.status_code == 200
-    assert response.json() == {
+    expected_responce = {
         "id": user_id,
         "name": "test_name",
         "surname": "test_surname",
         "email": "test_email@abc.com",
     }
+
+    assert response.status_code == 200, response.text
+    assert response.json() == expected_responce
 
 
 def test_users_get(client):
@@ -82,19 +84,18 @@ def test_users_get(client):
         name="test_name", surname="test_surname", email="test_email_1@abc.com"
     )
     response_user_1 = client.put(ROUTE, json=dict(test_user_1))
-    assert response_user_1.status_code == 200
 
     test_user_2 = user_schemas.UserPut(
         name="test_name", surname="test_surname", email="test_email_2@abc.com"
     )
     response_user_2 = client.put(ROUTE, json=dict(test_user_2))
-    assert response_user_2.status_code == 200
+    expected_output = [response_user_1.json(), response_user_2.json()]
 
     params = {"skip": 0, "limit": 3}
     response = client.get(ROUTE, params=params)
-    assert response.status_code == 200
-    data = response.json()
-    assert data == [response_user_1.json(), response_user_2.json()]
+
+    assert response.status_code == 200, response.text
+    assert response.json() == expected_output
 
 
 def test_user_delete(client):
@@ -102,9 +103,9 @@ def test_user_delete(client):
         name="test_name", surname="test_surname", email="test_email@abc.com"
     )
     response = client.put(ROUTE, json=dict(test_user))
-    assert response.status_code == 200
     user_id = response.json()["id"]
 
     del_response = client.delete(f"{ROUTE}{user_id}")
+
     assert del_response.status_code == 200
     assert del_response.json() == {"detail": "success"}
