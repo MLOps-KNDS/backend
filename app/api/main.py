@@ -14,6 +14,7 @@ from routers import (
     user,
     pool,
     model,
+    test,
 )
 
 
@@ -34,6 +35,7 @@ app = FastAPI(
 app.include_router(model.router)
 app.include_router(user.router)
 app.include_router(pool.router)
+app.include_router(test.router)
 
 
 @app.get("/")
