@@ -4,7 +4,7 @@ from models.base_class import Base
 import enum
 
 
-class Status(enum.Enum):
+class Status(str, enum.Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
 
