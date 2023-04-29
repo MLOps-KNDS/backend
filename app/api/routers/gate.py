@@ -6,8 +6,7 @@ functions for handling gate-related requests.
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from schemas import gate as gate_schemas
-from services import get_db
-from services.gate import GateService
+from services import get_db, GateService
 
 
 router = APIRouter(prefix="/gate", tags=["gate"])
@@ -22,7 +21,12 @@ def put_gate(gate_data: gate_schemas.GatePut, db: Session = Depends(get_db)):
     :param db: Database session
 
     :return: the newly-inserted gate record
+
+    :raise HTTPException: 400 status code with "Name already registered"
+    message if the provided name for gate already exists in the database
     """
+    if GateService.get_gate_by_name(db=db, name=gate_data.name):
+        raise HTTPException(status_code=400, detail="Name already registered")
     return GateService.put_gate(db=db, gate_data=gate_data)
 
 
@@ -80,6 +84,8 @@ def patch_gate(
     gate = GateService.get_gate_by_id(db=db, id=gate_id)
     if not gate:
         raise HTTPException(status_code=404, detail="Gate not found!")
+    if GateService.get_gate_by_name(db=db, name=gate_data.name):
+        raise HTTPException(status_code=400, detail="Name already registered")
     return GateService.patch_gate(db=db, gate_id=gate_id, gate_data=gate_data)
 
 

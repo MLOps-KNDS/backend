@@ -5,9 +5,9 @@ to send requests directly to the database
 
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
+from datetime import datetime
 from schemas import gate as gate_schemas
 from models import gate as gate_models
-from datetime import datetime
 
 
 class GateService:
