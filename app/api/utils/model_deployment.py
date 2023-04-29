@@ -5,8 +5,6 @@ from utils.constants import Constants
 
 _logger = logging.getLogger(__name__)
 
-config.load_incluster_config()
-
 
 class ModelDeployment:
     """
@@ -40,6 +38,8 @@ class ModelDeployment:
         self.cpu_request: str = cpu_request
         self.memory_limit: str = memory_limit
         self.memory_request: str = memory_request
+
+        config.load_incluster_config()
 
     def deploy(self) -> None:
         """
