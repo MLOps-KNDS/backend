@@ -13,6 +13,7 @@ from db.session import engine
 from routers import (
     user,
     pool,
+    gate,
     model,
     test,
 )
@@ -35,6 +36,7 @@ app = FastAPI(
 app.include_router(model.router)
 app.include_router(user.router)
 app.include_router(pool.router)
+app.include_router(gate.router)
 app.include_router(test.router)
 
 
