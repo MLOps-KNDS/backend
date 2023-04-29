@@ -1,6 +1,6 @@
 from typing import Annotated
-from datetime import datetime
 from pydantic import BaseModel, Field
+from datetime import datetime
 
 from schemas.commons import BaseEnum
 
