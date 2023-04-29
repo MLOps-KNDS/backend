@@ -1,18 +1,18 @@
 from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from services import TestService, get_db
-from models import Test as test_model
 from schemas import test as test_schema
 
 
-router = APIRouter("/test", tags=["test"])
+router = APIRouter(prefix="/test", tags=["test"])
 
 
 @router.get("/")
 async def get_tests(
     skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
-) -> list[test_model]:
+) -> list[test_schema.Test]:
     """
     Retrieves a list of tests with pagination options (skip, limit).
 
@@ -27,7 +27,7 @@ async def get_tests(
 
 
 @router.get("/{test_id}", response_model=test_schema.Test)
-async def get_test(test_id: int, db: Session = Depends(get_db)) -> test_model:
+async def get_test(test_id: int, db: Session = Depends(get_db)) -> test_schema.Test:
     """
     Retrieves the information of a specific test by ID.
 
@@ -48,7 +48,7 @@ async def get_test(test_id: int, db: Session = Depends(get_db)) -> test_model:
 @router.put("/", response_model=test_schema.Test)
 async def put_test(
     test_data: test_schema.TestPut, db: Session = Depends(get_db)
-) -> test_model:
+) -> test_schema.Test:
     """
     Creates a new test with the given information and returns the test information.
 
@@ -66,7 +66,7 @@ async def put_test(
 
 
 @router.delete("/{test_id}", response_model=test_schema.Test)
-async def delete_test(test_id: int, db: Session = Depends(get_db)) -> test_model:
+async def delete_test(test_id: int, db: Session = Depends(get_db)) -> test_schema.Test:
     """
     Deletes a test with the given ID and returns the test information.
 
@@ -84,10 +84,10 @@ async def delete_test(test_id: int, db: Session = Depends(get_db)) -> test_model
     return TestService.delete_test(db=db, test=test)
 
 
-@router.patch("/{test_id}", response_model=test_schema.Test)
+@router.patch("/{test_id}")
 async def patch_test(
     test_id: int, test_data: test_schema.TestPatch, db: Session = Depends(get_db)
-) -> test_model:
+) -> JSONResponse:
     """
     Updates a test with the given information and returns the test information.
 
