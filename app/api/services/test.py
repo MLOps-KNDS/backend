@@ -27,7 +27,7 @@ class TestService:
         return db.query(test_models.Test).offset(skip).limit(limit).all()
 
     @classmethod
-    def get_test_by_id(cls, db: Session, id: int):
+    def get_test_by_id(cls, db: Session, id: int) -> test_models.Test | None:
         """
         Returns the test data found by test id
 
@@ -38,7 +38,7 @@ class TestService:
         return db.query(test_models.Test).filter(test_models.Test.id == id).first()
 
     @classmethod
-    def get_test_by_name(cls, db: Session, name: str) -> test_models.Test:
+    def get_test_by_name(cls, db: Session, name: str) -> test_models.Test | None:
         """
         Returns the test data found by test id
 

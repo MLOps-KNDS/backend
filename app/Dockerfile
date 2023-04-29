@@ -14,6 +14,12 @@ COPY requirements.txt .
 
 RUN conda run -n virtualenv --no-capture-output pip install -r requirements.txt
 
+COPY logging.yaml .
+
 COPY api .
 
-CMD conda run -n virtualenv --no-capture-output python -m uvicorn main:app --host $API_HOST --port $API_PORT
+CMD conda run -n virtualenv --no-capture-output \
+        python -m uvicorn main:app \
+            --host $API_HOST \
+            --port $API_PORT \
+            --log-config logging.yaml \
