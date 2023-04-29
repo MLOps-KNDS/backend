@@ -91,4 +91,4 @@ class ModelService:
         """
         db.query(model_models.Model).filter(model_models.Model.id == model_id).delete()
         db.commit()
-        return JSONResponse({"detail": "model deleted"}, status_code=200)
+        return JSONResponse({"detail": "model deleted"})

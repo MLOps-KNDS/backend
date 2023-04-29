@@ -41,12 +41,12 @@ async def get_single_model(
     db: Session = Depends(get_db),
 ):
     """
-    Retrieves the information of a specific pool by ID.
+    Retrieves the information of a specific model by ID.
 
-    :param pool_id: pool ID
+    :param model_id: model ID
     :param db: Database session
 
-    :return: the pool data corresponding to the given ID or a message with status code
+    :return: the model data corresponding to the given ID or a message with status code
     404 indicating that the model was not found
     """
     model = ModelService.get_model_by_id(db=db, model_id=model_id)
@@ -55,7 +55,7 @@ async def get_single_model(
     return model
 
 
-@router.patch("/{model_id}", response_model=model_schemas.Model)
+@router.patch("/{model_id}", status_code=200, response_model=model_schemas.Model)
 async def update_model(
     model_id: Annotated[int, Path(title="id of model to update")],
     new_fields: Annotated[
@@ -74,9 +74,7 @@ async def update_model(
     model = ModelService.get_model_by_id(db, model_id)
     if not model:
         return JSONResponse(status_code=404, content={"message": "model not found"})
-    up_model = ModelService.patch_model(db=db, model_id=model_id, model=new_fields)
-    up_model_encoded = jsonable_encoder(up_model)
-    return JSONResponse(status_code=200, content=up_model_encoded)
+    return ModelService.patch_model(db=db, model_id=model_id, model=new_fields)
 
 
 @router.put("/", status_code=201, response_model=model_schemas.Model)
@@ -96,7 +94,7 @@ async def add_model_to_database(
     """
     db_model = ModelService.put_model(db=db, model=new_model)
     model_encoded = jsonable_encoder(db_model)
-    return JSONResponse(status_code=201, content=model_encoded)
+    return JSONResponse(content=model_encoded)
 
 
 @router.delete("/{model_id}", status_code=200)
@@ -105,9 +103,9 @@ async def delete_model(
     db: Session = Depends(get_db),
 ):
     """
-    Deletes the pool with the given ID.
+    Deletes the model with the given ID.
 
-    :param pool_id: pool ID
+    :param model_id: model ID
     :param db: Database session
 
     :return: a json with a "detail" key indicating success
