@@ -3,7 +3,6 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from services import TestService, get_db
-from models import Test as test_model
 from schemas import test as test_schema
 
 
