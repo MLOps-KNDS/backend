@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum, UniqueConstraint
 from sqlalchemy.orm import relationship
 from models.base_class import Base
 from models.user import Role
@@ -6,7 +6,7 @@ from models.user import Role
 
 class Gate(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False, unique=True)
     description = Column(String(255), nullable=False)
     created_at = Column(DateTime, nullable=False)
     created_by = Column(Integer, ForeignKey("user.id"), nullable=False)
@@ -32,6 +32,9 @@ class GatePool(Base):
 
     gate = relationship("Gate", back_populates="pools")
     pool = relationship("Pool", back_populates="gates")
+    __table_args__ = (
+        UniqueConstraint('gate_id', 'pool_id'),
+    )
 
 
 class GateUserRole(Base):
@@ -42,3 +45,7 @@ class GateUserRole(Base):
 
     gate = relationship("Gate", back_populates="users_roles")
     user = relationship("User", back_populates="gates")
+
+    __table_args__ = (
+        UniqueConstraint('gate_id', 'user_id'),
+    )

@@ -35,8 +35,8 @@ class Pool(Base):
 
 class PoolModel(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    pool_id = Column(Integer, ForeignKey("pool.id"), primary_key=True)
-    model_id = Column(Integer, ForeignKey("model.id"), primary_key=True)
+    pool_id = Column(Integer, ForeignKey("pool.id"))
+    model_id = Column(Integer, ForeignKey("model.id"))
     mode = Column(Enum(PoolModelModeEnum), nullable=False)
 
     model = relationship("Model", back_populates="pools")
