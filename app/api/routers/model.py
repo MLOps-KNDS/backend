@@ -13,7 +13,7 @@ from schemas import model as model_schemas
 from services import ModelService, get_db
 
 
-router = APIRouter(prefix="/models", tags=["models"])
+router = APIRouter(prefix="/model", tags=["model"])
 
 
 @router.get("/", response_model=list[model_schemas.Model])
