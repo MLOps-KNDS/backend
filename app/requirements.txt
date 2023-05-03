@@ -1,4 +1,4 @@
-fastapi==0.95.0
+fastapi==0.95.1
 uvicorn==0.21.1
 pydantic==1.10.7
 sqlalchemy==2.0.9
@@ -6,3 +6,4 @@ psycopg2-binary==2.9.6
 docker==6.0.1
 mlflow==2.2.2
 email-validator==2.0.0
+kubernetes==26.1.0

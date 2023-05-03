@@ -4,7 +4,7 @@ from models.base_class import Base
 import enum
 
 
-class Status(enum.Enum):
+class Status(str, enum.Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
 
@@ -37,8 +37,8 @@ class Model(Base):
 
 class ModelTest(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    model_id = Column(Integer, ForeignKey("model.id"), primary_key=True)
-    test_id = Column(Integer, ForeignKey("test.id"), primary_key=True)
+    model_id = Column(Integer, ForeignKey("model.id"))
+    test_id = Column(Integer, ForeignKey("test.id"))
 
     model = relationship("Model", back_populates="tests")
 

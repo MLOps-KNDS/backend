@@ -17,20 +17,6 @@ class PoolService:
     """
 
     @classmethod
-    def get_pools(
-        cls, db: Session, skip: int = 0, limit: int = 100
-    ) -> list[pool_models.Pool]:
-        """
-        Returns a list of pool data, with optional pagination
-
-        :param skip: (optional) the number of records to skip (default: 0)
-        :param limit: (optional) the max number of records to retrieve (default: 100)
-
-        :return: a list of pool data, where skip < user_id <= skip+limit
-        """
-        return db.query(pool_models.Pool).offset(skip).limit(limit).all()
-
-    @classmethod
     def get_pool_by_id(cls, db: Session, id: int) -> pool_models.Pool:
         """
         Returns the pool data found by pool id
@@ -51,6 +37,23 @@ class PoolService:
         :return: the pool data corresponding to the given ID or None if not found
         """
         return db.query(pool_models.Pool).filter(pool_models.Pool.name == name).first()
+
+    @classmethod
+    def get_pools(
+        cls, db: Session, skip: int = 0, limit: int = 100
+    ) -> list[pool_models.Pool] | None:
+        """
+        Returns a list of pool data, with optional pagination
+
+        :param skip: (optional) the number of records to skip (default: 0)
+        :param limit: (optional) the max number of records to retrieve (default: 100)
+
+        :return: a list of pool data, where skip < user_id <= limit
+        """
+        pools = db.query(pool_models.Pool).offset(skip).limit(limit).all()
+        if len(pools) == 0:
+            return None
+        return pools
 
     @classmethod
     def put_pool(cls, db: Session, pool_data: pool_schemas.PoolPut) -> pool_models.Pool:

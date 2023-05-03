@@ -1,0 +1,27 @@
+version: 1
+formatters:
+  default:
+    format: '[%(levelname)s] %(asctime)s - %(name)s - %(message)s'
+    use_colors: true
+handlers:
+  default:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: default
+    stream: ext://sys.stdout
+loggers:
+  uvicorn:
+    level: DEBUG
+    handlers: [default]
+    propagate: no
+  uvicorn.access:
+    level: DEBUG
+    handlers: [default]
+    propagate: no
+  uvicorn.error:
+    level: DEBUG
+    handlers: [default]
+    propagate: no
+root:
+  level: DEBUG
+  handlers: [default]

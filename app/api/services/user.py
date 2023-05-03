@@ -51,8 +51,10 @@ class UserService:
 
         :return: a list of user data, where skip < user_id < limit
         """
-
-        return db.query(user_models.User).offset(skip).limit(limit).all()
+        users = db.query(user_models.User).offset(skip).limit(limit).all()
+        if len(users) == 0:
+            return None
+        return users
 
     @classmethod
     def put_user(cls, db: Session, user_data: user_schemas.UserPut) -> user_models.User:
@@ -103,4 +105,4 @@ class UserService:
         """
         db.query(user_models.User).filter(user_models.User.id == id).delete()
         db.commit()
-        return JSONResponse({"detail": "success"}, status_code=200)
+        return JSONResponse({"detail": "success"})
