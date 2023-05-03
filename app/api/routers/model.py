@@ -2,7 +2,6 @@
 This module contains the API routes and their corresponding
 functions for handling user-related requests.
 """
-
 from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
 

@@ -49,7 +49,6 @@ class GateService:
 
         :return: a list of gate data, where skip < gate_id < limit
         """
-
         models = db.query(gate_models.Gate).offset(skip).limit(limit).all()
         if len(models) == 0:
             return None
