@@ -34,7 +34,7 @@ async def get_pool(pool_id: int, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=list[pool_schemas.Pool], status_code=200)
 async def get_pools(
-    skip: int = Query(None, ge=0),
+    skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=0),
     db: Session = Depends(get_db),
 ):

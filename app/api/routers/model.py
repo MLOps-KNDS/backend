@@ -33,7 +33,7 @@ async def get_model(model_id: int, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=list[model_schemas.Model], status_code=200)
 async def get_models(
-    skip: int = Query(None, ge=0),
+    skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=0),
     db: Session = Depends(get_db),
 ):
