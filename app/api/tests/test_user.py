@@ -25,7 +25,6 @@ from .db.session import client, session
 
 ROUTE = "/user/"
 
-
 def test_user_put(client):
     test_user = user_schemas.UserPut(
         name="test_name", surname="test_surname", email="test_email@abc.com"
