@@ -1,20 +1,20 @@
 """
 This module contains the API routes and their corresponding
-functions for handling user-related requests.
+functions for handling pool-related requests.
 """
 
 from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from schemas import pool as pool_schemas
-from services import get_db, PoolService
+from services import PoolService, get_db
 
 
 router = APIRouter(prefix="/pool", tags=["pool"])
 
 
 @router.get("/{pool_id}", response_model=pool_schemas.Pool, status_code=200)
-def get_pool(pool_id: int, db: Session = Depends(get_db)):
+async def get_pool(pool_id: int, db: Session = Depends(get_db)):
     """
     Retrieves the information of a specific pool by ID.
 
@@ -33,7 +33,7 @@ def get_pool(pool_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[pool_schemas.Pool], status_code=200)
-def get_pools(
+async def get_pools(
     skip: int = Query(None, ge=0),
     limit: int = Query(100, ge=0),
     db: Session = Depends(get_db),
@@ -57,7 +57,7 @@ def get_pools(
 
 
 @router.put("/", response_model=pool_schemas.Pool, status_code=201)
-def put_pool(pool_data: pool_schemas.PoolPut, db: Session = Depends(get_db)):
+async def put_pool(pool_data: pool_schemas.PoolPut, db: Session = Depends(get_db)):
     """
     Creates a new pool with the given information and returns the pool information.
 
@@ -72,7 +72,7 @@ def put_pool(pool_data: pool_schemas.PoolPut, db: Session = Depends(get_db)):
 
 
 @router.patch("/{pool_id}", response_model=pool_schemas.Pool, status_code=200)
-def patch_pool(
+async def patch_pool(
     pool_id: int, pool_data: pool_schemas.PoolPatch, db: Session = Depends(get_db)
 ):
     """
@@ -97,7 +97,7 @@ def patch_pool(
 
 
 @router.delete("/{pool_id}", status_code=200)
-def delete_pool(pool_id: str, db: Session = Depends(get_db)):
+async def delete_pool(pool_id: str, db: Session = Depends(get_db)):
     """
     Deletes the pool with the given ID.
 
@@ -115,7 +115,7 @@ def delete_pool(pool_id: str, db: Session = Depends(get_db)):
 
 
 @router.get("/{pool_id}/models")
-def get_pool_models(pool_id: int, db: Session = Depends(get_db)):
+async def get_pool_models(pool_id: int, db: Session = Depends(get_db)):
     """
     Retrieves a list of models with pagination options (skip, limit).
 
@@ -129,7 +129,7 @@ def get_pool_models(pool_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{pool_id}/models/{model_id}")
-def get_pool_model(pool_id: int, model_id: int, db: Session = Depends(get_db)):
+async def get_pool_model(pool_id: int, model_id: int, db: Session = Depends(get_db)):
     """
     Retrieves the information of a specific model in pool by ID.
 
@@ -145,7 +145,7 @@ def get_pool_model(pool_id: int, model_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{pool_id}/models")
-def put_pool_model(pool_id: int, db: Session = Depends(get_db)):
+async def put_pool_model(pool_id: int, db: Session = Depends(get_db)):
     """
     Creates a new model in pool with the given information
     and returns the model information.
@@ -162,7 +162,7 @@ def put_pool_model(pool_id: int, db: Session = Depends(get_db)):
 
 
 @router.patch("/{pool_id}/models/{model_id}")
-def patch_pool_model(pool_id: int, model_id: int, db: Session = Depends(get_db)):
+async def patch_pool_model(pool_id: int, model_id: int, db: Session = Depends(get_db)):
     """
     Updates the information of an existing model in pool with the provided data and
     returns the updated model information.
@@ -179,7 +179,7 @@ def patch_pool_model(pool_id: int, model_id: int, db: Session = Depends(get_db))
 
 
 @router.delete("/{pool_id}/models/{model_id}")
-def delete_pool_model(pool_id: int, model_id: int, db: Session = Depends(get_db)):
+async def delete_pool_model(pool_id: int, model_id: int, db: Session = Depends(get_db)):
     """
     Deletes the model in pool with the given ID.
 

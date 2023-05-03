@@ -7,14 +7,14 @@ from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from schemas import user as user_schemas
-from services import get_db, UserService
+from services import UserService, get_db
 
 
 router = APIRouter(prefix="/user", tags=["user"])
 
 
 @router.get("/{user_id}", response_model=user_schemas.User, status_code=200)
-def get_user(user_id: int, db: Session = Depends(get_db)):
+async def get_user(user_id: int, db: Session = Depends(get_db)):
     """
     Retrieves the information of a specific user by ID.
 
@@ -33,7 +33,7 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[user_schemas.User], status_code=200)
-def get_users(
+async def get_users(
     skip: int = Query(None, ge=0),
     limit: int = Query(100, ge=0),
     db: Session = Depends(get_db),
@@ -57,7 +57,7 @@ def get_users(
 
 
 @router.put("/", response_model=user_schemas.User, status_code=201)
-def put_user(user_data: user_schemas.UserPut, db: Session = Depends(get_db)):
+async def put_user(user_data: user_schemas.UserPut, db: Session = Depends(get_db)):
     """
     Creates a new user with the given information and returns the user information.
 
@@ -75,7 +75,7 @@ def put_user(user_data: user_schemas.UserPut, db: Session = Depends(get_db)):
 
 
 @router.patch("/{user_id}", response_model=user_schemas.User, status_code=200)
-def patch_user(
+async def patch_user(
     user_id: int, user_data: user_schemas.UserPatch, db: Session = Depends(get_db)
 ):
     """
@@ -101,7 +101,7 @@ def patch_user(
 
 
 @router.delete("/{user_id}", status_code=200)
-def delete_user(user_id: int, db: Session = Depends(get_db)):
+async def delete_user(user_id: int, db: Session = Depends(get_db)):
     """
     Deletes the user with the specified email.
 

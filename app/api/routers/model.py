@@ -1,6 +1,6 @@
 """
 This module contains the API routes and their corresponding
-functions for handling user-related requests.
+functions for handling model-related requests.
 """
 
 from fastapi import APIRouter, Query, Depends, HTTPException
@@ -14,10 +14,7 @@ router = APIRouter(prefix="/model", tags=["model"])
 
 
 @router.get("/{model_id}", response_model=model_schemas.Model, status_code=200)
-async def get_model(
-    model_id: int,
-    db: Session = Depends(get_db),
-):
+async def get_model(model_id: int, db: Session = Depends(get_db)):
     """
     Retrieves the information of a specific model by ID.
 
@@ -60,10 +57,7 @@ async def get_models(
 
 
 @router.put("/", response_model=model_schemas.Model, status_code=201)
-async def put_model(
-    model_data: model_schemas.PutModel,
-    db: Session = Depends(get_db),
-):
+async def put_model(model_data: model_schemas.PutModel, db: Session = Depends(get_db)):
     """
     Creates a new model with the given information and returns the model information.
 
@@ -108,10 +102,7 @@ async def patch_model(
 
 
 @router.delete("/{model_id}", status_code=200)
-async def delete_model(
-    model_id: int,
-    db: Session = Depends(get_db),
-):
+async def delete_model(model_id: int, db: Session = Depends(get_db)):
     """
     Deletes the model with the given ID.
 

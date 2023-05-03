@@ -7,14 +7,14 @@ from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from schemas import gate as gate_schemas
-from services import get_db, GateService
+from services import GateService, get_db
 
 
 router = APIRouter(prefix="/gate", tags=["gate"])
 
 
 @router.get("/{gate_id}", response_model=gate_schemas.Gate, status_code=200)
-def get_gate(gate_id: int, db: Session = Depends(get_db)):
+async def get_gate(gate_id: int, db: Session = Depends(get_db)):
     """
     Retrieves the information of a specific gate by ID.
 
@@ -33,7 +33,7 @@ def get_gate(gate_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[gate_schemas.Gate], status_code=200)
-def get_gates(
+async def get_gates(
     skip: int = Query(None, ge=0),
     limit: int = Query(100, ge=0),
     db: Session = Depends(get_db),
@@ -57,7 +57,7 @@ def get_gates(
 
 
 @router.put("/", response_model=gate_schemas.Gate, status_code=201)
-def put_gate(gate_data: gate_schemas.GatePut, db: Session = Depends(get_db)):
+async def put_gate(gate_data: gate_schemas.GatePut, db: Session = Depends(get_db)):
     """
     Creates a new gate with the given information and returns the gate information.
 
@@ -75,7 +75,7 @@ def put_gate(gate_data: gate_schemas.GatePut, db: Session = Depends(get_db)):
 
 
 @router.patch("/{gate_id}", response_model=gate_schemas.Gate, status_code=200)
-def patch_gate(
+async def patch_gate(
     gate_id: int, gate_data: gate_schemas.GatePatch, db: Session = Depends(get_db)
 ):
     """
@@ -102,7 +102,7 @@ def patch_gate(
 
 
 @router.delete("/{gate_id}", status_code=200)
-def delete_gate(gate_id: int, db: Session = Depends(get_db)):
+async def delete_gate(gate_id: int, db: Session = Depends(get_db)):
     """
     Deletes the gate with the specified email.
 
