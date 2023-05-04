@@ -49,8 +49,10 @@ class GateService:
 
         :return: a list of gate data, where skip < gate_id < limit
         """
-
-        return db.query(gate_models.Gate).offset(skip).limit(limit).all()
+        models = db.query(gate_models.Gate).offset(skip).limit(limit).all()
+        if len(models) == 0:
+            return None
+        return models
 
     @classmethod
     def put_gate(cls, db: Session, gate_data: gate_schemas.GatePut) -> gate_models.Gate:
@@ -105,4 +107,4 @@ class GateService:
         """
         db.query(gate_models.Gate).filter(gate_models.Gate.id == id).delete()
         db.commit()
-        return JSONResponse({"detail": "success"}, status_code=200)
+        return JSONResponse({"detail": "success"})

@@ -32,7 +32,7 @@ def test_user_put(client):
     )
     response = client.put(ROUTE, json=dict(test_user))
 
-    assert response.status_code == 200, response.text
+    assert response.status_code == 201, response.text
     assert "id" in response.json()
 
 
