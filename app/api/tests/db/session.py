@@ -13,7 +13,6 @@ import pytest
 
 from main import app
 from services.deps import get_db
-import models
 from ..config.config import settings
 
 engine = sqlalchemy.create_engine(
