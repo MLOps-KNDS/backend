@@ -13,20 +13,6 @@ from models import test as test_models
 
 class TestService:
     @classmethod
-    def get_tests(
-        cls, db: Session, skip: int = 0, limit: int = 100
-    ) -> list[test_models.Test]:
-        """
-        Returns a list of test data, with optional pagination
-
-        :param skip: (optional) the number of records to skip (default: 0)
-        :param limit: (optional) the max number of records to retrieve (default: 100)
-
-        :return: a list of test data, where skip < test_id <= skip+limit
-        """
-        return db.query(test_models.Test).offset(skip).limit(limit).all()
-
-    @classmethod
     def get_test_by_id(cls, db: Session, id: int) -> test_models.Test | None:
         """
         Returns the test data found by test id
@@ -47,6 +33,23 @@ class TestService:
         :return: the test data corresponding to the given ID or None if not found
         """
         return db.query(test_models.Test).filter(test_models.Test.name == name).first()
+
+    @classmethod
+    def get_tests(
+        cls, db: Session, skip: int = 0, limit: int = 100
+    ) -> list[test_models.Test] | None:
+        """
+        Returns a list of test data, with optional pagination
+
+        :param skip: (optional) the number of records to skip (default: 0)
+        :param limit: (optional) the max number of records to retrieve (default: 100)
+
+        :return: a list of test data, where skip < test_id <= skip+limit
+        """
+        tests = db.query(test_models.Test).offset(skip).limit(limit).all()
+        if len(tests) == 0:
+            return None
+        return tests
 
     @classmethod
     def put_test(cls, db: Session, test_data: test_schemas.TestPut) -> test_models.Test:

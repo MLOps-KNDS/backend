@@ -8,20 +8,6 @@ from schemas import model as model_schemas
 
 class ModelService:
     @classmethod
-    def get_models(
-        cls, db: Session, skip: int = 0, limit: int = 100
-    ) -> list[model_models.Model] | None:
-        """
-        Returns list of models with pagination
-
-        :param db: Database session
-        :param skip: how many models to skip
-        :param limit: how many models to retrieve
-        :return: list of retrieved models
-        """
-        return db.query(model_models.Model).offset(skip).limit(limit).all()
-
-    @classmethod
     def get_model_by_id(cls, db: Session, model_id: int) -> model_models.Model | None:
         """
         Retrieves a model from the database by it's designated id
@@ -35,6 +21,36 @@ class ModelService:
             .filter(model_models.Model.id == model_id)
             .first()
         )
+
+    @classmethod
+    def get_model_by_name(cls, db: Session, name: str) -> model_models.Model | None:
+        """
+        Retrieves a model from the database by it's designated id
+
+        :param db: Database session
+        :param name: name of model to get
+        :return: model or None if model is not found
+        """
+        return (
+            db.query(model_models.Model).filter(model_models.Model.name == name).first()
+        )
+
+    @classmethod
+    def get_models(
+        cls, db: Session, skip: int = 0, limit: int = 100
+    ) -> list[model_models.Model] | None:
+        """
+        Returns list of models with pagination
+
+        :param db: Database session
+        :param skip: how many models to skip
+        :param limit: how many models to retrieve
+        :return: list of retrieved models
+        """
+        models = db.query(model_models.Model).offset(skip).limit(limit).all()
+        if len(models) == 0:
+            return None
+        return models
 
     @classmethod
     def put_model(
