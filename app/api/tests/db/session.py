@@ -22,11 +22,6 @@ engine = sqlalchemy.create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-# Set up the database once
-models.Base.metadata.drop_all(bind=engine)
-models.Base.metadata.create_all(bind=engine)
-
-
 # It creates a nested
 # transaction, recreates it when the application code calls session.commit
 # and rolls it back at the end.
@@ -63,6 +58,10 @@ def session():
 # session fixture.
 @pytest.fixture()
 def client(session):
+    # Set up the database once
+    models.Base.metadata.drop_all(bind=engine)
+    models.Base.metadata.create_all(bind=engine)
+
     def override_get_db():
         yield session
 
