@@ -6,8 +6,6 @@ on:
       - master
   workflow_dispatch:
 
-permissions: write-all
-
 jobs:
   generate-swagger-json:
     runs-on: ubuntu-latest
