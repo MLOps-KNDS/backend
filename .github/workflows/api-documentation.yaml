@@ -6,9 +6,6 @@ on:
       - master
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   generate-swagger-json:
     runs-on: ubuntu-latest
@@ -21,6 +18,7 @@ jobs:
         with:
           repository: MLOps-KNDS/backend-swagger
           path: backend-swagger
+          token: ${{ secrets.AUTH_TOKEN }}
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -41,3 +39,4 @@ jobs:
           add: 'swagger.yaml'
           author_name: 'github-actions[bot]'
           author_email: 'github-actions[bot]@users.noreply.github.com'
+          push: true
