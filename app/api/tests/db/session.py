@@ -13,7 +13,6 @@ import pytest
 
 from main import app
 from services.deps import get_db
-import models
 from ..config.config import settings
 
 from routers import (
@@ -28,11 +27,6 @@ engine = sqlalchemy.create_engine(
     settings.TEST_SQLALCHEMY_DATABASE_URI, pool_pre_ping=True
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-# Set up the database once
-models.Base.metadata.drop_all(bind=engine)
-models.Base.metadata.create_all(bind=engine)
 
 
 # It creates a nested

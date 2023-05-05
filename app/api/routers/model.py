@@ -1,13 +1,9 @@
 """
 This module contains the API routes and their corresponding
-functions for handling user-related requests.
+functions for handling model-related requests.
 """
-
-from fastapi import APIRouter, Path, Body, Query, Depends
-from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
+from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Annotated
 
 from schemas import model as model_schemas
 from services import ModelService, get_db
@@ -16,10 +12,29 @@ from services import ModelService, get_db
 router = APIRouter(prefix="/model", tags=["model"])
 
 
-@router.get("/", response_model=list[model_schemas.Model])
+@router.get("/{model_id}", response_model=model_schemas.Model, status_code=200)
+async def get_model(model_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieves the information of a specific model by ID.
+
+    :param model_id: model ID
+    :param db: Database session
+
+    :raise HTTPException: 404 status code with "Model not found!" message
+    if the specified gate ID does not exist in the database.
+
+    :return: the model data corresponding to the given ID
+    """
+    model = ModelService.get_model_by_id(db=db, model_id=model_id)
+    if not model:
+        raise HTTPException(status_code=404, detail="Model not found!")
+    return model
+
+
+@router.get("/", response_model=list[model_schemas.Model], status_code=200)
 async def get_models(
-    skip: Annotated[int, Query(ge=0)] = 0,
-    limit: Annotated[int, Query(ge=0)] = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=0),
     db: Session = Depends(get_db),
 ):
     """
@@ -29,87 +44,75 @@ async def get_models(
     :param skip: (optional) the number of records to skip (default: 0)
     :param limit: (optional) the maximum number of records to retrieve (default: 100)
 
-    :return: a list of model data, where skip <= model_id < skip + limit
+    :raise HTTPException: 404 status code with "Model not found!" message
+    if the specified range of model ID's does not exist in the database.
+
+    :return: a list of model data, where skip < model_id < limit
     """
     models = ModelService.get_models(db=db, skip=skip, limit=limit)
+    if not models:
+        raise HTTPException(status_code=404, detail="Models not found!")
     return models
 
 
-@router.get("/{model_id}", response_model=model_schemas.Model)
-async def get_single_model(
-    model_id: Annotated[int, Path(title="id of model to get")],
-    db: Session = Depends(get_db),
-):
+@router.put("/", response_model=model_schemas.Model, status_code=201)
+async def put_model(model_data: model_schemas.PutModel, db: Session = Depends(get_db)):
     """
-    Retrieves the information of a specific model by ID.
+    Creates a new model with the given information and returns the model information.
 
-    :param model_id: model ID
+    :param model_data: the information of the new model to be created.
     :param db: Database session
 
-    :return: the model data corresponding to the given ID or a message with status code
-    404 indicating that the model was not found
+    :raise HTTPException: 409 status code with "Name already registered"
+    message if the provided name already exists in the database.
+
+    :return: the newly-inserted model record
     """
-    model = ModelService.get_model_by_id(db=db, model_id=model_id)
-    if not model:
-        return JSONResponse(status_code=404, content={"message": "model not found"})
-    return model
+    if ModelService.get_model_by_name(db=db, name=model_data.name):
+        raise HTTPException(status_code=409, detail="Name already registered")
+    return ModelService.put_model(db=db, model=model_data)
 
 
-@router.patch("/{model_id}", status_code=200, response_model=model_schemas.Model)
-async def update_model(
-    model_id: Annotated[int, Path(title="id of model to update")],
-    new_fields: Annotated[
-        model_schemas.PatchModel, Body(description="fields of model to update")
-    ],
+@router.patch("/{model_id}", response_model=model_schemas.Model, status_code=200)
+async def patch_model(
+    model_id: int,
+    model_data: model_schemas.PatchModel,
     db: Session = Depends(get_db),
 ):
     """
     Allows updating a model by it's id
 
     :param model_id: id of model to update
-    :param new_fields: JSON fields with new values to update a model
+    :param model_data: JSON fields with new values to update a model
     model is not found
+
+    :raise HTTPException: 404 status code with "Model not found!" message
+    if the specified gate ID does not exist in the database.
+    :raise HTTPException: 409 status code with "Name already registered"
+    message if the provided name already exists in the database.
+
     :return: updated model
     """
-    model = ModelService.get_model_by_id(db, model_id)
-    if not model:
-        return JSONResponse(status_code=404, content={"message": "model not found"})
-    return ModelService.patch_model(db=db, model_id=model_id, model=new_fields)
-
-
-@router.put("/", status_code=201, response_model=model_schemas.Model)
-async def add_model_to_database(
-    new_model: Annotated[
-        model_schemas.PutModel, Body(description="model to add to database")
-    ],
-    db: Session = Depends(get_db),
-):
-    """
-    Creates a new model with the given information and returns the model information.
-
-    :param new_model: the information of the new model to be created.
-    :param db: Database session
-
-    :return: the newly-inserted model record
-    """
-    db_model = ModelService.put_model(db=db, model=new_model)
-    model_encoded = jsonable_encoder(db_model)
-    return JSONResponse(content=model_encoded)
+    if not ModelService.get_model_by_id(db, model_id):
+        raise HTTPException(status_code=404, detail="Model not found!")
+    if ModelService.get_model_by_name(db=db, name=model_data.name):
+        raise HTTPException(status_code=409, detail="Name already registered")
+    return ModelService.patch_model(db=db, model_id=model_id, model=model_data)
 
 
 @router.delete("/{model_id}", status_code=200)
-async def delete_model(
-    model_id: Annotated[int, Path(title="id of model to delete")],
-    db: Session = Depends(get_db),
-):
+async def delete_model(model_id: int, db: Session = Depends(get_db)):
     """
     Deletes the model with the given ID.
 
     :param model_id: model ID
     :param db: Database session
 
+    :raise HTTPException: 404 status code with "Model not found!" message
+    if the specified gate ID does not exist in the database.
+
     :return: a json with a "detail" key indicating success
     """
     if not ModelService.get_model_by_id(db=db, model_id=model_id):
-        return JSONResponse(status_code=404, content={"message": "model not found"})
+        raise HTTPException(status_code=404, detail="Model not found!")
     return ModelService.delete_model(db=db, model_id=model_id)
