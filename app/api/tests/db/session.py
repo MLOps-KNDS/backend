@@ -58,10 +58,6 @@ def session():
 # session fixture.
 @pytest.fixture()
 def client(session):
-    # Set up the database once
-    models.Base.metadata.drop_all(bind=engine)
-    models.Base.metadata.create_all(bind=engine)
-
     def override_get_db():
         yield session
 
