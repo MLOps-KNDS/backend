@@ -32,14 +32,3 @@ class Pool(BasePool):
 
     class Config:
         orm_mode = True
-
-
-class PoolPostAddModel(BaseModel):
-    model_id: Annotated[int, Field(description="Model ID")]
-    mode: Annotated[ModelMode, Field(description="Model mode")]
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
-
-
-class PoolPostRemoveModel(BaseModel):
-    model_id: Annotated[int, Field(description="Model ID")]
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]

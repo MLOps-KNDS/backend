@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 
 from schemas import pool as pool_schemas
 from services import PoolService, get_db
-from routers.pool import pool_model
 
 
 router = APIRouter(tags=["pool"])
