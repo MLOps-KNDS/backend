@@ -107,3 +107,12 @@ class PoolService:
         db.query(pool_models.Pool).filter(pool_models.Pool.id == id).delete()
         db.commit()
         return JSONResponse({"detail": "success"})
+
+    @classmethod
+    def get_pool_models(cls, db: Session) -> list[pool_models.PoolModel]:
+        """
+        Returns a list of pool model data
+
+        :return: a list of pool model data
+        """
+        return db.query(pool_models.PoolModel).all()
