@@ -15,14 +15,6 @@ from main import app
 from services.deps import get_db
 from ..config.config import settings
 
-from routers import (
-    user,
-    pool,
-    gate,
-    model,
-    test,
-)
-
 engine = sqlalchemy.create_engine(
     settings.TEST_SQLALCHEMY_DATABASE_URI, pool_pre_ping=True
 )

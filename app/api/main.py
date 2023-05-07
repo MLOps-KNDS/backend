@@ -21,7 +21,6 @@ from routers import (
 
 @asynccontextmanager
 async def init(app: FastAPI):
-    print("asdas")
     time.sleep(5)
     create_db(engine)
     yield
