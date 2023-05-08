@@ -82,9 +82,16 @@ jobs:
 
       - name: Unit tests
         run: |
-          pytest -vv --junit-xml=res.xml
+          pytest -vv --cov-report=xml --cov=app         
         env: 
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
           POSTGRES_DB: postgres
-          
+
+      - name: Publish test report as an artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pytest-results
+          path: res.xml
+      
