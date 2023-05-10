@@ -3,7 +3,9 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 
 from models import model as model_models
+from models.model import Status
 from schemas import model as model_schemas
+from utils import ModelDeployment
 
 
 class ModelService:
@@ -108,3 +110,71 @@ class ModelService:
         db.query(model_models.Model).filter(model_models.Model.id == model_id).delete()
         db.commit()
         return JSONResponse({"detail": "model deleted"})
+
+    @classmethod
+    def activate_model(
+        cls,
+        db: Session,
+        model_id: int,
+        replicas: int,
+        cpu_limit: str,
+        cpu_request: str,
+        memory_limit: str,
+        memory_request: str,
+    ) -> JSONResponse:
+        """
+        Activates a model in the database
+
+        :param db: Database session
+        :param model_id: id of model to activate
+        :return: JSON respose indicating succesful activation
+        """
+        db_model = (
+            db.query(model_models.Model)
+            .filter(model_models.Model.id == model_id)
+            .first()
+        )
+
+        model_deployment = ModelDeployment(
+            name=db_model.name,
+            image_tag=db_model.image_tag,
+            replicas=replicas,
+            cpu_limit=cpu_limit,
+            cpu_request=cpu_request,
+            memory_limit=memory_limit,
+            memory_request=memory_request,
+        )
+        model_deployment.deploy()
+
+        db.query(model_models.Model).filter(model_models.Model.id == model_id).update(
+            {"status": Status.ACTIVE}
+        )
+        db.commit()
+        return JSONResponse({"detail": "model activated"})
+
+    @classmethod
+    def deactivate_model(
+        cls,
+        db: Session,
+        model_id: int,
+    ) -> JSONResponse:
+        """
+        Deactivates a model in the database
+
+        :param db: Database session
+        :param model_id: id of model to deactivate
+        :return: JSON respose indicating succesful deactivation
+        """
+        db_model = (
+            db.query(model_models.Model)
+            .filter(model_models.Model.id == model_id)
+            .first()
+        )
+
+        ModelDeployment.delete(db_model.name)
+
+        db.query(model_models.Model).filter(model_models.Model.id == model_id).update(
+            {"status": Status.INACTIVE}
+        )
+        db.commit()
+        return JSONResponse({"detail": "model deactivated"})

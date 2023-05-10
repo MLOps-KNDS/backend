@@ -13,7 +13,6 @@ class ModelBase(BaseModel):
     name: Annotated[str, Field(description="Model name")]
     description: Annotated[str, Field(description="Model description")]
     source_path: Annotated[str, Field(description="Path to the model source code")]
-    status: Annotated[Status, Field(description="Model status")]
     image_tag: Annotated[str, Field(description="Docker image tag")]
 
 
@@ -28,7 +27,6 @@ class PatchModel(ModelBase):
     source_path: Annotated[
         str | None, Field(description="Path to the model source code")
     ] = None
-    status: Annotated[Status | None, Field(description="Model status")] = None
     image_tag: Annotated[str | None, Field(description="Docker image tag")] = None
 
 
@@ -38,6 +36,7 @@ class Model(ModelBase):
     created_at: Annotated[datetime, Field(description="Creation date")]
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
     updated_at: Annotated[datetime, Field(description="Last update date")]
+    status: Annotated[Status, Field(description="Model status")]
 
     class Config:
         orm_mode = True

@@ -73,6 +73,65 @@ async def put_model(model_data: model_schemas.PutModel, db: Session = Depends(ge
     return ModelService.put_model(db=db, model=model_data)
 
 
+@router.post("/{model_id}/activate", status_code=200)
+async def activate_model(
+    model_id: int,
+    replicas: int | None = None,
+    cpu_limit: str | None = None,
+    cpu_request: str | None = None,
+    memory_limit: str | None = None,
+    memory_request: str | None = None,
+    db: Session = Depends(get_db),
+):
+    """
+    Activates the model with the given ID.
+
+    :param model_id: model ID
+    :param replicas: (optional) number of replicas to deploy
+    :param cpu_limit: (optional) maximum cpu usage
+    :param cpu_request: (optional) requested cpu amount
+    :param memory_limit: (optional) maximum memory usage
+    :param memory_request: (optional) requested memory amount
+    :param db: Database session
+
+    :raise HTTPException: 404 status code with "Model not found!" message
+    if the specified gate ID does not exist in the database.
+
+    :return: a json with a "detail" key indicating success
+    """
+    model = ModelService.get_model_by_id(db=db, model_id=model_id)
+    if not model:
+        raise HTTPException(status_code=404, detail="Model not found!")
+    return ModelService.activate_model(
+        db=db,
+        model_id=model_id,
+        replicas=replicas,
+        cpu_limit=cpu_limit,
+        cpu_request=cpu_request,
+        memory_limit=memory_limit,
+        memory_request=memory_request,
+    )
+
+
+@router.post("/{model_id}/deactivate", status_code=200)
+async def deactivate_model(model_id: int, db: Session = Depends(get_db)):
+    """
+    Deactivates the model with the given ID.
+
+    :param model_id: model ID
+    :param db: Database session
+
+    :raise HTTPException: 404 status code with "Model not found!" message
+    if the specified gate ID does not exist in the database.
+
+    :return: a json with a "detail" key indicating success
+    """
+    model = ModelService.get_model_by_id(db=db, model_id=model_id)
+    if not model:
+        raise HTTPException(status_code=404, detail="Model not found!")
+    return ModelService.deactivate_model(db=db, model_id=model_id)
+
+
 @router.patch("/{model_id}", response_model=model_schemas.Model, status_code=200)
 async def patch_model(
     model_id: int,
