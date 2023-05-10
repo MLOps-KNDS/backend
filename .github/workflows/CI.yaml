@@ -76,7 +76,7 @@ jobs:
 
       - name: Unit tests
         run: |
-          pytest -vv --cov=app > pytest-coverage.txt --junitxml=pytest.xml | tee pytest-coverage.txt
+          pytest -vv --cov=app --junitxml=pytest.xml --cov-report=term-missing | tee pytest-coverage.txt
         env: 
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
