@@ -70,6 +70,7 @@ class ModelService:
         db_model.updated_by = model.created_by
         db_model.created_at = creation_time
         db_model.updated_at = creation_time
+        db_model.status = Status.INACTIVE
         db.add(db_model)
         db.commit()
         db.refresh(db_model)
