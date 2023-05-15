@@ -7,9 +7,11 @@ from sqlalchemy.orm import Session
 
 from schemas import model as model_schemas
 from services import ModelService, get_db
+from routers.model_details import router as model_details_router
 
 
 router = APIRouter(prefix="/model", tags=["model"])
+router.include_router(model_details_router, prefix="/{model_id}/details")
 
 
 @router.get("/{model_id}", response_model=model_schemas.Model, status_code=200)
