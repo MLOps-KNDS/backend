@@ -20,4 +20,9 @@ class ModelDetails(Base):
     memory_request = Column(String(255), nullable=False)
     memory_limit = Column(String(255), nullable=False)
 
-    model = relationship("Model", back_populates="model_details")
+    model = relationship(
+        "Model",
+        foreign_keys="ModelDetails.model_id",
+        back_populates="model_details",
+        uselist=False,
+    )

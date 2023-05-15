@@ -2,8 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 
 from models import ModelDetails
-from schemas.model import PutModelDetails, PatchModelDetails
-from services import ModelService
+from schemas.model_details import PutModelDetails, PatchModelDetails
 
 
 class ModelDetailsService:
@@ -81,11 +80,8 @@ class ModelDetailsService:
         db_model_details = ModelDetails(**model_details.dict())
         db.add(db_model_details)
         db.commit()
-        db.refresh(model_details)
-        ModelService.patch_model(
-            db, model_details.model_id, {"model_details_id": model_details.id}
-        )
-        return model_details
+        db.refresh(db_model_details)
+        return db_model_details
 
     @classmethod
     def patch_model_details(
@@ -125,7 +121,9 @@ class ModelDetailsService:
                     "message": f"ModelDetails with id {model_details_id} not found"
                 },
             )
-        ModelService.patch_model(db, model_details.model_id, {"model_details_id": None})
         db.delete(model_details)
         db.commit()
-        return JSONResponse(status_code=204)
+        return JSONResponse(
+            status_code=204,
+            content={"message": f"ModelDetails with id {model_details_id} removed"},
+        )

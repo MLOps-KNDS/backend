@@ -19,7 +19,7 @@ class Model(Base):
     updated_at = Column(DateTime, nullable=False)
     updated_by = Column(Integer, ForeignKey("user.id"))
     status = Column(Enum(Status), nullable=False)
-    model_details_id = Column(Integer, ForeignKey("model_details.id"))
+    # model_details_id = Column(Integer, ForeignKey("model_details.id"))
 
     creator = relationship(
         "User", foreign_keys="Model.created_by", back_populates="created_models"
@@ -34,7 +34,7 @@ class Model(Base):
 
     users_roles = relationship("ModelUserRole", back_populates="model")
 
-    model_details = relationship("ModelDetails", back_populates="model")
+    model_details = relationship("ModelDetails", back_populates="model", uselist=False)
 
 
 class ModelTest(Base):
