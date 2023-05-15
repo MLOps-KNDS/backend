@@ -4,7 +4,6 @@ from datetime import datetime
 
 from models import model as model_models
 from schemas import model as model_schemas
-from utils.model_builder import ModelBuilder
 
 
 class ModelService:
@@ -108,5 +107,4 @@ class ModelService:
         """
         db.query(model_models.Model).filter(model_models.Model.id == model_id).delete()
         db.commit()
-        
         return JSONResponse({"detail": "model deleted"})
