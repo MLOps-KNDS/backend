@@ -19,7 +19,7 @@ class Model(Base):
     updated_at = Column(DateTime, nullable=False)
     updated_by = Column(Integer, ForeignKey("user.id"))
     status = Column(Enum(Status), nullable=False)
-    
+
     creator = relationship(
         "User", foreign_keys="Model.created_by", back_populates="created_models"
     )
