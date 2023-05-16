@@ -28,6 +28,11 @@ def test_model_put(client):
     assert response.status_code == 201, response.text
     assert "id" in response.json()
 
+    # Test for exception
+    response = client.put(MODEL_ROUTE, json=dict(test_model))
+    assert response.status_code == 409, response.text
+    assert response.json() == {"detail": "Name already registered"}
+
 
 def test_model_patch(client):
     test_user = user_schemas.UserPut(
@@ -64,13 +69,32 @@ def test_model_patch(client):
     for k in excepted_output.keys():
         assert response.json()[k] == excepted_output[k]
 
+    response = client.patch(
+        f"{MODEL_ROUTE}/{model_id+1}", json={"updated_by": user_id_first}
+    )
+    assert response.status_code == 404, response.text
+    assert response.json() == {"detail": "Model not found!"}
 
-def test_model_get(client):
+    response = client.patch(
+        f"{MODEL_ROUTE}/{model_id}",
+        json={"name": "test_patch_name", "updated_by": user_id_first},
+    )
+    assert response.status_code == 409, response.text
+    assert response.json() == {"detail": "Name already registered"}
+
+
+def test_models_get(client):
+    params = {"skip": 0, "limit": 3}
     test_user = user_schemas.UserPut(
         name="test_name", surname="test_surname", email="test_email@abc.com"
     )
     response = client.put(USER_ROUTE, json=dict(test_user))
     user_id = response.json()["id"]
+
+    # Test for exception
+    response = client.get(MODEL_ROUTE, params=params)
+    assert response.status_code == 404, response.text
+    assert response.json() == {"detail": "Models not found!"}
 
     test_model = model_schemas.PutModel(
         name="test_name_1",
@@ -117,6 +141,10 @@ def test_model_get(client):
 
     assert response.status_code == 200, response.text
     assert response.json() == expected_response
+    # Test for exception
+    response = client.get(f"{MODEL_ROUTE}/{model_id+1}")
+    assert response.status_code == 404, response.text
+    assert response.json() == {"detail": "Model not found!"}
 
 
 def test_model_delete(client):
@@ -138,3 +166,7 @@ def test_model_delete(client):
 
     assert response.status_code == 200
     assert response.json() == {"detail": "model deleted"}
+    # Test for exceptions
+    response = client.delete(f"{MODEL_ROUTE}/{model_id}")
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Model not found!"}
