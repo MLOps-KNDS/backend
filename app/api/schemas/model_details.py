@@ -18,10 +18,6 @@ class PatchModelDetails(ModelDetailsBase):
     pass
 
 
-class PutModelDetails(ModelDetailsBase):
-    pass
-
-
 class ModelDetails(ModelDetailsBase):
     id: Annotated[int, Field(description="ModelDetails ID")]
     model_id: Annotated[int, Field(description="Model ID")]
