@@ -1,17 +1,20 @@
-from fastapi import APIRouter, Query, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from schemas.model_details import ModelDetails, PutModelDetails, PatchModelDetails
 from services import ModelDetailsService, get_db
 
-router = APIRouter(tags=["model_details"])
+router = APIRouter(prefix="/{model_id}/details", tags=["model-details"])
 
 
 @router.get("/{model_details_id}", response_model=ModelDetails, status_code=200)
-async def get_model_details_by_id(model_details_id: int, db: Session = Depends(get_db)):
+async def get_model_details_by_id(
+    model_id: int, model_details_id: int, db: Session = Depends(get_db)
+):
     """
     Retrieves the information of a specific model_details by ID.
 
+    :param model_id: model ID
     :param model_details_id: model_details ID
     :param db: Database session
 
@@ -25,43 +28,22 @@ async def get_model_details_by_id(model_details_id: int, db: Session = Depends(g
     )
     if not model_details:
         raise HTTPException(status_code=404, detail="ModelDetails not found!")
-    return model_details
-
-
-@router.get("/", response_model=list[ModelDetails], status_code=200, deprecated=True)
-async def get_model_details(
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=0),
-    db: Session = Depends(get_db),
-):
-    """
-    Retrieves a list of model_details with pagination options (skip, limit).
-    This funciton probably won't be used, but it's here just in case, or it
-    will be removed in the future.
-
-    :param db: Database session
-    :param skip: (optional) the number of records to skip (default: 0)
-    :param limit: (optional) the maximum number of records to retrieve (default: 100)
-
-    :raise HTTPException: 404 status code with "ModelDetails not found!" message
-    if the specified range of model_details ID's does not exist in the database.
-
-    :return: a list of model_details data, where skip < model_details_id < limit
-    """
-    model_details = ModelDetailsService.get_model_details(db=db, skip=skip, limit=limit)
-    if not model_details:
-        raise HTTPException(status_code=404, detail="ModelDetails not found!")
+    if model_details.model_id != model_id:
+        raise HTTPException(
+            status_code=403, detail="ModelDetails for this model not found!"
+        )
     return model_details
 
 
 @router.put("/", response_model=ModelDetails, status_code=201)
 async def put_model_details(
-    model_details_data: PutModelDetails, db: Session = Depends(get_db)
+    model_id: int, model_details_data: PutModelDetails, db: Session = Depends(get_db)
 ):
     """
     Creates a new model_details with the given information
     and returns the model_details information.
 
+    :param model_id: model ID
     :param model_details_data: the information of the new model_details to be created.
     :param db: Database session
 
@@ -78,20 +60,21 @@ async def put_model_details(
             status_code=400, detail="ModelDetails with this image tag already exists!"
         )
     model_detail = ModelDetailsService.get_model_details_by_model_id(
-        db=db, model_id=model_details_data.model_id
+        db=db, model_id=model_id
     )
     if model_detail:
         raise HTTPException(
             status_code=400, detail="ModelDetails for this model_id already exists!"
         )
     model_details = ModelDetailsService.put_model_details(
-        db=db, model_details=model_details_data
+        db=db, model_details=model_details_data, model_id=model_id
     )
     return model_details
 
 
 @router.patch("/{model_details_id}", response_model=ModelDetails, status_code=200)
 async def patch_model_details(
+    model_id: int,
     model_details_id: int,
     model_details_data: PatchModelDetails,
     db: Session = Depends(get_db),
@@ -100,6 +83,7 @@ async def patch_model_details(
     Updates the information of an existing model_details
     and returns the model_details information.
 
+    :param model_id: model ID
     :param model_details_id: model_details ID
     :param model_details_data: the information of the model_details to be updated.
     :param db: Database session
@@ -121,6 +105,14 @@ async def patch_model_details(
         raise HTTPException(
             status_code=400, detail="ModelDetails with the same tag already exists!"
         )
+    model_details = ModelDetailsService.get_model_details_by_model_id(
+        db=db, model_id=model_id
+    )
+    if model_details:
+        raise HTTPException(
+            status_code=400, detail="ModelDetails for this model already exists!"
+        )
+
     model_details = ModelDetailsService.patch_model_details(
         db=db, model_details_id=model_details_id, model_details=model_details_data
     )
@@ -128,7 +120,9 @@ async def patch_model_details(
 
 
 @router.delete("/{model_details_id}", response_model=ModelDetails, status_code=200)
-async def delete_model_details(model_details_id: int, db: Session = Depends(get_db)):
+async def delete_model_details(
+    model_id: int, model_details_id: int, db: Session = Depends(get_db)
+):
     """
     Deletes a model_details from the database
 

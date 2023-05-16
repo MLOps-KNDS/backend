@@ -68,7 +68,7 @@ class ModelDetailsService:
 
     @classmethod
     def put_model_details(
-        cls, db: Session, model_details: PutModelDetails
+        cls, db: Session, model_details: PutModelDetails, model_id: int
     ) -> ModelDetails:
         """
         Creates a new model_details and adds it to the database
@@ -77,7 +77,7 @@ class ModelDetailsService:
         :param model_details: model_details to create
         :return: created model_details
         """
-        db_model_details = ModelDetails(**model_details.dict())
+        db_model_details = ModelDetails(**model_details.dict(), model_id=model_id)
         db.add(db_model_details)
         db.commit()
         db.refresh(db_model_details)
