@@ -29,6 +29,7 @@ def create_db(engine: Engine) -> dict:
 
         # Create all tables
         models.Base.metadata.create_all(bind=engine, checkfirst=True)
+        _logger.info(f"List of all tables: {models.Base.metadata.tables.keys()}")
     except Exception as e:
         _logger.error(f"Creating database from ORM models failed with error {e}")
         raise e
