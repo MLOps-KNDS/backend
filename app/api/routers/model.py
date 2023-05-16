@@ -72,8 +72,9 @@ async def put_model(model_data: model_schemas.PutModel, db: Session = Depends(ge
     """
     if ModelService.get_model_by_name(db=db, name=model_data.name):
         raise HTTPException(status_code=409, detail="Name already registered")
-    ModelDetailsService.put_model_details(db, model_data.id)
-    return ModelService.put_model(db=db, model=model_data)
+    result = ModelService.put_model(db=db, model=model_data)
+    ModelDetailsService.put_model_details(db, result.id)
+    return result
 
 
 @router.patch("/{model_id}", response_model=model_schemas.Model, status_code=200)
