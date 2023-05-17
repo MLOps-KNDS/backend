@@ -2,6 +2,7 @@ import logging
 from kubernetes import client, config
 
 from utils.constants import Constants
+from models import ModelDetails
 
 _logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ class ModelDeployment:
     def __init__(
         self,
         name: str,
-        model_details: dict,
+        model_details: ModelDetails,
     ) -> None:
         """
         :param name: Name of the deployment and service. Must be unique
@@ -54,12 +55,12 @@ class ModelDeployment:
         v1.create_namespaced_deployment(
             namespace=Constants.K8S_NAMESPACE_MODELS, body=deployment
         )
-        _logger.info("Deployment ready")
+        _logger.info(f"Deployment with name {self.name} ready")
         v1 = client.CoreV1Api()
         v1.create_namespaced_service(
             namespace=Constants.K8S_NAMESPACE_MODELS, body=service
         )
-        _logger.info("Service ready")
+        _logger.info(f"Service with name {self.name} ready")
 
     def __create_deployment(self) -> client.V1Deployment:
         container = client.V1Container(

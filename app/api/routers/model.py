@@ -107,11 +107,10 @@ async def activate_model(
     if not db_model_details:
         raise HTTPException(status_code=404, detail="Model details not found!")
 
-    for key, val in db_model_details.__dict__.items():
-        if val is None:
-            raise HTTPException(
-                status_code=406, detail="Model details are not complete! {key} is null}"
-            )
+    if any(value is None for value in db_model_details.__dict__.values()):
+        raise HTTPException(
+            status_code=406, detail="Model details are not complete! {key} is null}"
+        )
 
     response = ModelService.activate_model(
         db=db,
