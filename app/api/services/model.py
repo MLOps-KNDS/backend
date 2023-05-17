@@ -4,7 +4,6 @@ from fastapi.exceptions import HTTPException
 from datetime import datetime
 
 from models import model as model_models
-from models import ModelDetails
 from models.model import Status
 from schemas import model as model_schemas
 from utils import ModelDeployment
@@ -102,6 +101,25 @@ class ModelService:
         return db_model
 
     @classmethod
+    def change_model_status(
+        cls, db: Session, model_id: int, status: Status
+    ) -> model_models.Model:
+        """
+        Changes the status of a model in the database
+
+        :param db: Database session
+        :param model_id: id of a model to update
+        :return: updated model
+        """
+        db_model = ModelService.get_model_by_id(db, model_id)
+        db_model.status = status
+        db_model.updated_at = datetime.utcnow()
+        db.add(db_model)
+        db.commit()
+        db.refresh(db_model)
+        return db_model
+
+    @classmethod
     def delete_model(cls, db: Session, model_id: int) -> JSONResponse:
         """
         Deletes a model from the database
@@ -117,8 +135,8 @@ class ModelService:
     @classmethod
     def activate_model(
         cls,
-        db: Session,
-        model_id: int,
+        name: str,
+        model_details: dict,
     ) -> JSONResponse:
         """
         Deploys a model to a kubernetes cluster
@@ -126,52 +144,15 @@ class ModelService:
         :param db: Database session
         :param model_id: id of model to activate
 
-        :raises: HTTPException if model details are not complete
-        :raises: HTTPException if model is already active
-        :raises: HTTPException if model is not found
-        :raises: HTTPException if model details are not found
-
         :return: JSON respose indicating succesful activation
         """
 
-        db_model = (
-            db.query(model_models.Model)
-            .filter(model_models.Model.id == model_id)
-            .first()
-        )
-        if not db_model:
-            raise HTTPException(status_code=404, content={"detail": "Model not found!"})
-        if db_model.status == Status.ACTIVE:
-            raise HTTPException(
-                status_code=409, content={"detail": "Model already active!"}
-            )
-
-        db_model_details = (
-            db.query(ModelDetails).filter(ModelDetails.model_id == model_id).first()
-        )
-        if not db_model_details:
-            raise HTTPException(
-                status_code=404, content={"detail": "Model details not found!"}
-            )
-        for key, val in db_model_details.__dict__.items():
-            if val is None:
-                raise HTTPException(
-                    status_code=404,
-                    content={
-                        "detail": "Model details are not complete! {key} is null}"
-                    },
-                )
-
         model_deployment = ModelDeployment(
-            name=db_model.name,
-            model_details={**db_model_details},
+            name=name,
+            model_details={**model_details},
         )
         model_deployment.deploy()
 
-        db.query(model_models.Model).filter(model_models.Model.id == model_id).update(
-            {"status": Status.ACTIVE}
-        )
-        db.commit()
         return JSONResponse({"detail": "model activated"})
 
     @classmethod
