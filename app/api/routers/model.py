@@ -112,12 +112,11 @@ async def activate_model(
             status_code=406, detail="Model details are not complete! {key} is null}"
         )
 
-    response = ModelService.activate_model(
-        db=db,
-        model_id=model_id,
-    )
     ModelService.change_model_status(db=db, model_id=model_id, status=Status.ACTIVE)
-    return response
+    return ModelService.activate_model(
+        name=db_model.name,
+        model_details=db_model_details,
+    )
 
 
 @router.post("/{model_id}/deactivate", status_code=200)
@@ -138,8 +137,9 @@ async def deactivate_model(model_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Model not found!")
     if model.status == Status.INACTIVE:
         raise HTTPException(status_code=409, detail="Model already inactive!")
+
     ModelService.change_model_status(db=db, model_id=model_id, status=Status.INACTIVE)
-    return ModelService.deactivate_model(db=db, model_id=model_id)
+    return ModelService.deactivate_model(name=model.name)
 
 
 @router.patch("/{model_id}", response_model=model_schemas.Model, status_code=200)

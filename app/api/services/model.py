@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
-from fastapi.exceptions import HTTPException
 from datetime import datetime
 
 from models import model as model_models
@@ -109,6 +108,8 @@ class ModelService:
 
         :param db: Database session
         :param model_id: id of a model to update
+        :param status: new status of a model
+
         :return: updated model
         """
         db_model = ModelService.get_model_by_id(db, model_id)
@@ -141,15 +142,15 @@ class ModelService:
         """
         Deploys a model to a kubernetes cluster
 
-        :param db: Database session
-        :param model_id: id of model to activate
+        :param name: name of model to deploy
+        :param model_details: model details
 
         :return: JSON respose indicating succesful activation
         """
 
         model_deployment = ModelDeployment(
             name=name,
-            model_details={**model_details},
+            model_details=model_details,
         )
         model_deployment.deploy()
 
@@ -158,36 +159,16 @@ class ModelService:
     @classmethod
     def deactivate_model(
         cls,
-        db: Session,
-        model_id: int,
+        name: str,
     ) -> JSONResponse:
         """
         Deactivates a model from a kubernetes cluster
 
-        :param db: Database session
-        :param model_id: id of model to deactivate
+        :param name: name of model to deactivate
 
-        :raises: HTTPException if model is already inactive
-        :raises: HTTPException if model is not found
 
         :return: JSON respose indicating succesful deactivation
         """
-        db_model = (
-            db.query(model_models.Model)
-            .filter(model_models.Model.id == model_id)
-            .first()
-        )
-        if not db_model:
-            raise HTTPException(status_code=404, content={"detail": "Model not found!"})
-        if db_model.status == Status.INACTIVE:
-            raise HTTPException(
-                status_code=409, content={"detail": "Model already inactive!"}
-            )
 
-        ModelDeployment.delete(db_model.name)
-
-        db.query(model_models.Model).filter(model_models.Model.id == model_id).update(
-            {"status": Status.INACTIVE}
-        )
-        db.commit()
-        return JSONResponse({"detail": "model deactivated"})
+        ModelDeployment.delete(name)
+        return JSONResponse(status_code=200, content={"detail": "model deactivated"})
