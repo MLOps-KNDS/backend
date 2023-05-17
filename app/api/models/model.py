@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from models.base_class import Base
 import enum
+
+from models.base_class import Base
 
 
 class Status(str, enum.Enum):
@@ -17,8 +18,6 @@ class Model(Base):
     created_by = Column(Integer, ForeignKey("user.id"))
     updated_at = Column(DateTime, nullable=False)
     updated_by = Column(Integer, ForeignKey("user.id"))
-    image_tag = Column(String(255))
-    source_path = Column(String(255))
     status = Column(Enum(Status), nullable=False)
 
     creator = relationship(
@@ -33,6 +32,8 @@ class Model(Base):
     pools = relationship("PoolModel", back_populates="model")
 
     users_roles = relationship("ModelUserRole", back_populates="model")
+
+    model_details = relationship("ModelDetails", back_populates="model", uselist=False)
 
 
 class ModelTest(Base):

@@ -12,8 +12,6 @@ class Status(str, Enum):
 class ModelBase(BaseModel):
     name: Annotated[str, Field(description="Model name")]
     description: Annotated[str, Field(description="Model description")]
-    source_path: Annotated[str, Field(description="Path to the model source code")]
-    image_tag: Annotated[str, Field(description="Docker image tag")]
 
 
 class PutModel(ModelBase):
@@ -24,10 +22,6 @@ class PatchModel(ModelBase):
     name: Annotated[str | None, Field(description="Model name")] = None
     description: Annotated[str | None, Field(description="Model description")] = None
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
-    source_path: Annotated[
-        str | None, Field(description="Path to the model source code")
-    ] = None
-    image_tag: Annotated[str | None, Field(description="Docker image tag")] = None
 
 
 class Model(ModelBase):

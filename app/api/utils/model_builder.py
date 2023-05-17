@@ -8,18 +8,18 @@ from utils.constants import Constants
 _logger = logging.getLogger(__name__)
 
 
-class ImageBuilder:
+class ModelBuilder:
     """
     Builds a docker image from model's artifact.
     Allows to push it to Google Container Registry.
 
     Example:
-    >>> image_builder = ImageBuilder(
-    >>>    name="test2",
-    >>>    model_uri="runs://f7b2b1e1d1e84b3e8b2b1e1d1e8bb3e8/model",
-    >>> )
-    >>> image_builder.build()
-    >>> image_builder.push()
+    | >>> model_builder = ModelBuilder(
+    | >>>    model_uri="runs://f7b2b1e1d1e84b3e8b2b1e1d1e8bb3e8/model",
+    | >>>    name="test2",
+    | >>> )
+    | >>> model_builder.build()
+    | >>> model_builder.push()
     """
 
     def __init__(self, name: str, model_uri: str) -> None:
