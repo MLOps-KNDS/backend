@@ -14,7 +14,7 @@ class ModelDetailsBase(BaseModel):
     memory_limit: Annotated[str | None, Field(description="Memory limit")] = None
 
 
-class PatchModelDetails(ModelDetailsBase):
+class ModelDetailsPatch(ModelDetailsBase):
     pass
 
 

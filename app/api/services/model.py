@@ -54,7 +54,7 @@ class ModelService:
 
     @classmethod
     def put_model(
-        cls, db: Session, model: model_schemas.PutModel
+        cls, db: Session, model: model_schemas.ModelPut
     ) -> model_models.Model:
         """
         Creates a new model and adds it to the database
@@ -75,7 +75,7 @@ class ModelService:
 
     @classmethod
     def patch_model(
-        cls, db: Session, model_id: int, model: model_schemas.PatchModel
+        cls, db: Session, model_id: int, model: model_schemas.ModelPatch
     ) -> model_models.Model:
         """
         Updates an existing model in the database

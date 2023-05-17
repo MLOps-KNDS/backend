@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 
 from schemas import gate as gate_schemas
+from schemas.pool import Pool
 from models import gate as gate_models
 
 
@@ -109,10 +110,10 @@ class GateService:
         """
         db.query(gate_models.Gate).filter(gate_models.Gate.id == id).delete()
         db.commit()
-        return JSONResponse({"detail": "success"})
+        return JSONResponse({"detail": "Gate deleted successfully!"})
 
     @classmethod
-    def get_pools(cls, db: Session, gate_id: int, skip: int, limit: int) -> list[gate_models.GatePool] | None:
+    def get_pools(cls, db: Session, gate_id: int, skip: int, limit: int) -> list[Pool] | None:
         """
         Returns a list of gate pools, with optional pagination
 
@@ -148,4 +149,4 @@ class GateService:
         db.commit()
         db.refresh(db_gate_pool)
         GateService.patch_gate(db=db, gate_id=gate_id, gate_data=gate_schemas.GatePatch(updated_by=pool_data.updated_by))
-        return JSONResponse({"detail": "success"})
+        return JSONResponse(status_code=201, content={"detail": "success"})

@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 
 from models import ModelDetails
-from schemas.model_details import PatchModelDetails
+from schemas.model_details import ModelDetailsPatch
 
 
 class ModelDetailsService:
@@ -66,7 +66,7 @@ class ModelDetailsService:
 
     @classmethod
     def patch_model_details(
-        cls, db: Session, model_id: int, model_details: PatchModelDetails
+        cls, db: Session, model_id: int, model_details: ModelDetailsPatch
     ) -> ModelDetails | None:
         """
         Updates an existing model_details in the database

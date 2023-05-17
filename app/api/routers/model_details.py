@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from schemas.model_details import ModelDetails, PatchModelDetails
+from schemas.model_details import ModelDetails, ModelDetailsPatch
 from services import ModelDetailsService, get_db
 
 router = APIRouter(prefix="/{model_id}/details", tags=["model-details"])
@@ -31,7 +31,7 @@ async def get_model_details_by_id(model_id: int, db: Session = Depends(get_db)):
 @router.patch("/", response_model=ModelDetails, status_code=200)
 async def patch_model_details(
     model_id: int,
-    model_details_data: PatchModelDetails,
+    model_details_data: ModelDetailsPatch,
     db: Session = Depends(get_db),
 ):
     """
