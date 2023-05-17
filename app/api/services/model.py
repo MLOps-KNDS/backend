@@ -125,7 +125,7 @@ class ModelService:
 
         :param db: Database session
         :param model_id: id of model to activate
-        
+
         :raises: HTTPException if model details are not complete
         :raises: HTTPException if model is already active
         :raises: HTTPException if model is not found
@@ -142,18 +142,25 @@ class ModelService:
         if not db_model:
             raise HTTPException(status_code=404, content={"detail": "Model not found!"})
         if db_model.status == Status.ACTIVE:
-            raise HTTPException(status_code=409, content={"detail": "Model already active!"})
+            raise HTTPException(
+                status_code=409, content={"detail": "Model already active!"}
+            )
 
         db_model_details = (
-            db.query(ModelDetails)
-            .filter(ModelDetails.model_id == model_id)
-            .first()
+            db.query(ModelDetails).filter(ModelDetails.model_id == model_id).first()
         )
         if not db_model_details:
-            raise HTTPException(status_code=404, content={"detail": "Model details not found!"}) 
+            raise HTTPException(
+                status_code=404, content={"detail": "Model details not found!"}
+            )
         for key, val in db_model_details.__dict__.items():
             if val is None:
-                raise HTTPException(status_code=404, content={"detail": "Model details are not complete! {key} is null}"})
+                raise HTTPException(
+                    status_code=404,
+                    content={
+                        "detail": "Model details are not complete! {key} is null}"
+                    },
+                )
 
         model_deployment = ModelDeployment(
             name=db_model.name,
@@ -178,7 +185,7 @@ class ModelService:
 
         :param db: Database session
         :param model_id: id of model to deactivate
-        
+
         :raises: HTTPException if model is already inactive
         :raises: HTTPException if model is not found
 
@@ -192,7 +199,9 @@ class ModelService:
         if not db_model:
             raise HTTPException(status_code=404, content={"detail": "Model not found!"})
         if db_model.status == Status.INACTIVE:
-            raise HTTPException(status_code=409, content={"detail": "Model already inactive!"})
+            raise HTTPException(
+                status_code=409, content={"detail": "Model already inactive!"}
+            )
 
         ModelDeployment.delete(db_model.name)
 
