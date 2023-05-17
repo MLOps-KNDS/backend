@@ -91,11 +91,6 @@ async def activate_model(
     Activates the model with the given ID.
 
     :param model_id: model ID
-    :param replicas: (optional) number of replicas to deploy
-    :param cpu_limit: (optional) maximum cpu usage
-    :param cpu_request: (optional) requested cpu amount
-    :param memory_limit: (optional) maximum memory usage
-    :param memory_request: (optional) requested memory amount
     :param db: Database session
 
     :raise HTTPException: 404 status code with "Model not found!" message

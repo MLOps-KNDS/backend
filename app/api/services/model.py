@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import HTTPException
 from datetime import datetime
 
 from models import model as model_models
+from models import ModelDetails
 from models.model import Status
 from schemas import model as model_schemas
 from utils import ModelDeployment
@@ -117,33 +119,45 @@ class ModelService:
         cls,
         db: Session,
         model_id: int,
-        replicas: int,
-        cpu_limit: str,
-        cpu_request: str,
-        memory_limit: str,
-        memory_request: str,
     ) -> JSONResponse:
         """
-        Activates a model in the database
+        Deploys a model to a kubernetes cluster
 
         :param db: Database session
         :param model_id: id of model to activate
+        
+        :raises: HTTPException if model details are not complete
+        :raises: HTTPException if model is already active
+        :raises: HTTPException if model is not found
+        :raises: HTTPException if model details are not found
+
         :return: JSON respose indicating succesful activation
         """
+
         db_model = (
             db.query(model_models.Model)
             .filter(model_models.Model.id == model_id)
             .first()
         )
+        if not db_model:
+            raise HTTPException(status_code=404, content={"detail": "Model not found!"})
+        if db_model.status == Status.ACTIVE:
+            raise HTTPException(status_code=409, content={"detail": "Model already active!"})
+
+        db_model_details = (
+            db.query(ModelDetails)
+            .filter(ModelDetails.model_id == model_id)
+            .first()
+        )
+        if not db_model_details:
+            raise HTTPException(status_code=404, content={"detail": "Model details not found!"}) 
+        for key, val in db_model_details.__dict__.items():
+            if val is None:
+                raise HTTPException(status_code=404, content={"detail": "Model details are not complete! {key} is null}"})
 
         model_deployment = ModelDeployment(
             name=db_model.name,
-            image_tag=db_model.image_tag,
-            replicas=replicas,
-            cpu_limit=cpu_limit,
-            cpu_request=cpu_request,
-            memory_limit=memory_limit,
-            memory_request=memory_request,
+            model_details={**db_model_details},
         )
         model_deployment.deploy()
 
@@ -160,10 +174,14 @@ class ModelService:
         model_id: int,
     ) -> JSONResponse:
         """
-        Deactivates a model in the database
+        Deactivates a model from a kubernetes cluster
 
         :param db: Database session
         :param model_id: id of model to deactivate
+        
+        :raises: HTTPException if model is already inactive
+        :raises: HTTPException if model is not found
+
         :return: JSON respose indicating succesful deactivation
         """
         db_model = (
@@ -171,6 +189,10 @@ class ModelService:
             .filter(model_models.Model.id == model_id)
             .first()
         )
+        if not db_model:
+            raise HTTPException(status_code=404, content={"detail": "Model not found!"})
+        if db_model.status == Status.INACTIVE:
+            raise HTTPException(status_code=409, content={"detail": "Model already inactive!"})
 
         ModelDeployment.delete(db_model.name)
 
