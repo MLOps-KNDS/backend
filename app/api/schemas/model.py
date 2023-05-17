@@ -12,7 +12,6 @@ class Status(str, Enum):
 class ModelBase(BaseModel):
     name: Annotated[str, Field(description="Model name")]
     description: Annotated[str, Field(description="Model description")]
-    status: Annotated[Status, Field(description="Model status")]
 
 
 class PutModel(ModelBase):
@@ -23,7 +22,6 @@ class PatchModel(ModelBase):
     name: Annotated[str | None, Field(description="Model name")] = None
     description: Annotated[str | None, Field(description="Model description")] = None
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
-    status: Annotated[Status | None, Field(description="Model status")] = None
 
 
 class Model(ModelBase):
@@ -32,6 +30,7 @@ class Model(ModelBase):
     created_at: Annotated[datetime, Field(description="Creation date")]
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
     updated_at: Annotated[datetime, Field(description="Last update date")]
+    status: Annotated[Status, Field(description="Model status")]
 
     class Config:
         orm_mode = True

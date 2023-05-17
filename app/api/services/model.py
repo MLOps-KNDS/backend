@@ -3,7 +3,9 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 
 from models import model as model_models
+from models.model import Status
 from schemas import model as model_schemas
+from utils import ModelDeployment
 
 
 class ModelService:
@@ -68,6 +70,7 @@ class ModelService:
         db_model.updated_by = model.created_by
         db_model.created_at = creation_time
         db_model.updated_at = creation_time
+        db_model.status = Status.INACTIVE
         db.add(db_model)
         db.commit()
         db.refresh(db_model)
@@ -97,6 +100,27 @@ class ModelService:
         return db_model
 
     @classmethod
+    def change_model_status(
+        cls, db: Session, model_id: int, status: Status
+    ) -> model_models.Model:
+        """
+        Changes the status of a model in the database
+
+        :param db: Database session
+        :param model_id: id of a model to update
+        :param status: new status of a model
+
+        :return: updated model
+        """
+        db_model = ModelService.get_model_by_id(db, model_id)
+        db_model.status = status
+        db_model.updated_at = datetime.utcnow()
+        db.add(db_model)
+        db.commit()
+        db.refresh(db_model)
+        return db_model
+
+    @classmethod
     def delete_model(cls, db: Session, model_id: int) -> JSONResponse:
         """
         Deletes a model from the database
@@ -108,3 +132,43 @@ class ModelService:
         db.query(model_models.Model).filter(model_models.Model.id == model_id).delete()
         db.commit()
         return JSONResponse({"detail": "model deleted"})
+
+    @classmethod
+    def activate_model(
+        cls,
+        name: str,
+        model_details: dict,
+    ) -> JSONResponse:
+        """
+        Deploys a model to a kubernetes cluster
+
+        :param name: name of model to deploy
+        :param model_details: model details
+
+        :return: JSON respose indicating succesful activation
+        """
+
+        model_deployment = ModelDeployment(
+            name=name,
+            model_details=model_details,
+        )
+        model_deployment.deploy()
+
+        return JSONResponse({"detail": "model activated"})
+
+    @classmethod
+    def deactivate_model(
+        cls,
+        name: str,
+    ) -> JSONResponse:
+        """
+        Deactivates a model from a kubernetes cluster
+
+        :param name: name of model to deactivate
+
+
+        :return: JSON respose indicating succesful deactivation
+        """
+
+        ModelDeployment.delete(name)
+        return JSONResponse(status_code=200, content={"detail": "model deactivated"})
