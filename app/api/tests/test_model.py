@@ -61,13 +61,13 @@ def test_model_patch(client):
         status=model_schemas.Status.INACTIVE,
         updated_by=user_id_second,
     )
-    excepted_output = dict(test_model_patch)
+    expected_output = dict(test_model_patch)
 
     response = client.patch(f"{MODEL_ROUTE}/{model_id}", json=dict(test_model_patch))
 
     assert response.status_code == 200, response.text
-    for k in excepted_output.keys():
-        assert response.json()[k] == excepted_output[k]
+    for k in expected_output.keys():
+        assert response.json()[k] == expected_output[k]
 
     response = client.patch(
         f"{MODEL_ROUTE}/{model_id+1}", json={"updated_by": user_id_first}
@@ -112,13 +112,13 @@ def test_models_get(client):
     )
     response_model_2 = client.put(MODEL_ROUTE, json=dict(test_model))
 
-    expected_responce = [response_model_1.json(), response_model_2.json()]
+    expected_response = [response_model_1.json(), response_model_2.json()]
 
     params = {"skip": 0, "limit": 3}
     response = client.get(MODEL_ROUTE, params=params)
 
     assert response.status_code == 200, response.text
-    assert response.json() == expected_responce
+    assert response.json() == expected_response
 
 
 def test_model_get(client):
