@@ -6,6 +6,7 @@ from .db.session import client, session
 USER_ROUTE = "/user"
 MODEL_ROUTE = "/model"
 
+
 def test_model_details_get(client):
     # Create user first
     test_user = user_schemas.UserPut(
@@ -46,6 +47,7 @@ def test_model_details_get(client):
     assert response.status_code == 404, response.text
     assert response.json() == {"detail": "ModelDetails not found!"}
 
+
 def test_model_details_patch(client):
     # Create user first
     test_user = user_schemas.UserPut(
@@ -82,7 +84,9 @@ def test_model_details_patch(client):
     for k in test_patch.dict().keys():
         assert response.json()[k] == test_patch.dict()[k]
     # Test for exception
-    response = client.patch(f"{MODEL_ROUTE}/{model_id+1}/details", json=dict(test_patch))
+    response = client.patch(
+        f"{MODEL_ROUTE}/{model_id+1}/details", json=dict(test_patch)
+    )
     assert response.status_code == 404, response.text
     assert response.json() == {"detail": "ModelDetails not found!"}
 
@@ -94,12 +98,10 @@ def test_model_details_patch(client):
     )
     response = client.put(MODEL_ROUTE, json=dict(test_model_2))
     model_id_2 = response.json()["id"]
-    response = client.patch(f"{MODEL_ROUTE}/{model_id_2}/details", json=dict(test_patch))
+    response = client.patch(
+        f"{MODEL_ROUTE}/{model_id_2}/details", json=dict(test_patch)
+    )
     assert response.status_code == 400, response.text
-    assert response.json() == {"detail": "ModelDetails with the same tag already exists!"}
-
-
-
-
-
-
+    assert response.json() == {
+        "detail": "ModelDetails with the same tag already exists!"
+    }
