@@ -1,6 +1,5 @@
 import schemas.model as model_schemas
 import schemas.user as user_schemas
-import schemas.model_details as model_details_schema
 from .db.session import client, session
 
 
