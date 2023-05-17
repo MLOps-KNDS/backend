@@ -8,7 +8,7 @@ class Constants:
     GCP_CONTAINER_REGISTRY_URI = f"gcr.io/{GCP_PROJECT_ID}"
 
     # MLflow
-    MLFLOW_ENV_MANAGER = os.environ.get("MLFLOW_ENV_MANAGER", "conda")
+    MLFLOW_ENV_MANAGER = os.environ.get("MLFLOW_ENV_MANAGER", "virtualenv")
 
     # Kubernetes cluster
     K8S_NAMESPACE_MODELS = "models"

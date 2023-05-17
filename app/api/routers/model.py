@@ -6,10 +6,12 @@ from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from schemas import model as model_schemas
-from services import ModelService, get_db
+from services import ModelService, ModelDetailsService, get_db
+from routers.model_details import router as model_details_router
 
 
 router = APIRouter(prefix="/model", tags=["model"])
+router.include_router(model_details_router)
 
 
 @router.get("/{model_id}", response_model=model_schemas.Model, status_code=200)
@@ -70,7 +72,9 @@ async def put_model(model_data: model_schemas.PutModel, db: Session = Depends(ge
     """
     if ModelService.get_model_by_name(db=db, name=model_data.name):
         raise HTTPException(status_code=409, detail="Name already registered")
-    return ModelService.put_model(db=db, model=model_data)
+    result = ModelService.put_model(db=db, model=model_data)
+    ModelDetailsService.put_model_details(db, result.id)
+    return result
 
 
 @router.patch("/{model_id}", response_model=model_schemas.Model, status_code=200)
@@ -115,4 +119,5 @@ async def delete_model(model_id: int, db: Session = Depends(get_db)):
     """
     if not ModelService.get_model_by_id(db=db, model_id=model_id):
         raise HTTPException(status_code=404, detail="Model not found!")
+    ModelDetailsService.delete_model_details(db, model_id)
     return ModelService.delete_model(db=db, model_id=model_id)
