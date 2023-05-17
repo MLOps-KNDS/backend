@@ -33,3 +33,25 @@ def test_gate_put(client):
 def test_gate_patch(client):
     user_id_first = create_user(client, "test@test.com")
     user_id_second = create_user(client, "test2@test.com")
+
+    # Now create a gate
+    test_gate = model_schemas.GatePut(
+        name="test_name",
+        description="test_description",
+        created_by=user_id_first,
+    )
+    response = client.put(GATE_ROUTE, json=dict(test_gate))
+    gate_id = response.json()["id"]
+
+    # Now patch the gate
+    test_patch_gate = model_schemas.GatePatch(
+        name="test_patch_name",
+        description="test_patch_description",
+        updated_by=user_id_second,
+    )
+    response = client.patch(f"{GATE_ROUTE}/{gate_id}", json=dict(test_patch_gate))
+
+    assert response.status_code == 200, response.text
+    for key in test_patch_gate.dict().keys():
+        assert response.json()[key] == test_patch_gate.dict()[key]
+
