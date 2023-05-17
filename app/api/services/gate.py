@@ -6,6 +6,7 @@ to send requests directly to the database
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 from datetime import datetime
+
 from schemas import gate as gate_schemas
 from models import gate as gate_models
 
@@ -90,6 +91,7 @@ class GateService:
         db_gate = GateService.get_gate_by_id(db=db, id=gate_id)
         for key, value in gate_data.dict(exclude_none=True).items():
             setattr(db_gate, key, value)
+        db_gate.updated_at = datetime.utcnow()
         db.add(db_gate)
         db.commit()
         db.refresh(db_gate)
@@ -107,4 +109,43 @@ class GateService:
         """
         db.query(gate_models.Gate).filter(gate_models.Gate.id == id).delete()
         db.commit()
+        return JSONResponse({"detail": "success"})
+
+    @classmethod
+    def get_pools(cls, db: Session, gate_id: int, skip: int, limit: int) -> list[gate_models.GatePool] | None:
+        """
+        Returns a list of gate pools, with optional pagination
+
+        :param db: Database session
+        :param gate_id: the gate ID to retrieve
+        :param skip: (optional) the number of records to skip (default: 0)
+        :param limit: (optional) the maximum number of records to retrieve
+        (default: 100)
+
+        :return: a list of gate pools, where skip < GatePool.id < limit
+        """
+        gate_pools = db.query(gate_models.GatePool).filter(
+            gate_models.GatePool.gate_id == gate_id
+        ).order_by(gate_models.GatePool.id).offset(skip).limit(limit).all()
+        pools = [record.pool for record in gate_pools]
+        if len(pools) == 0:
+            return None
+        return pools
+    
+    @classmethod
+    def put_pool_gate(cls, db: Session, gate_id: int, pool_data: gate_schemas.GatePatchAddPool) -> JSONResponse:
+        """
+        Inserts a new gate pool record into the database
+
+        :param db: Database session
+        :param gate_id: the gate ID to retrieve
+        :param pool_data: the pool data to insert
+
+        :return: JSONResponse with a "detail" key indicating success
+        """
+        db_gate_pool = gate_models.GatePool(pool_id=pool_data.pool_id, gate_id=gate_id)
+        db.add(db_gate_pool)
+        db.commit()
+        db.refresh(db_gate_pool)
+        GateService.patch_gate(db=db, gate_id=gate_id, gate_data=gate_schemas.GatePatch(updated_by=pool_data.updated_by))
         return JSONResponse({"detail": "success"})
