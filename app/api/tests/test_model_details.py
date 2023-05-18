@@ -66,7 +66,7 @@ def test_model_details_patch(client):
     response = client.put(MODEL_ROUTE, json=dict(test_model))
     model_id = response.json()["id"]
 
-    test_patch = model_details_schemas.PatchModelDetails(
+    test_patch = model_details_schemas.ModelDetailsPatch(
         artifact_uri="test_artifact_uri",
         image_tag="test_image_tag",
         replicas=1,

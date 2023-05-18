@@ -37,7 +37,7 @@ def test_gate_put(client):
 def test_gate_patch(client):
     user_id_first = create_user(client, "test@test.com")
     user_id_second = create_user(client, "test2@test.com")
-
+    
     # Now create a gate
     test_gate = gate_schemas.GatePut(
         name="test_name",
