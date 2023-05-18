@@ -104,17 +104,17 @@ async def put_gate(gate_data: gate_schemas.GatePut, db: Session = Depends(get_db
     return GateService.put_gate(db=db, gate_data=gate_data)
 
 
-@router.put("/{gate_id}/pool", status_code=201)
+@router.put("/{gate_id}/pool/{pool_id}", status_code=201)
 async def put_pool_gate(
     gate_id: int,
-    pool_data: gate_schemas.GatePatchAddPool,
+    pool_id: int,
     db: Session = Depends(get_db),
 ):
     """
     Adds existing pool to gate.
 
     :param gate_id: the gate ID to retrieve
-    :param pool_data: the information about pool and user.
+    :param pool_id: the pool ID to retrieve
     :param db: Database session
 
     :raise HTTPException: 404 status code with "Gate not found!" message
@@ -125,10 +125,10 @@ async def put_pool_gate(
 
     if not GateService.get_gate_by_id(db=db, id=gate_id):
         raise HTTPException(status_code=404, detail="Gate not found!")
-    if not PoolService.get_pool_by_id(db=db, id=pool_data.pool_id):
+    if not PoolService.get_pool_by_id(db=db, id=pool_id):
         raise HTTPException(status_code=404, detail="Pool not found!")
 
-    res = GateService.put_pool_gate(db=db, gate_id=gate_id, pool_data=pool_data)
+    res = GateService.put_pool_gate(db=db, gate_id=gate_id, pool_id=pool_id)
     return res
 
 
@@ -175,3 +175,29 @@ async def delete_gate(gate_id: int, db: Session = Depends(get_db)):
     if not GateService.get_gate_by_id(db=db, id=gate_id):
         raise HTTPException(status_code=404, detail="Gate not found!")
     return GateService.delete_gate(db=db, id=gate_id)
+
+
+@router.delete("/{gate_id}/pool/{pool_id}", status_code=200)
+async def delete_pool_gate(gate_id: int, pool_id: int, db: Session = Depends(get_db)):
+    """
+    Deletes pool from gate.
+
+    :param gate_id: The id of the gate from which to delet.
+    :param pool_id: The id of the pool to be deleted.
+    :param db: Database session
+
+    :raise HTTPException: 404 status code with "Gate not found!" message
+    if the specified gate ID does not exist in the database.
+    :raise HTTPException: 404 status code with "Pool not found!" message
+    if the specified pool ID does not exist in the database.
+
+    :return: JSON response with status code 200
+    """
+    if not GateService.get_gate_by_id(db=db, id=gate_id):
+        raise HTTPException(status_code=404, detail="Gate not found!")
+    if not PoolService.get_pool_by_id(db=db, id=pool_id):
+        raise HTTPException(status_code=404, detail="Pool not found!")
+    if not GateService.get_pool_by_id(db=db, gate_id=gate_id, pool_id=pool_id):
+        raise HTTPException(status_code=404, detail="Pool is not in gate!")
+
+    return GateService.delete_pool_gate(db=db, gate_id=gate_id, pool_id=pool_id)

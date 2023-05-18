@@ -193,23 +193,13 @@ def test_get_pools(client):
     response_3 = client.put(f"{POOL_ROUTE}", json=dict(test_pool_3))
     pool_id_3 = response_3.json()["id"]
 
-    test_gate_pool_1 = gate_schemas.GatePatchAddPool(
-        pool_id=pool_id_1, updated_by=user_id
-    )
-    test_gate_pool_2 = gate_schemas.GatePatchAddPool(
-        pool_id=pool_id_2, updated_by=user_id
-    )
-    test_gate_pool_3 = gate_schemas.GatePatchAddPool(
-        pool_id=pool_id_3, updated_by=user_id
-    )
-
     response = client.get(f"{GATE_ROUTE}/{gate_id}/pool", params=params)
     assert response.status_code == 404, response.text
     assert response.json() == {"detail": "Pools not found!"}
 
-    response = client.put(f"{GATE_ROUTE}/{gate_id}/pool", json=dict(test_gate_pool_1))
-    response = client.put(f"{GATE_ROUTE}/{gate_id}/pool", json=dict(test_gate_pool_2))
-    response = client.put(f"{GATE_ROUTE}/{gate_id}/pool", json=dict(test_gate_pool_3))
+    response = client.put(f"{GATE_ROUTE}/{gate_id}/pool/{pool_id_1}")
+    response = client.put(f"{GATE_ROUTE}/{gate_id}/pool/{pool_id_2}")
+    response = client.put(f"{GATE_ROUTE}/{gate_id}/pool/{pool_id_3}")
     response = client.get(f"{GATE_ROUTE}/{gate_id}/pool", params=params)
 
     expected_response = [response_1.json(), response_2.json(), response_3.json()]
@@ -243,21 +233,64 @@ def test_gate_pool_put(client):
     response = client.put(f"{POOL_ROUTE}", json=dict(test_pool))
     pool_id = response.json()["id"]
 
-    test_gate_pool = gate_schemas.GatePatchAddPool(pool_id=pool_id, updated_by=user_id)
-
-    response = client.put(f"{GATE_ROUTE}/{gate_id}/pool", json=dict(test_gate_pool))
+    response = client.put(f"{GATE_ROUTE}/{gate_id}/pool/{pool_id}")
     assert response.status_code == 201, response.text
     assert response.json() == {"detail": "success"}
 
-    response = client.put(f"{GATE_ROUTE}/{gate_id+1}/pool", json=dict(test_gate_pool))
+    response = client.put(f"{GATE_ROUTE}/{gate_id+1}/pool/{pool_id}")
     assert response.status_code == 404, response.text
     assert response.json() == {"detail": "Gate not found!"}
 
     response = client.put(
-        f"{GATE_ROUTE}/{gate_id}/pool",
-        json=dict(
-            gate_schemas.GatePatchAddPool(pool_id=pool_id + 1, updated_by=user_id)
-        ),
+        f"{GATE_ROUTE}/{gate_id}/pool/{pool_id+1}",
     )
     assert response.status_code == 404, response.text
     assert response.json() == {"detail": "Pool not found!"}
+
+
+def test_gate_pool_delete(client):
+    user_id = create_user(client, "test@test.com")
+
+    # Now create a gate
+    test_gate = gate_schemas.GatePut(
+        name="test_name",
+        description="test_description",
+        created_by=user_id,
+    )
+
+    response = client.put(GATE_ROUTE, json=dict(test_gate))
+    gate_id = response.json()["id"]
+
+    test_pool = pool_schemas.PoolPut(
+        name="test_pool_1",
+        description="test_description",
+        created_by=user_id,
+    )
+    response = client.put(f"{POOL_ROUTE}", json=dict(test_pool))
+    pool_id = response.json()["id"]
+    test_pool_2 = pool_schemas.PoolPut(
+        name="test_pool_2",
+        description="test_description",
+        created_by=user_id,
+    )
+    response = client.put(f"{POOL_ROUTE}", json=dict(test_pool_2))
+    pool_id_2 = response.json()["id"]
+
+    response = client.put(f"{GATE_ROUTE}/{gate_id}/pool/{pool_id}")
+
+    response = client.delete(f"{GATE_ROUTE}/{gate_id}/pool/{pool_id_2+1}")
+    assert response.status_code == 404, response.text
+    assert response.json() == {"detail": "Pool not found!"}
+
+    response = client.delete(f"{GATE_ROUTE}/{gate_id}/pool/{pool_id}")
+
+    assert response.status_code == 200, response.text
+    assert response.json() == {"detail": "Pool deleted successfully!"}
+
+    response = client.delete(f"{GATE_ROUTE}/{gate_id+1}/pool/{pool_id}")
+    assert response.status_code == 404, response.text
+    assert response.json() == {"detail": "Gate not found!"}
+
+    response = client.delete(f"{GATE_ROUTE}/{gate_id}/pool/{pool_id_2}")
+    assert response.status_code == 404, response.text
+    assert response.json() == {"detail": "Pool is not in gate!"}
