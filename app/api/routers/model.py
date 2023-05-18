@@ -186,3 +186,34 @@ async def delete_model(model_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Model not found!")
     ModelDetailsService.delete_model_details(db, model_id)
     return ModelService.delete_model(db=db, model_id=model_id)
+
+
+@router.post("/{model_id}/build", status_code=200)
+async def build_model(model_id: int, db: Session = Depends(get_db)):
+    """
+    Builds container of the model with the given ID.
+
+    :param model_id: model ID
+    :param db: Database session
+
+    :raise HTTPException: 404 status code with "Model not found!"
+    :raise HTTPException: 404 status code with "Model details not found!"
+    :raise HTTPException: 406 status code with "Model details are not complete!"
+
+    :return: a json with a "detail" key indicating success
+    """
+    db_model = ModelService.get_model_by_id(db=db, model_id=model_id)
+    if not db_model:
+        raise HTTPException(status_code=404, detail="Model not found!")
+
+    db_model_details = ModelDetailsService.get_model_details_by_model_id(db, model_id)
+    if not db_model_details:
+        raise HTTPException(status_code=404, detail="Model details not found!")
+
+    if db_model_details.__dict__.artifact_uri is None:
+        raise HTTPException(status_code=406, detail="No artifact URI specified!")
+
+    return ModelService.build_model(
+        name=db_model.name,
+        model_details=db_model_details,
+    )

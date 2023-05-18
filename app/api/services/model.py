@@ -5,7 +5,7 @@ from datetime import datetime
 from models import model as model_models
 from models.model import Status
 from schemas import model as model_schemas
-from utils import ModelDeployment
+from utils import ModelDeployment, ModelBuilder
 
 
 class ModelService:
@@ -172,3 +172,26 @@ class ModelService:
 
         ModelDeployment.delete(name)
         return JSONResponse(status_code=200, content={"detail": "model deactivated"})
+    
+    @classmethod
+    def build_model(
+        cls,
+        name: str,
+        model_details: dict,
+    ) -> JSONResponse:
+        """
+        Builds a docker image for a model and pushes it to a docker registry.
+
+        :param name: name of model to build
+        :param model_details: model details
+
+        :return: JSON respose indicating succesful build
+        """
+        model_builder = ModelBuilder(
+            name=name,
+            artifact_uri=model_details.get("artifact_uri"),
+        )
+        model_builder.build()
+        # model_builder.push()
+
+        return JSONResponse(status_code=200, content={"detail": "model container built"})
