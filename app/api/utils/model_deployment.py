@@ -2,6 +2,7 @@ import logging
 from kubernetes import client, config
 
 from utils.constants import Constants
+from models import ModelDetails
 
 _logger = logging.getLogger(__name__)
 
@@ -15,29 +16,19 @@ class ModelDeployment:
     def __init__(
         self,
         name: str,
-        image_tag: str,
-        replicas: int,
-        cpu_limit: str,
-        cpu_request: str,
-        memory_limit: str,
-        memory_request: str,
+        model_details: ModelDetails,
     ) -> None:
         """
         :param name: Name of the deployment and service. Must be unique
-        :param image_tag: Tag to docker images
-        :param replicas: Number of pod replicas per deployment
-        :param cpu_limit: Maximum cpu usage
-        :param cpu_request: Requested cpu amount
-        :param memory_limit: Maximum memory usage
-        :param memory_request: Requested memory amount
+        :param model_details: Model details
         """
         self.name: str = name
-        self.image_tag: str = image_tag
-        self.replicas: int = replicas
-        self.cpu_limit: str = cpu_limit
-        self.cpu_request: str = cpu_request
-        self.memory_limit: str = memory_limit
-        self.memory_request: str = memory_request
+        self.image_tag: str = model_details.image_tag
+        self.replicas: int = model_details.replicas
+        self.cpu_limit: str = model_details.cpu_limit
+        self.cpu_request: str = model_details.cpu_request
+        self.memory_limit: str = model_details.memory_limit
+        self.memory_request: str = model_details.memory_request
 
         config.load_incluster_config()
 
@@ -64,12 +55,12 @@ class ModelDeployment:
         v1.create_namespaced_deployment(
             namespace=Constants.K8S_NAMESPACE_MODELS, body=deployment
         )
-        print("Deployment ready")
+        _logger.info(f"Deployment with name {self.name} ready")
         v1 = client.CoreV1Api()
         v1.create_namespaced_service(
             namespace=Constants.K8S_NAMESPACE_MODELS, body=service
         )
-        print("Service ready")
+        _logger.info(f"Service with name {self.name} ready")
 
     def __create_deployment(self) -> client.V1Deployment:
         container = client.V1Container(
