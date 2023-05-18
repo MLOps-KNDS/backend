@@ -121,15 +121,20 @@ async def put_pool_gate(
     if the specified gate ID does not exist in the database.
     :raise HTTPException: 404 status code with "Pool not found!" message
     if the specified pool ID does not exist in the database.
+    :raise HTTPException: 409 status code with "Pool already in gate!"
+    message if the specified pool ID already in gate.
+
+    :return: JSON response with status code 201
     """
 
     if not GateService.get_gate_by_id(db=db, id=gate_id):
         raise HTTPException(status_code=404, detail="Gate not found!")
     if not PoolService.get_pool_by_id(db=db, id=pool_id):
         raise HTTPException(status_code=404, detail="Pool not found!")
+    if GateService.get_pool_by_id(db=db, gate_id=gate_id, pool_id=pool_id):
+        raise HTTPException(status_code=409, detail="Pool already in gate!")
 
-    res = GateService.put_pool_gate(db=db, gate_id=gate_id, pool_id=pool_id)
-    return res
+    return GateService.put_pool_gate(db=db, gate_id=gate_id, pool_id=pool_id)
 
 
 @router.patch("/{gate_id}", response_model=gate_schemas.Gate, status_code=200)

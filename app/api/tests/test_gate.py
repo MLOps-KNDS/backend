@@ -237,6 +237,10 @@ def test_gate_pool_put(client):
     assert response.status_code == 201, response.text
     assert response.json() == {"detail": "success"}
 
+    response = client.put(f"{GATE_ROUTE}/{gate_id}/pool/{pool_id}")
+    assert response.status_code == 409, response.text
+    assert response.json() == {"detail": "Pool already in gate!"}
+
     response = client.put(f"{GATE_ROUTE}/{gate_id+1}/pool/{pool_id}")
     assert response.status_code == 404, response.text
     assert response.json() == {"detail": "Gate not found!"}
