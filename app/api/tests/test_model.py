@@ -4,7 +4,7 @@ import schemas.model as model_schemas
 import schemas.model_details as model_details_schemas
 import schemas.user as user_schemas
 from .db.session import client, session
-import utils
+from utils.model_builder import ModelBuilder
 
 
 USER_ROUTE = "/user"
@@ -175,8 +175,8 @@ def test_model_delete(client):
     assert response.json() == {"detail": "Model not found!"}
 
 
-@patch.object(utils.model_builder.ModelBuilder, "push")
-@patch.object(utils.model_builder.ModelBuilder, "build")
+@patch.object(ModelBuilder, "push")
+@patch.object(ModelBuilder, "build")
 def test_model_build(mock_model_builder_build: Mock, mock_model_builder_push: Mock, client):
     mock_model_builder_build.return_value = None
     mock_model_builder_push.return_value = "gcr.com/423534523454325/test"
