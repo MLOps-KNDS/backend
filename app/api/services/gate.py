@@ -113,7 +113,9 @@ class GateService:
         return JSONResponse({"detail": "Gate deleted successfully!"})
 
     @classmethod
-    def get_pools(cls, db: Session, gate_id: int, skip: int, limit: int) -> list[Pool] | None:
+    def get_pools(
+        cls, db: Session, gate_id: int, skip: int, limit: int
+    ) -> list[Pool] | None:
         """
         Returns a list of gate pools, with optional pagination
 
@@ -125,16 +127,23 @@ class GateService:
 
         :return: a list of gate pools, where skip < GatePool.id < limit
         """
-        gate_pools = db.query(gate_models.GatePool).filter(
-            gate_models.GatePool.gate_id == gate_id
-        ).order_by(gate_models.GatePool.id).offset(skip).limit(limit).all()
+        gate_pools = (
+            db.query(gate_models.GatePool)
+            .filter(gate_models.GatePool.gate_id == gate_id)
+            .order_by(gate_models.GatePool.id)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
         pools = [record.pool for record in gate_pools]
         if len(pools) == 0:
             return None
         return pools
-    
+
     @classmethod
-    def put_pool_gate(cls, db: Session, gate_id: int, pool_data: gate_schemas.GatePatchAddPool) -> JSONResponse:
+    def put_pool_gate(
+        cls, db: Session, gate_id: int, pool_data: gate_schemas.GatePatchAddPool
+    ) -> JSONResponse:
         """
         Inserts a new gate pool record into the database
 
@@ -148,5 +157,9 @@ class GateService:
         db.add(db_gate_pool)
         db.commit()
         db.refresh(db_gate_pool)
-        GateService.patch_gate(db=db, gate_id=gate_id, gate_data=gate_schemas.GatePatch(updated_by=pool_data.updated_by))
+        GateService.patch_gate(
+            db=db,
+            gate_id=gate_id,
+            gate_data=gate_schemas.GatePatch(updated_by=pool_data.updated_by),
+        )
         return JSONResponse(status_code=201, content={"detail": "success"})

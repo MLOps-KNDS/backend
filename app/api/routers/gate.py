@@ -4,7 +4,6 @@ functions for handling gate-related requests.
 """
 
 from fastapi import APIRouter, Query, Depends, HTTPException
-from fastapi.responses import JSONResponse
 from typing import Annotated
 from sqlalchemy.orm import Session
 
@@ -104,8 +103,13 @@ async def put_gate(gate_data: gate_schemas.GatePut, db: Session = Depends(get_db
         raise HTTPException(status_code=409, detail="Name already registered")
     return GateService.put_gate(db=db, gate_data=gate_data)
 
+
 @router.put("/{gate_id}/pool", status_code=201)
-async def put_pool_gate(gate_id: int, pool_data: gate_schemas.GatePatchAddPool, db: Session = Depends(get_db)):
+async def put_pool_gate(
+    gate_id: int,
+    pool_data: gate_schemas.GatePatchAddPool,
+    db: Session = Depends(get_db),
+):
     """
     Adds egsisting pool to gate.
 
@@ -123,9 +127,10 @@ async def put_pool_gate(gate_id: int, pool_data: gate_schemas.GatePatchAddPool, 
         raise HTTPException(status_code=404, detail="Gate not found!")
     if not PoolService.get_pool_by_id(db=db, id=pool_data.pool_id):
         raise HTTPException(status_code=404, detail="Pool not found!")
-    
+
     res = GateService.put_pool_gate(db=db, gate_id=gate_id, pool_data=pool_data)
     return res
+
 
 @router.patch("/{gate_id}", response_model=gate_schemas.Gate, status_code=200)
 async def patch_gate(
