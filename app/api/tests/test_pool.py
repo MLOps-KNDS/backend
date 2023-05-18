@@ -14,6 +14,7 @@ def create_user(client, email) -> int:
     response = client.put(USER_ROUTE, json=dict(test_user))
     return response.json()["id"]
 
+
 def test_pool_put(client):
     # Create user first
     user_id = create_user(client, "test@test.com")
@@ -32,8 +33,9 @@ def test_pool_put(client):
 
     response = client.put(POOL_ROUTE, json=dict(test_pool))
 
-    assert response.status_code == 406, response.text
+    assert response.status_code == 409, response.text
     assert response.json() == {"detail": "Name already registered"}
+
 
 def test_pool_patch(client):
     # Create user first
@@ -61,11 +63,9 @@ def test_pool_patch(client):
     assert response.json()["name"] == "test_patch_name"
     assert response.json()["description"] == "test_patch_description"
 
-
     response = client.patch(f"{POOL_ROUTE}/{pool_id}", json=dict(test_patch_pool))
-    assert response.status_code == 406, response.text
-    
-
+    assert response.status_code == 409, response.text
+    assert response.json() == {"detail": "Name already registered"}
 
 
 def test_pool_delete(client):
@@ -86,6 +86,7 @@ def test_pool_delete(client):
 
     assert response.status_code == 200, response.text
     assert response.json() == {"detail": "success"}
+
 
 def test_pool_get(client):
     # Create user first
@@ -111,6 +112,7 @@ def test_pool_get(client):
 
     assert response.status_code == 404, response.text
     assert response.json() == {"detail": "Pool not found!"}
+
 
 def test_pools_get(client):
     params = {"skip": 0, "limit": 3}
@@ -138,15 +140,10 @@ def test_pools_get(client):
 
     assert response.status_code == 404, response.text
     assert response.json() == {"detail": "Pools not found!"}
-    
+
     response = client.put(POOL_ROUTE, json=dict(test_pool))
-    pool_id = response.json()["id"]
     response = client.put(POOL_ROUTE, json=dict(test_pool_2))
-    pool_id_2 = response.json()["id"]
     response = client.put(POOL_ROUTE, json=dict(test_pool_3))
-    pool_id_3 = response.json()["id"]
-
-
 
     response = client.get(POOL_ROUTE, params=params)
 
