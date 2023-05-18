@@ -214,6 +214,7 @@ async def build_model(model_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=406, detail="No artifact URI specified!")
 
     return ModelService.build_model(
+        db=db,
         name=db_model.name,
         model_details=db_model_details,
     )

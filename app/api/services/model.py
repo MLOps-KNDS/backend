@@ -6,6 +6,7 @@ from models import model as model_models
 from models.model import Status
 from schemas import model as model_schemas
 from utils import ModelDeployment, ModelBuilder
+from .model_details import ModelDetailsService
 
 
 class ModelService:
@@ -172,10 +173,11 @@ class ModelService:
 
         ModelDeployment.delete(name)
         return JSONResponse(status_code=200, content={"detail": "model deactivated"})
-    
+
     @classmethod
     def build_model(
         cls,
+        db: Session,
         name: str,
         model_details: dict,
     ) -> JSONResponse:
@@ -194,4 +196,16 @@ class ModelService:
         model_builder.build()
         image_tag = model_builder.push()
 
-        return JSONResponse(status_code=200, content={"detail": "model image built and pushed with tag: " + image_tag})
+        db_model_details = ModelDetailsService.get_model_details_by_model_id(
+            db, model_details.model_id
+        )
+        db_model_details.image_tag = image_tag
+        db_model_details.updated_at = datetime.utcnow()
+        db.add(db_model_details)
+        db.commit()
+        db.refresh(db_model_details)
+
+        return JSONResponse(
+            status_code=200,
+            content={"detail": "Model image built and pushed with tag: " + image_tag},
+        )
