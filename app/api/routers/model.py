@@ -6,6 +6,7 @@ from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from schemas import model as model_schemas
+from models.model import Status
 from services import ModelService, ModelDetailsService, get_db
 from routers.model_details import router as model_details_router
 
@@ -75,6 +76,70 @@ async def put_model(model_data: model_schemas.PutModel, db: Session = Depends(ge
     result = ModelService.put_model(db=db, model=model_data)
     ModelDetailsService.put_model_details(db, result.id)
     return result
+
+
+@router.post("/{model_id}/activate", status_code=200)
+async def activate_model(
+    model_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    Activates the model with the given ID.
+
+    :param model_id: model ID
+    :param db: Database session
+
+    :raise HTTPException: 404 status code with "Model not found!"
+    :raise HTTPException: 409 status code with "Model already active!"
+    :raise HTTPException: 404 status code with "Model details not found!"
+    :raise HTTPException: 406 status code with "Model details are not complete!"
+
+    :return: a json with a "detail" key indicating success
+    """
+    db_model = ModelService.get_model_by_id(db=db, model_id=model_id)
+    if not db_model:
+        raise HTTPException(status_code=404, detail="Model not found!")
+
+    if db_model.status == Status.ACTIVE:
+        raise HTTPException(status_code=409, detail="Model already active!")
+
+    db_model_details = ModelDetailsService.get_model_details_by_model_id(db, model_id)
+    if not db_model_details:
+        raise HTTPException(status_code=404, detail="Model details not found!")
+
+    if any(value is None for value in db_model_details.__dict__.values()):
+        raise HTTPException(
+            status_code=406, detail="Model details are not complete! {key} is null}"
+        )
+
+    ModelService.change_model_status(db=db, model_id=model_id, status=Status.ACTIVE)
+    return ModelService.activate_model(
+        name=db_model.name,
+        model_details=db_model_details,
+    )
+
+
+@router.post("/{model_id}/deactivate", status_code=200)
+async def deactivate_model(model_id: int, db: Session = Depends(get_db)):
+    """
+    Deactivates the model with the given ID.
+
+    :param model_id: model ID
+    :param db: Database session
+
+    :raise HTTPException: 404 status code with "Model not found!" message
+    :raise HTTPException: 409 status code with "Model already inactive!" message
+
+    :return: a json with a "detail" key indicating success
+    """
+    model = ModelService.get_model_by_id(db=db, model_id=model_id)
+    if not model:
+        raise HTTPException(status_code=404, detail="Model not found!")
+    if model.status == Status.INACTIVE:
+        raise HTTPException(status_code=409, detail="Model already inactive!")
+
+    ModelService.change_model_status(db=db, model_id=model_id, status=Status.INACTIVE)
+    return ModelService.deactivate_model(name=model.name)
 
 
 @router.patch("/{model_id}", response_model=model_schemas.Model, status_code=200)
