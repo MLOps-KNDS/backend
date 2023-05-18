@@ -197,6 +197,9 @@ def test_model_build(
     response = client.put(MODEL_ROUTE, json=dict(test_model))
     model_id = response.json()["id"]
 
+    response = client.post(f"{MODEL_ROUTE}/{model_id}/build")
+    assert response.status_code == 406
+
     test_model_details = model_details_schemas.PatchModelDetails(
         artifact_uri="/test/test/model"
     )
@@ -205,7 +208,6 @@ def test_model_build(
     )
 
     client.post(f"{MODEL_ROUTE}/{model_id}/build")
-
     model_details = client.get(f"{MODEL_ROUTE}/{model_id}/details").json()
 
     assert model_details["image_tag"] == "gcr.com/423534523454325/test"
