@@ -16,7 +16,7 @@ def test_model_details_get(client):
     user_id = response.json()["id"]
 
     # Now create a model
-    test_model = model_schemas.PutModel(
+    test_model = model_schemas.ModelPut(
         name="test_name",
         description="test_description",
         status=model_schemas.Status.ACTIVE,
@@ -57,7 +57,7 @@ def test_model_details_patch(client):
     user_id = response.json()["id"]
 
     # Now create a model
-    test_model = model_schemas.PutModel(
+    test_model = model_schemas.ModelPut(
         name="test_name",
         description="test_description",
         status=model_schemas.Status.ACTIVE,
@@ -90,7 +90,7 @@ def test_model_details_patch(client):
     assert response.status_code == 404, response.text
     assert response.json() == {"detail": "ModelDetails not found!"}
 
-    test_model_2 = model_schemas.PutModel(
+    test_model_2 = model_schemas.ModelPut(
         name="test_name_2",
         description="test_description",
         status=model_schemas.Status.ACTIVE,

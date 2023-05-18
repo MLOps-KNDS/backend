@@ -59,7 +59,7 @@ async def get_models(
 
 
 @router.put("/", response_model=model_schemas.Model, status_code=201)
-async def put_model(model_data: model_schemas.PutModel, db: Session = Depends(get_db)):
+async def put_model(model_data: model_schemas.ModelPut, db: Session = Depends(get_db)):
     """
     Creates a new model with the given information and returns the model information.
 
@@ -145,7 +145,7 @@ async def deactivate_model(model_id: int, db: Session = Depends(get_db)):
 @router.patch("/{model_id}", response_model=model_schemas.Model, status_code=200)
 async def patch_model(
     model_id: int,
-    model_data: model_schemas.PatchModel,
+    model_data: model_schemas.ModelPatch,
     db: Session = Depends(get_db),
 ):
     """
