@@ -111,7 +111,7 @@ async def put_pool_gate(
     db: Session = Depends(get_db),
 ):
     """
-    Adds egsisting pool to gate.
+    Adds existing pool to gate.
 
     :param gate_id: the gate ID to retrieve
     :param pool_data: the information about pool and user.

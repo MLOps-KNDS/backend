@@ -156,7 +156,7 @@ def test_delete_gate(client):
 
 
 def test_get_pools(client):
-    params = {"skip":0, "limit":100}
+    params = {"skip": 0, "limit": 100}
     user_id = create_user(client, "test@test.com")
 
     # Now create a gate
@@ -167,7 +167,6 @@ def test_get_pools(client):
     )
 
     response = client.get(POOL_ROUTE, params=params)
-    print(response.json())
 
     response = client.put(GATE_ROUTE, json=dict(test_gate))
     gate_id = response.json()["id"]
@@ -179,10 +178,6 @@ def test_get_pools(client):
     )
     response_1 = client.put(f"{POOL_ROUTE}", json=dict(test_pool_1))
     pool_id_1 = response_1.json()["id"]
-    # print(response_1.json())
-    response = client.get(f"{POOL_ROUTE}/{pool_id_1}")
-    print(response.json())
-
     test_pool_2 = pool_schemas.PoolPut(
         name="test_pool_2",
         description="test_description",
@@ -190,10 +185,6 @@ def test_get_pools(client):
     )
     response_2 = client.put(f"{POOL_ROUTE}", json=dict(test_pool_2))
     pool_id_2 = response_2.json()["id"]
-    # print(response_2.json())
-    response = client.get(f"{POOL_ROUTE}/2")
-    print(response.json())
-
     test_pool_3 = pool_schemas.PoolPut(
         name="test_pool_3",
         description="test_description",
@@ -201,27 +192,23 @@ def test_get_pools(client):
     )
     response_3 = client.put(f"{POOL_ROUTE}", json=dict(test_pool_3))
     pool_id_3 = response_3.json()["id"]
-    # print(response_3.json())
-    response = client.get(f"{POOL_ROUTE}/3")
-    print(response.json())
 
     test_gate_pool_1 = gate_schemas.GatePatchAddPool(
-        pool_id=pool_id_1,
-        updated_by=user_id
+        pool_id=pool_id_1, updated_by=user_id
     )
     test_gate_pool_2 = gate_schemas.GatePatchAddPool(
-        pool_id=pool_id_2,
-        updated_by=user_id
+        pool_id=pool_id_2, updated_by=user_id
     )
     test_gate_pool_3 = gate_schemas.GatePatchAddPool(
-        pool_id=pool_id_3,
-        updated_by=user_id
+        pool_id=pool_id_3, updated_by=user_id
     )
+
+    response = client.get(f"{GATE_ROUTE}/{gate_id}/pool", params=params)
+    assert response.status_code == 404, response.text
+    assert response.json() == {"detail": "Pools not found!"}
 
     response = client.put(f"{GATE_ROUTE}/{gate_id}/pool", json=dict(test_gate_pool_1))
     response = client.put(f"{GATE_ROUTE}/{gate_id}/pool", json=dict(test_gate_pool_2))
-    response = client.get(f"{GATE_ROUTE}/{gate_id}/pool", params=params)
-
     response = client.put(f"{GATE_ROUTE}/{gate_id}/pool", json=dict(test_gate_pool_3))
     response = client.get(f"{GATE_ROUTE}/{gate_id}/pool", params=params)
 
@@ -229,3 +216,48 @@ def test_get_pools(client):
 
     assert response.status_code == 200, response.text
     assert response.json() == expected_response
+
+    response = client.get(f"{GATE_ROUTE}/{gate_id+1}/pool", params=params)
+    assert response.status_code == 404, response.text
+    assert response.json() == {"detail": "Gate not found!"}
+
+
+def test_gate_pool_put(client):
+    user_id = create_user(client, "test@test.com")
+
+    # Now create a gate
+    test_gate = gate_schemas.GatePut(
+        name="test_name",
+        description="test_description",
+        created_by=user_id,
+    )
+
+    response = client.put(GATE_ROUTE, json=dict(test_gate))
+    gate_id = response.json()["id"]
+
+    test_pool = pool_schemas.PoolPut(
+        name="test_pool_1",
+        description="test_description",
+        created_by=user_id,
+    )
+    response = client.put(f"{POOL_ROUTE}", json=dict(test_pool))
+    pool_id = response.json()["id"]
+
+    test_gate_pool = gate_schemas.GatePatchAddPool(pool_id=pool_id, updated_by=user_id)
+
+    response = client.put(f"{GATE_ROUTE}/{gate_id}/pool", json=dict(test_gate_pool))
+    assert response.status_code == 201, response.text
+    assert response.json() == {"detail": "success"}
+
+    response = client.put(f"{GATE_ROUTE}/{gate_id+1}/pool", json=dict(test_gate_pool))
+    assert response.status_code == 404, response.text
+    assert response.json() == {"detail": "Gate not found!"}
+
+    response = client.put(
+        f"{GATE_ROUTE}/{gate_id}/pool",
+        json=dict(
+            gate_schemas.GatePatchAddPool(pool_id=pool_id + 1, updated_by=user_id)
+        ),
+    )
+    assert response.status_code == 404, response.text
+    assert response.json() == {"detail": "Pool not found!"}
