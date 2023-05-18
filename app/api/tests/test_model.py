@@ -177,7 +177,9 @@ def test_model_delete(client):
 
 @patch.object(ModelBuilder, "push")
 @patch.object(ModelBuilder, "build")
-def test_model_build(mock_model_builder_build: Mock, mock_model_builder_push: Mock, client):
+def test_model_build(
+    mock_model_builder_build: Mock, mock_model_builder_push: Mock, client
+):
     mock_model_builder_build.return_value = None
     mock_model_builder_push.return_value = "gcr.com/423534523454325/test"
 
@@ -198,7 +200,9 @@ def test_model_build(mock_model_builder_build: Mock, mock_model_builder_push: Mo
     test_model_details = model_details_schemas.PatchModelDetails(
         artifact_uri="/test/test/model"
     )
-    response = client.patch(f"{MODEL_ROUTE}/{model_id}/details", json=dict(test_model_details))
+    response = client.patch(
+        f"{MODEL_ROUTE}/{model_id}/details", json=dict(test_model_details)
+    )
 
     client.post(f"{MODEL_ROUTE}/{model_id}/build")
 
