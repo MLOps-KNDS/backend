@@ -210,7 +210,7 @@ async def build_model(model_id: int, db: Session = Depends(get_db)):
     if not db_model_details:
         raise HTTPException(status_code=404, detail="Model details not found!")
 
-    if db_model_details.__dict__.artifact_uri is None:
+    if db_model_details.artifact_uri is None:
         raise HTTPException(status_code=406, detail="No artifact URI specified!")
 
     return ModelService.build_model(

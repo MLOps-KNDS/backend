@@ -189,7 +189,7 @@ class ModelService:
         """
         model_builder = ModelBuilder(
             name=name,
-            artifact_uri=model_details.get("artifact_uri"),
+            artifact_uri=model_details.artifact_uri,
         )
         model_builder.build()
         # model_builder.push()
