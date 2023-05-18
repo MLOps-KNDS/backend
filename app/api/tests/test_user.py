@@ -68,7 +68,7 @@ def test_user_get(client):
     user_id = response.json()["id"]
 
     response = client.get(f"{ROUTE}{user_id}")
-    expected_response = {
+    expected_responce = {
         "id": user_id,
         "name": "test_name",
         "surname": "test_surname",
@@ -76,7 +76,7 @@ def test_user_get(client):
     }
 
     assert response.status_code == 200, response.text
-    assert response.json() == expected_response
+    assert response.json() == expected_responce
 
 
 def test_users_get(client):
