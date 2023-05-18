@@ -50,7 +50,7 @@ class ModelBuilder:
         """
         Pushes the docker image to Google Container Registry.
 
-        :return: uri of the pushed image
+        :return: tag of the pushed image
         """
         if not self.is_built:
             raise Exception("Image is not built yet.")

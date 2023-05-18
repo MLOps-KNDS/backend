@@ -192,6 +192,6 @@ class ModelService:
             artifact_uri=model_details.artifact_uri,
         )
         model_builder.build()
-        # model_builder.push()
+        image_tag = model_builder.push()
 
-        return JSONResponse(status_code=200, content={"detail": "model container built"})
+        return JSONResponse(status_code=200, content={"detail": "model image built and pushed with tag: " + image_tag})
