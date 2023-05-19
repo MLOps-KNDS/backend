@@ -1,6 +1,10 @@
+from unittest.mock import patch, Mock
+
 import schemas.model as model_schemas
+import schemas.model_details as model_details_schemas
 import schemas.user as user_schemas
 from .db.session import client, session
+from utils.model_builder import ModelBuilder
 
 
 USER_ROUTE = "/user"
@@ -166,3 +170,43 @@ def test_model_delete(client):
     response = client.delete(f"{MODEL_ROUTE}/{model_id}")
     assert response.status_code == 404
     assert response.json() == {"detail": "Model not found!"}
+
+
+@patch.object(ModelBuilder, "push")
+@patch.object(ModelBuilder, "build")
+def test_model_build(
+    mock_model_builder_build: Mock, mock_model_builder_push: Mock, client
+):
+    mock_model_builder_build.return_value = None
+    mock_model_builder_push.return_value = "gcr.com/423534523454325/test"
+
+    test_user = user_schemas.UserPut(
+        name="test_name", surname="test_surname", email="test_email@abc.com"
+    )
+    response = client.put(USER_ROUTE, json=dict(test_user))
+    user_id = response.json()["id"]
+
+    test_model = model_schemas.PutModel(
+        name="test_name",
+        description="test_description",
+        created_by=user_id,
+    )
+    response = client.put(MODEL_ROUTE, json=dict(test_model))
+    model_id = response.json()["id"]
+
+    response = client.post(f"{MODEL_ROUTE}/{model_id}/build")
+    assert response.status_code == 406
+
+    test_model_details = model_details_schemas.PatchModelDetails(
+        artifact_uri="/test/test/model"
+    )
+    response = client.patch(
+        f"{MODEL_ROUTE}/{model_id}/details", json=dict(test_model_details)
+    )
+
+    client.post(f"{MODEL_ROUTE}/{model_id}/build")
+    model_details = client.get(f"{MODEL_ROUTE}/{model_id}/details").json()
+
+    assert model_details["image_tag"] == "gcr.com/423534523454325/test"
+    mock_model_builder_build.assert_called_once()
+    mock_model_builder_push.assert_called_once()

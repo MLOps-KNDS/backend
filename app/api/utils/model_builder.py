@@ -14,21 +14,21 @@ class ModelBuilder:
     Allows to push it to Google Container Registry.
 
     Example:
-    | >>> model_builder = ModelBuilder(
-    | >>>    model_uri="runs://f7b2b1e1d1e84b3e8b2b1e1d1e8bb3e8/model",
-    | >>>    name="test2",
-    | >>> )
-    | >>> model_builder.build()
-    | >>> model_builder.push()
+    >>> model_builder = ModelBuilder(
+    >>>    name="test2",
+    >>>    artifact_uri="runs://f7b2b1e1d1e84b3e8b2b1e1d1e8bb3e8/model",
+    >>> )
+    >>> model_builder.build()
+    >>> model_builder.push()
     """
 
-    def __init__(self, name: str, model_uri: str) -> None:
+    def __init__(self, name: str, artifact_uri: str) -> None:
         """
         :param name: name of the docker image
-        :param model_uri: uri of the model's artifact
+        :param artifact_uri: uri of the model's artifact
         """
         self.name: str = name
-        self.model_uri: str = model_uri
+        self.artifact_uri: str = artifact_uri
         self.is_built: bool = False
 
     def build(self) -> None:
@@ -50,7 +50,7 @@ class ModelBuilder:
         """
         Pushes the docker image to Google Container Registry.
 
-        :return: uri of the pushed image
+        :return: tag of the pushed image
         """
         if not self.is_built:
             raise Exception("Image is not built yet.")
@@ -67,7 +67,7 @@ class ModelBuilder:
 
     def __build_mlflow_image(self) -> None:
         mlflow.models.build_docker(
-            model_uri=self.model_uri,
+            model_uri=self.artifact_uri,
             name=self.name,
             env_manager=Constants.MLFLOW_ENV_MANAGER,
         )
