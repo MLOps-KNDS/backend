@@ -16,5 +16,5 @@ class Constants:
     K8S_SERVICE_PORT = 80
 
     # Istio Virtual Service
-    GROUP = "networking.istio.io"
-    VERSION = "v1alpha3"
+    ISTIO_VS_GROUP = "networking.istio.io"
+    ISTIO_VS_VERSION = "v1alpha3"
