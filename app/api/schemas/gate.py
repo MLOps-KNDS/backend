@@ -10,6 +10,8 @@ class BaseGate(BaseModel):
 
 
 class GatePatch(BaseGate):
+    name: Annotated[str | None, Field(description="Gate name")] = None
+    description: Annotated[str | None, Field(description="Gate surname")] = None
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 

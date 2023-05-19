@@ -14,11 +14,11 @@ class ModelBase(BaseModel):
     description: Annotated[str, Field(description="Model description")]
 
 
-class PutModel(ModelBase):
+class ModelPut(ModelBase):
     created_by: Annotated[int, Field(description="User ID of the creator")]
 
 
-class PatchModel(ModelBase):
+class ModelPatch(ModelBase):
     name: Annotated[str | None, Field(description="Model name")] = None
     description: Annotated[str | None, Field(description="Model description")] = None
     updated_by: Annotated[int, Field(description="User ID of the last updater")]

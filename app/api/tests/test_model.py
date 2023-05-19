@@ -16,10 +16,9 @@ def test_model_put(client):
     user_id = response.json()["id"]
 
     # Now create a model
-    test_model = model_schemas.PutModel(
+    test_model = model_schemas.ModelPut(
         name="test_name",
         description="test_description",
-        status=model_schemas.Status.ACTIVE,
         created_by=user_id,
     )
     response = client.put(MODEL_ROUTE, json=dict(test_model))
@@ -45,19 +44,17 @@ def test_model_patch(client):
     response = client.put(USER_ROUTE, json=dict(test_user))
     user_id_second = response.json()["id"]
 
-    test_model = model_schemas.PutModel(
+    test_model = model_schemas.ModelPut(
         name="test_name",
         description="test_description",
-        status=model_schemas.Status.ACTIVE,
         created_by=user_id_first,
     )
     response = client.put(MODEL_ROUTE, json=dict(test_model))
     model_id = response.json()["id"]
 
-    test_model_patch = model_schemas.PatchModel(
+    test_model_patch = model_schemas.ModelPatch(
         name="test_patch_name",
         description="test_patch_description",
-        status=model_schemas.Status.INACTIVE,
         updated_by=user_id_second,
     )
     expected_output = dict(test_model_patch)
@@ -95,7 +92,7 @@ def test_models_get(client):
     assert response.status_code == 404, response.text
     assert response.json() == {"detail": "Models not found!"}
 
-    test_model = model_schemas.PutModel(
+    test_model = model_schemas.ModelPut(
         name="test_name_1",
         description="test_description_1",
         status=model_schemas.Status.ACTIVE,
@@ -103,7 +100,7 @@ def test_models_get(client):
     )
     response_model_1 = client.put(MODEL_ROUTE, json=dict(test_model))
 
-    test_model = model_schemas.PutModel(
+    test_model = model_schemas.ModelPut(
         name="test_name_2",
         description="test_description_2",
         status=model_schemas.Status.INACTIVE,
@@ -127,7 +124,7 @@ def test_model_get(client):
     response = client.put(USER_ROUTE, json=dict(test_user))
     user_id = response.json()["id"]
 
-    test_model = model_schemas.PutModel(
+    test_model = model_schemas.ModelPut(
         name="test_name",
         description="test_description",
         status=model_schemas.Status.ACTIVE,
@@ -153,7 +150,7 @@ def test_model_delete(client):
     response = client.put(USER_ROUTE, json=dict(test_user))
     user_id = response.json()["id"]
 
-    test_model = model_schemas.PutModel(
+    test_model = model_schemas.ModelPut(
         name="test_name",
         description="test_description",
         status=model_schemas.Status.ACTIVE,
