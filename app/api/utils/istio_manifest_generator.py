@@ -15,25 +15,24 @@ class IstioVirtualServiceGenerator:
         """
         :return: Istio Virtual Service manifest
         """
+
+        model_routes = [
+            {
+                "destination": {
+                    "host": model.name,
+                    "port": {"number": Constants.K8S_SERVICE_PORT},
+                }
+            }
+            for model in self.models
+        ]
+
         body = {
             "apiVersion": f"{Constants.ISTIO_VS_GROUP}/{Constants.ISTIO_VS_VERSION}",
             "kind": "VirtualService",
-            "metadata": {"name": self.pool_name},
+            "metadata": {"name": self.name},
             "spec": {
                 "hosts": ["*"],
-                "http": [
-                    {
-                        "route": [
-                            {
-                                "destination": {
-                                    "host": model.name,
-                                    "port": {"number": Constants.K8S_SERVICE_PORT},
-                                }
-                            }
-                            for model in self.models
-                        ]
-                    }
-                ],
+                "http": [{"route": model_routes}],
             },
         }
         return body
