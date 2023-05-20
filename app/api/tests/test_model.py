@@ -186,7 +186,7 @@ def test_model_build(
     response = client.put(USER_ROUTE, json=dict(test_user))
     user_id = response.json()["id"]
 
-    test_model = model_schemas.PutModel(
+    test_model = model_schemas.ModelPut(
         name="test_name",
         description="test_description",
         created_by=user_id,

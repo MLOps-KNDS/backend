@@ -43,3 +43,26 @@ class PoolPostAddModel(BaseModel):
 class PoolPostRemoveModel(BaseModel):
     model_id: Annotated[int, Field(description="Model ID")]
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
+
+
+class PoolPutModel(BaseModel):
+    pool_id: Annotated[int, Field(description="Pool ID")]
+    model_id: Annotated[int, Field(description="Model ID")]
+    mode: Annotated[ModelMode, Field(description="Model mode")]
+
+
+class PoolDeleteModel(BaseModel):
+    pool_id: Annotated[int, Field(description="Pool ID")]
+    model_id: Annotated[int, Field(description="Model ID")]
+
+
+class PoolPatchModel(BaseModel):
+    pool_id: Annotated[int, Field(description="Pool ID")]
+    model_id: Annotated[int, Field(description="Model ID")]
+    mode: Annotated[ModelMode | None, Field(description="Model mode")]
+
+
+class PoolModel(BaseModel):
+    pool_id: Annotated[int, Field(description="Pool ID")]
+    model_id: Annotated[int, Field(description="Model ID")]
+    mode: Annotated[ModelMode, Field(description="Model mode")]
