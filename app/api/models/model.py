@@ -1,10 +1,11 @@
 from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from models.base_class import Base
 import enum
 
+from models.base_class import Base
 
-class Status(enum.Enum):
+
+class Status(str, enum.Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
 
@@ -17,8 +18,6 @@ class Model(Base):
     created_by = Column(Integer, ForeignKey("user.id"))
     updated_at = Column(DateTime, nullable=False)
     updated_by = Column(Integer, ForeignKey("user.id"))
-    image_tag = Column(String(255))
-    source_path = Column(String(255))
     status = Column(Enum(Status), nullable=False)
 
     creator = relationship(
@@ -34,11 +33,13 @@ class Model(Base):
 
     users_roles = relationship("ModelUserRole", back_populates="model")
 
+    model_details = relationship("ModelDetails", back_populates="model", uselist=False)
+
 
 class ModelTest(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    model_id = Column(Integer, ForeignKey("model.id"), primary_key=True)
-    test_id = Column(Integer, ForeignKey("test.id"), primary_key=True)
+    model_id = Column(Integer, ForeignKey("model.id"))
+    test_id = Column(Integer, ForeignKey("test.id"))
 
     model = relationship("Model", back_populates="tests")
 

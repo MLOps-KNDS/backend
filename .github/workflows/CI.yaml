@@ -10,7 +10,7 @@ on:
       - master
 
 jobs:
-  tests:
+  Lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,7 +19,7 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v4
-
+      
       - name: Prepare and Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -32,3 +32,68 @@ jobs:
       - name: Flake8 analysis
         run: |
           flake8 .
+
+  Unit_tests:
+    runs-on: ubuntu-latest
+    needs: [Lint]
+    permissions: write-all
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Cache the dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-${{ hashFiles('**/requirements.txt' )}}
+
+      - name: Prepare and Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Unit tests
+        run: |
+          pytest -vv --cov=app --junitxml=pytest.xml --cov-report=term-missing | tee pytest-coverage.txt
+        env: 
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+
+      - name: Publish test report as an artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pytest-results
+          path: |
+            pytest-coverage.txt
+            pytest.xml
+
+      - name: Pytest coverage comment
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: pytest-coverage.txt
+          title: coverage
+          junitxml-path: pytest.xml

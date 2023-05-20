@@ -38,11 +38,13 @@ class User(Base):
 
     tests_roles = relationship("TestUserRole", back_populates="user")
 
+    gates = relationship("GateUserRole", back_populates="user")
+
 
 class ModelUserRole(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    model_id = Column(Integer, ForeignKey("model.id"), primary_key=True)
-    user_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
+    model_id = Column(Integer, ForeignKey("model.id"))
+    user_id = Column(Integer, ForeignKey("user.id"))
     role = Column(Enum(Role), nullable=False)
 
     model = relationship("Model", back_populates="users_roles")
@@ -51,8 +53,8 @@ class ModelUserRole(Base):
 
 class PoolUserRole(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    pool_id = Column(Integer, ForeignKey("pool.id"), primary_key=True)
-    user_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
+    pool_id = Column(Integer, ForeignKey("pool.id"))
+    user_id = Column(Integer, ForeignKey("user.id"))
     role = Column(Enum(Role), nullable=False)
 
     pool = relationship("Pool", back_populates="users_roles")
@@ -61,8 +63,8 @@ class PoolUserRole(Base):
 
 class TestUserRole(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    test_id = Column(Integer, ForeignKey("test.id"), primary_key=True)
-    user_id = Column(Integer, ForeignKey("user.id"), primary_key=True)
+    test_id = Column(Integer, ForeignKey("test.id"))
+    user_id = Column(Integer, ForeignKey("user.id"))
     role = Column(Enum(Role), nullable=False)
 
     test = relationship("Test", back_populates="users_roles")

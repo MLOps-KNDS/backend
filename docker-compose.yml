@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.10"
 services:
   api:
     image: api:0.1
@@ -15,7 +15,9 @@ services:
       - API_HOST=0.0.0.0
       - POSTGRES_PASSWORD=postgres 
       - POSTGRES_HOST=database
-  database:
+      - GCP_PROJECT_ID=$GCP_PROJECT_ID
+      - GCP_CREDENTIALS=$GCP_CREDENTIALS
+  database: 
     image: postgres:latest
     ports:
       - 5432:5432
