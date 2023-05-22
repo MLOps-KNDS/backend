@@ -1,12 +1,8 @@
 from typing import Annotated
 from pydantic import BaseModel, Field
 from datetime import datetime
-from enum import Enum
 
-
-class Status(str, Enum):
-    ACTIVE = "active"
-    INACTIVE = "inactive"
+from models.model import ModelStatus
 
 
 class ModelBase(BaseModel):
@@ -30,7 +26,7 @@ class Model(ModelBase):
     created_at: Annotated[datetime, Field(description="Creation date")]
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
     updated_at: Annotated[datetime, Field(description="Last update date")]
-    status: Annotated[Status, Field(description="Model status")]
+    status: Annotated[ModelStatus, Field(description="Model status")]
 
     class Config:
         orm_mode = True

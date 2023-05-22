@@ -2,12 +2,7 @@ from typing import Annotated
 from pydantic import BaseModel, Field
 from datetime import datetime
 
-from schemas.commons import BaseEnum
-
-
-class ModelMode(BaseEnum):
-    PRODUCTION = "production"
-    STAGING = "staging"
+from models.pool import PoolModelMode
 
 
 class BasePool(BaseModel):
@@ -34,35 +29,31 @@ class Pool(BasePool):
         orm_mode = True
 
 
-class PoolPostAddModel(BaseModel):
-    model_id: Annotated[int, Field(description="Model ID")]
-    mode: Annotated[ModelMode, Field(description="Model mode")]
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
-
-
-class PoolPostRemoveModel(BaseModel):
-    model_id: Annotated[int, Field(description="Model ID")]
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
-
-
-class PoolPutModel(BaseModel):
-    pool_id: Annotated[int, Field(description="Pool ID")]
-    model_id: Annotated[int, Field(description="Model ID")]
-    mode: Annotated[ModelMode, Field(description="Model mode")]
-
-
-class PoolDeleteModel(BaseModel):
+class BasePoolModel(BaseModel):
     pool_id: Annotated[int, Field(description="Pool ID")]
     model_id: Annotated[int, Field(description="Model ID")]
 
 
-class PoolPatchModel(BaseModel):
-    pool_id: Annotated[int, Field(description="Pool ID")]
-    model_id: Annotated[int, Field(description="Model ID")]
-    mode: Annotated[ModelMode | None, Field(description="Model mode")]
+class PoolPutModel(BasePoolModel):
+    mode: Annotated[PoolModelMode, Field(description="Model mode")]
 
 
-class PoolModel(BaseModel):
-    pool_id: Annotated[int, Field(description="Pool ID")]
-    model_id: Annotated[int, Field(description="Model ID")]
-    mode: Annotated[ModelMode, Field(description="Model mode")]
+class PoolPatchModel(BasePoolModel):
+    mode: Annotated[PoolModelMode | None, Field(description="Model mode")] = None
+
+
+class PoolDeleteModel(BasePoolModel):
+    pass
+
+
+class PoolModelDetailed(BasePoolModel):
+    name: Annotated[str, Field(description="Model name")]
+    description: Annotated[str, Field(description="Model description")]
+    mode: Annotated[PoolModelMode, Field(description="Model mode")]
+
+
+class PoolModel(BasePoolModel):
+    mode: Annotated[PoolModelMode, Field(description="Model mode")]
+
+    class Config:
+        orm_mode = True

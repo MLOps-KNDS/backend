@@ -5,7 +5,6 @@ to send requests directly to the database
 
 from datetime import datetime
 from sqlalchemy.orm import Session
-from sqlalchemy import inspect
 from fastapi.responses import JSONResponse
 
 from schemas import pool as pool_schemas
@@ -111,7 +110,7 @@ class PoolService:
         return JSONResponse({"detail": "success"})
 
     @classmethod
-    def get_pool_model_by_id(cls, db: Session, id: int) -> pool_models.PoolModel:
+    def get_pool_model_by_model_id(cls, db: Session, id: int) -> pool_models.PoolModel:
         """
         Returns the pool data found by pool id
 
@@ -121,48 +120,38 @@ class PoolService:
         """
         return (
             db.query(pool_models.PoolModel)
-            .filter(pool_models.PoolModel.id == id)
+            .filter(pool_models.PoolModel.model_id == id)
             .first()
         )
 
     @classmethod
-    def get_pool_models(cls, db: Session, id: int) -> list[pool_schemas.PoolModel]:
+    def get_pool_models(
+        cls, db: Session, id: int
+    ) -> list[pool_schemas.PoolModelDetailed]:
         """
         Returns a list of models from the given pool
 
         :param id: the pool ID to retrieve models from
 
-        :return: a list of models belonging to the pool with the given ID
+        :return: a list of more detailed models belonging to the pool with the given ID
         """
-        # need a fix for this, idk how to fetch models data from the database
 
-        list_of_models = []
-
-        models = (
+        pool_data = (
             db.query(pool_models.PoolModel)
             .filter(pool_models.PoolModel.pool_id == id)
-            .join(pool_models.PoolModel.model)
             .all()
         )
 
-        for model in models:
-            model_inspection = inspect(model)
-
-            model_name = model_inspection.attrs.name.value
-            model_description = model_inspection.attrs.description.value
-
-            list_of_models.append(
-                pool_schemas.PoolModel(
-                    {
-                        "pool_id": id,
-                        "model_id": model.id,
-                        "name": model_name,
-                        "description": model_description,
-                    }
-                )
+        list_of_models = [
+            pool_schemas.PoolModelDetailed(
+                model_id=pool_model.model.id,
+                pool_id=id,
+                name=pool_model.model.name,
+                description=pool_model.model.description,
+                mode=pool_model.mode,
             )
-
-        print(f"Model data: {list_of_models}")
+            for pool_model in pool_data
+        ]
 
         return list_of_models
 
@@ -180,7 +169,7 @@ class PoolService:
         db_pool = pool_models.PoolModel(
             pool_id=data.pool_id,
             model_id=data.model_id,
-            mode=data.mode.name,
+            mode=data.mode,
         )
 
         db.add(db_pool)
@@ -189,7 +178,7 @@ class PoolService:
 
     @classmethod
     def patch_pool_model(
-        cls, db: Session, data: pool_schemas.PoolPutModel
+        cls, db: Session, pool_data: pool_schemas.PoolPatchModel
     ) -> JSONResponse:
         """
         Inserts a new model record into the pool in the database
@@ -198,15 +187,15 @@ class PoolService:
 
         :return: a json with a "detail" key indicating success
         """
-        db_pool = (
+        db_pool_model = (
             db.query(pool_models.PoolModel)
-            .filter(data.pool_id == pool_models.PoolModel.pool_id)
-            .filter(data.model_id == pool_models.PoolModel.model_id)
+            .filter(pool_data.pool_id == pool_data.pool_id)
+            .filter(pool_data.model_id == pool_data.model_id)
             .first()
         )
-        for key, value in data.dict(exclude_none=True).items():
-            setattr(db_pool, key, value)
-        db.add(db_pool)
+        for key, value in pool_data.dict(exclude_none=True).items():
+            setattr(db_pool_model, key, value)
+        db.add(db_pool_model)
         db.commit()
         return JSONResponse(content={"detail": "success"})
 

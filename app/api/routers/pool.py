@@ -115,7 +115,9 @@ async def delete_pool(pool_id: str, db: Session = Depends(get_db)):
 
 
 @router.get(
-    "/{pool_id}/model", response_model=list[pool_schemas.PoolModel], status_code=200
+    "/{pool_id}/model",
+    response_model=list[pool_schemas.PoolModelDetailed],
+    status_code=200,
 )
 async def get_pool_models(pool_id: int, db: Session = Depends(get_db)):
     """
@@ -161,7 +163,6 @@ async def put_pool_model(
     "/{pool_id}/model/{model_id}", response_model=pool_schemas.Pool, status_code=200
 )
 async def patch_pool_model(
-    pool_id: int,
     pool_model_data: pool_schemas.PoolPatchModel,
     db: Session = Depends(get_db),
 ):
@@ -169,7 +170,7 @@ async def patch_pool_model(
     Updates the information of an existing pool with the provided data and
     returns the updated pool information.
 
-    :param data: the information of the model in the pool to be patched.
+    :param pool_model_data: the information of the model in the pool to be patched.
     :param db: Database session
 
     :raise HTTPException: 404 status code with "Model not found in the pool!" message
@@ -185,9 +186,9 @@ async def patch_pool_model(
         raise HTTPException(status_code=404, detail="Pool not found!")
     if not ModelService.get_model_by_id(db=db, model_id=pool_model_data.model_id):
         raise HTTPException(status_code=404, detail="Model not found!")
-    if not PoolService.get_pool_model_by_id(db=db, id=pool_model_data.pool_id):
+    if not PoolService.get_pool_model_by_model_id(db=db, id=pool_model_data.model_id):
         raise HTTPException(status_code=404, detail="Model not found in the pool!")
-    return PoolService.patch_pool_model(db=db, id=pool_id, pool_data=pool_model_data)
+    return PoolService.patch_pool_model(db=db, pool_data=pool_model_data)
 
 
 @router.delete("/{pool_id}/model/{model_id}", status_code=200)
@@ -197,7 +198,7 @@ async def delete_pool_model(
     """
     Deletes the pool with the given ID.
 
-    :param pool_id: pool ID
+    :param pool_model_data: the information of the model in the pool to be deleted.
     :param db: Database session
 
     :raise HTTPException: 404 status code with "Pool not found!" message

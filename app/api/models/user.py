@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 import enum
 
 
-class Role(enum.Enum):
+class UserRole(enum.Enum):
     OWNER = "owner"
     ADMIN = "admin"
     READER = "reader"
@@ -45,7 +45,7 @@ class ModelUserRole(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     model_id = Column(Integer, ForeignKey("model.id"))
     user_id = Column(Integer, ForeignKey("user.id"))
-    role = Column(Enum(Role), nullable=False)
+    role = Column(Enum(UserRole), nullable=False)
 
     model = relationship("Model", back_populates="users_roles")
     user = relationship("User", back_populates="models_roles")
@@ -55,7 +55,7 @@ class PoolUserRole(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     pool_id = Column(Integer, ForeignKey("pool.id"))
     user_id = Column(Integer, ForeignKey("user.id"))
-    role = Column(Enum(Role), nullable=False)
+    role = Column(Enum(UserRole), nullable=False)
 
     pool = relationship("Pool", back_populates="users_roles")
     user = relationship("User", back_populates="pools_roles")
@@ -65,7 +65,7 @@ class TestUserRole(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     test_id = Column(Integer, ForeignKey("test.id"))
     user_id = Column(Integer, ForeignKey("user.id"))
-    role = Column(Enum(Role), nullable=False)
+    role = Column(Enum(UserRole), nullable=False)
 
     test = relationship("Test", back_populates="users_roles")
     user = relationship("User", back_populates="tests_roles")
