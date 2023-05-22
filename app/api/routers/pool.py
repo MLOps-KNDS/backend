@@ -135,7 +135,7 @@ async def get_pool_models(pool_id: int, db: Session = Depends(get_db)):
     return PoolService.get_pool_models(db=db, id=pool_id)
 
 
-@router.put("/{pool_id}/model", status_code=201)
+@router.put("/{pool_id}/model/{model_id}", status_code=201)
 async def put_pool_model(
     pool_model_data: pool_schemas.PoolPutModel, db: Session = Depends(get_db)
 ):
