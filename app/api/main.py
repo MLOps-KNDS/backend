@@ -40,14 +40,12 @@ app = FastAPI(
 
 app.add_middleware(SessionMiddleware, secret_key="secret-string")
 
-config = Config('config.env')  # read config from .env file
+config = Config("config.env")  # read config from .env file
 oauth = OAuth(config)
 oauth.register(
-    name='google',
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={
-        'scope': 'openid email profile'
-    }
+    name="google",
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"},
 )
 
 app.include_router(model.router)
@@ -56,11 +54,11 @@ app.include_router(pool.router)
 app.include_router(gate.router)
 app.include_router(test.router)
 
+
 async def get_current_user(request: Request):
-    if request.session.get('user'):
-        return request.session['user']
-    raise HTTPException(401, 'Unauthorized')
-    
+    if request.session.get("user"):
+        return request.session["user"]
+    raise HTTPException(401, "Unauthorized")
 
 
 @app.get("/")
@@ -71,28 +69,28 @@ async def root() -> dict:
     """
     return {"message": "Hello World"}
 
-@app.get('/me')
-async def me(request: Request):
-    user = await get_current_user(request)
+
+@app.get("/me")
+async def me(user=Depends(get_current_user)):
     return user
 
-@app.get('/login')
+
+@app.get("/login")
 async def login(request: Request):
-    redirect_uri = request.url_for('auth')
+    redirect_uri = request.url_for("auth")
     return await oauth.google.authorize_redirect(request, str(redirect_uri))
 
 
-@app.get('/auth')
+@app.get("/auth")
 async def auth(request: Request):
     token = await oauth.google.authorize_access_token(request)
-    user = token.get('userinfo')
-    print(user)
+    user = token.get("userinfo")
     if user:
-        request.session['user'] = dict(user)
-    return RedirectResponse(url='/me')
+        request.session["user"] = dict(user)
+    return RedirectResponse(url="/me")
 
 
-@app.get('/logout')
+@app.get("/logout")
 async def logout(request: Request):
-    request.session.pop('user', None)
-    return RedirectResponse(url='/')
+    request.session.pop("user", None)
+    return RedirectResponse(url="/")
