@@ -5,10 +5,12 @@ It contains the FastAPI app.
 
 import time
 from fastapi import FastAPI, Depends, Request
+from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from contextlib import asynccontextmanager
 from starlette.config import Config
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuth
 
@@ -38,7 +40,33 @@ app = FastAPI(
     lifespan=init,
 )
 
+
+class UserValidationMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app, excludes: list[str] = None):
+        super().__init__(app)
+        if excludes is None:
+            excludes = []
+        self.excludes = excludes
+
+    async def dispatch(self, request: Request, call_next):
+        try:
+            if request.url.path in self.excludes:
+                # Skip middleware processing for excluded route
+                return await call_next(request)
+            if not request.session.get("user"):
+                raise HTTPException(status_code=401, detail="Unauthorized")
+            response = await call_next(request)
+            return response
+        except HTTPException as exc:
+            return JSONResponse(
+                status_code=exc.status_code,
+                content={"detail": exc.detail},
+            )
+
+
+app.add_middleware(UserValidationMiddleware, excludes=["/login", "/auth", "/logout"])
 app.add_middleware(SessionMiddleware, secret_key="secret-string")
+
 
 config = Config("config.env")  # read config from .env file
 oauth = OAuth(config)
