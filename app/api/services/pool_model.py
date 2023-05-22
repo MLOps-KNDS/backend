@@ -61,7 +61,7 @@ class PoolModelService:
         """
         Inserts a new model record into the pool in the database
 
-        :param pool_data: the pool and model data to insert
+        :param data: the pool and model data to insert
 
         :return: a json with a "detail" key indicating success
         """
@@ -78,22 +78,22 @@ class PoolModelService:
 
     @classmethod
     def patch_pool_model(
-        cls, db: Session, pool_data: pool_model_schemas.PoolPatchModel
+        cls, db: Session, data: pool_model_schemas.PoolPatchModel
     ) -> JSONResponse:
         """
         Inserts a new model record into the pool in the database
 
-        :param pool_data: the pool and model data to insert
+        :param pool_data: the pool and model data to patch
 
         :return: a json with a "detail" key indicating success
         """
         db_pool_model = (
             db.query(pool_model_models.PoolModel)
-            .filter(pool_data.pool_id == pool_data.pool_id)
-            .filter(pool_data.model_id == pool_data.model_id)
+            .filter(data.pool_id == data.pool_id)
+            .filter(data.model_id == data.model_id)
             .first()
         )
-        for key, value in pool_data.dict(exclude_none=True).items():
+        for key, value in data.dict(exclude_none=True).items():
             setattr(db_pool_model, key, value)
         db.add(db_pool_model)
         db.commit()
@@ -107,7 +107,7 @@ class PoolModelService:
         """
         Inserts a new model record into the pool in the database
 
-        :param data: the pool and model data to insert
+        :param data: the pool and model data to delete
 
         :return: a json with a "detail" key indicating success
         """

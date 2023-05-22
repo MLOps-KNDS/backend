@@ -17,6 +17,7 @@ async def get_pool_models(pool_id: int, db: Session = Depends(get_db)):
     Retrieves a list of models in a pool.
 
     :param db: Database session
+    :param pool_id: the pool ID to retrieve models from
 
     :raise HTTPException: 404 status code with "Pool not found!" message
     if the specified pool ID does not exist in the database.
@@ -39,7 +40,7 @@ async def put_pool_model(
     """
     Inserts a model into a given pool.
 
-    :param data: the information about the pool and model.
+    :param pool_model_data: the information about the pool and model.
     :param db: Database session
 
     :raise HTTPException: 404 status code with "Pool not found!" message
@@ -89,7 +90,7 @@ async def patch_pool_model(
         db=db, id=pool_model_data.model_id
     ):
         raise HTTPException(status_code=404, detail="Model not found in the pool!")
-    return PoolModelService.patch_pool_model(db=db, pool_data=pool_model_data)
+    return PoolModelService.patch_pool_model(db=db, data=pool_model_data)
 
 
 @router.delete("/{pool_id}/model/{model_id}", status_code=200)
