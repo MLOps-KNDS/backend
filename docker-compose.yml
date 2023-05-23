@@ -17,6 +17,8 @@ services:
       - POSTGRES_HOST=database
       - GCP_PROJECT_ID=$GCP_PROJECT_ID
       - GCP_CREDENTIALS=$GCP_CREDENTIALS
+      - GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
   database: 
     image: postgres:latest
     ports:
