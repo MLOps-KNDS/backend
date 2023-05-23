@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     POSTGRES_NAME: str = "postgres"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
-    GOOGLE_CLIENT_ID: str
-    GOOGLE_CLIENT_SECRET: str
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
 
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
