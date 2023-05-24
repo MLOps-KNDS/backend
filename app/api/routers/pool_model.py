@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from schemas import pool_model as pool_model_schemas
 from services import PoolService, ModelService, PoolModelService, get_db
 
-router = APIRouter(prefix="/pool", tags=["pool"])
+router = APIRouter(prefix="/pool", tags=["pool-model"])
 
 
 @router.get(
