@@ -2,13 +2,6 @@ from typing import Annotated
 from pydantic import BaseModel, Field
 from datetime import datetime
 
-from schemas.commons import BaseEnum
-
-
-class ModelMode(BaseEnum):
-    PRODUCTION = "production"
-    STAGING = "staging"
-
 
 class BasePool(BaseModel):
     name: Annotated[str, Field(description="Pool name")]
@@ -32,15 +25,3 @@ class Pool(BasePool):
 
     class Config:
         orm_mode = True
-
-
-class PoolPostAddModel(BaseModel):
-    model_id: Annotated[int, Field(description="Model ID")]
-    mode: Annotated[ModelMode, Field(description="Model mode")]
-    weight: Annotated[int, Field(description="Model weight")]
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
-
-
-class PoolPostRemoveModel(BaseModel):
-    model_id: Annotated[int, Field(description="Model ID")]
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]

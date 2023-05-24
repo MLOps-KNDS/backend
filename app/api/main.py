@@ -13,6 +13,7 @@ from db.session import engine
 from routers import (
     user,
     pool,
+    pool_model,
     gate,
     model,
     test,
@@ -38,6 +39,7 @@ app.include_router(user.router)
 app.include_router(pool.router)
 app.include_router(gate.router)
 app.include_router(test.router)
+app.include_router(pool_model.router)
 
 
 @app.get("/")
