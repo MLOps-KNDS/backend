@@ -38,6 +38,7 @@ class PoolModel(Base):
     pool_id = Column(Integer, ForeignKey("pool.id"))
     model_id = Column(Integer, ForeignKey("model.id"))
     mode = Column(Enum(PoolModelMode), nullable=False)
+    weight = Column(Integer, nullable=False)
 
     model = relationship("Model", back_populates="pools")
     pool = relationship("Pool", back_populates="models")
