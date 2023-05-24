@@ -4,7 +4,6 @@ functions for handling gate-related requests.
 """
 
 from fastapi import APIRouter, Query, Depends, HTTPException
-from typing import Annotated
 from sqlalchemy.orm import Session
 
 from schemas import gate as gate_schemas
@@ -61,8 +60,8 @@ async def get_gates(
 @router.get("/{gate_id}/pool", response_model=list[Pool], status_code=200)
 async def get_pools(
     gate_id: int,
-    skip: Annotated[int, Query(ge=0)] = 0,
-    limit: Annotated[int, Query(ge=0)] = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=0),
     db: Session = Depends(get_db),
 ):
     """

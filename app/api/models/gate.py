@@ -9,7 +9,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from models.base_class import Base
-from models.user import Role
+from models.user import UserRole
 
 
 class Gate(Base):
@@ -47,7 +47,7 @@ class GateUserRole(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     gate_id = Column(Integer, ForeignKey("gate.id"))
     user_id = Column(Integer, ForeignKey("user.id"))
-    role = Column(Enum(Role), nullable=False)
+    role = Column(Enum(UserRole), nullable=False)
 
     gate = relationship("Gate", back_populates="users_roles")
     user = relationship("User", back_populates="gates")
