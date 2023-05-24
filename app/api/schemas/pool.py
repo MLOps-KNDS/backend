@@ -37,6 +37,7 @@ class Pool(BasePool):
 class PoolPostAddModel(BaseModel):
     model_id: Annotated[int, Field(description="Model ID")]
     mode: Annotated[ModelMode, Field(description="Model mode")]
+    weight: Annotated[int, Field(description="Model weight")]
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 
