@@ -5,7 +5,7 @@ import enum
 from models.base_class import Base
 
 
-class Status(str, enum.Enum):
+class ModelStatus(str, enum.Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
 
@@ -18,7 +18,7 @@ class Model(Base):
     created_by = Column(Integer, ForeignKey("user.id"))
     updated_at = Column(DateTime, nullable=False)
     updated_by = Column(Integer, ForeignKey("user.id"))
-    status = Column(Enum(Status), nullable=False)
+    status = Column(Enum(ModelStatus), nullable=False)
 
     creator = relationship(
         "User", foreign_keys="Model.created_by", back_populates="created_models"

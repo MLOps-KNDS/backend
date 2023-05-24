@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from models import Base
 
 
-class PoolModelModeEnum(enum.Enum):
+class PoolModelMode(enum.Enum):
     PRODUCTION = "production"
     STAGING = "staging"
 
@@ -37,7 +37,7 @@ class PoolModel(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     pool_id = Column(Integer, ForeignKey("pool.id"))
     model_id = Column(Integer, ForeignKey("model.id"))
-    mode = Column(Enum(PoolModelModeEnum), nullable=False)
+    mode = Column(Enum(PoolModelMode), nullable=False)
 
     model = relationship("Model", back_populates="pools")
     pool = relationship("Pool", back_populates="models")

@@ -19,7 +19,7 @@ def test_model_details_get(client):
     test_model = model_schemas.ModelPut(
         name="test_name",
         description="test_description",
-        status=model_schemas.Status.ACTIVE,
+        status=model_schemas.ModelStatus.ACTIVE,
         created_by=user_id,
     )
     response = client.put(MODEL_ROUTE, json=dict(test_model))
@@ -60,7 +60,7 @@ def test_model_details_patch(client):
     test_model = model_schemas.ModelPut(
         name="test_name",
         description="test_description",
-        status=model_schemas.Status.ACTIVE,
+        status=model_schemas.ModelStatus.ACTIVE,
         created_by=user_id,
     )
     response = client.put(MODEL_ROUTE, json=dict(test_model))
@@ -93,7 +93,7 @@ def test_model_details_patch(client):
     test_model_2 = model_schemas.ModelPut(
         name="test_name_2",
         description="test_description",
-        status=model_schemas.Status.ACTIVE,
+        status=model_schemas.ModelStatus.ACTIVE,
         created_by=user_id,
     )
     response = client.put(MODEL_ROUTE, json=dict(test_model_2))
