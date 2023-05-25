@@ -111,9 +111,7 @@ class GateService:
         return JSONResponse({"detail": "Gate deleted successfully!"})
 
     @classmethod
-    def get_pools(
-        cls, db: Session, gate_id: int, skip: int, limit: int
-    ) -> list[Pool]:
+    def get_pools(cls, db: Session, gate_id: int, skip: int, limit: int) -> list[Pool]:
         """
         Returns a list of gate pools, with optional pagination
 
