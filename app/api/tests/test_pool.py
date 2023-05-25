@@ -138,8 +138,8 @@ def test_pools_get(client):
 
     response = client.get(POOL_ROUTE, params=params)
 
-    assert response.status_code == 404, response.text
-    assert response.json() == {"detail": "Pools not found!"}
+    assert response.status_code == 200, response.text
+    assert response.json() == []
 
     response = client.put(POOL_ROUTE, json=dict(test_pool))
     response = client.put(POOL_ROUTE, json=dict(test_pool_2))

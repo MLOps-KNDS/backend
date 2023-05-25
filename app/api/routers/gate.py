@@ -52,8 +52,6 @@ async def get_gates(
     :return: a list of gate data, where skip < gate_id < limit
     """
     gates = GateService.get_gates(skip=skip, limit=limit, db=db)
-    if not gates:
-        raise HTTPException(status_code=404, detail="Gates not found!")
     return gates
 
 
@@ -80,8 +78,6 @@ async def get_pools(
     if not GateService.get_gate_by_id(db=db, id=gate_id):
         raise HTTPException(status_code=404, detail="Gate not found!")
     pools = GateService.get_pools(db=db, gate_id=gate_id, skip=skip, limit=limit)
-    if not pools:
-        raise HTTPException(status_code=404, detail="Pools not found!")
     return pools
 
 

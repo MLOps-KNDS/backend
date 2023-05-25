@@ -40,7 +40,7 @@ class GateService:
     @classmethod
     def get_gates(
         cls, db: Session, skip: int = 0, limit: int = 100
-    ) -> list[gate_models.Gate] | None:
+    ) -> list[gate_models.Gate]:
         """
         Returns a list of gate data, with optional pagination
 
@@ -52,8 +52,6 @@ class GateService:
         :return: a list of gate data, where skip < gate_id < limit
         """
         models = db.query(gate_models.Gate).offset(skip).limit(limit).all()
-        if len(models) == 0:
-            return None
         return models
 
     @classmethod
@@ -113,9 +111,7 @@ class GateService:
         return JSONResponse({"detail": "Gate deleted successfully!"})
 
     @classmethod
-    def get_pools(
-        cls, db: Session, gate_id: int, skip: int, limit: int
-    ) -> list[Pool] | None:
+    def get_pools(cls, db: Session, gate_id: int, skip: int, limit: int) -> list[Pool]:
         """
         Returns a list of gate pools, with optional pagination
 
@@ -136,8 +132,6 @@ class GateService:
             .all()
         )
         pools = [record.pool for record in gate_pools]
-        if len(pools) == 0:
-            return None
         return pools
 
     @classmethod

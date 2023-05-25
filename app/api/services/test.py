@@ -37,7 +37,7 @@ class TestService:
     @classmethod
     def get_tests(
         cls, db: Session, skip: int = 0, limit: int = 100
-    ) -> list[test_models.Test] | None:
+    ) -> list[test_models.Test]:
         """
         Returns a list of test data, with optional pagination
 
@@ -47,8 +47,6 @@ class TestService:
         :return: a list of test data, where skip < test_id <= skip+limit
         """
         tests = db.query(test_models.Test).offset(skip).limit(limit).all()
-        if len(tests) == 0:
-            return None
         return tests
 
     @classmethod
