@@ -41,7 +41,7 @@ class ModelService:
     @classmethod
     def get_models(
         cls, db: Session, skip: int = 0, limit: int = 100
-    ) -> list[model_models.Model] | None:
+    ) -> list[model_models.Model]:
         """
         Returns list of models with pagination
 
@@ -51,8 +51,6 @@ class ModelService:
         :return: list of retrieved models
         """
         models = db.query(model_models.Model).offset(skip).limit(limit).all()
-        if len(models) == 0:
-            return None
         return models
 
     @classmethod

@@ -53,8 +53,6 @@ async def get_models(
     :return: a list of model data, where skip < model_id < limit
     """
     models = ModelService.get_models(db=db, skip=skip, limit=limit)
-    if not models:
-        raise HTTPException(status_code=404, detail="Models not found!")
     return models
 
 

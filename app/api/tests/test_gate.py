@@ -118,8 +118,8 @@ def test_gates_get(client):
     )
 
     response = client.get(GATE_ROUTE, params=params)
-    assert response.status_code == 404, response.text
-    assert response.json()["detail"] == "Gates not found!"
+    assert response.status_code == 200, response.text
+    assert response.json() == []
 
     response_1 = client.put(GATE_ROUTE, json=dict(test_gate))
     response_2 = client.put(GATE_ROUTE, json=dict(test_gate_2))
@@ -194,8 +194,8 @@ def test_get_pools(client):
     pool_id_3 = response_3.json()["id"]
 
     response = client.get(f"{GATE_ROUTE}/{gate_id}/pool", params=params)
-    assert response.status_code == 404, response.text
-    assert response.json() == {"detail": "Pools not found!"}
+    assert response.status_code == 200, response.text
+    assert response.json() == []
 
     response = client.put(f"{GATE_ROUTE}/{gate_id}/pool/{pool_id_1}")
     response = client.put(f"{GATE_ROUTE}/{gate_id}/pool/{pool_id_2}")

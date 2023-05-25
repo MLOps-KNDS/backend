@@ -41,7 +41,7 @@ class PoolService:
     @classmethod
     def get_pools(
         cls, db: Session, skip: int = 0, limit: int = 100
-    ) -> list[pool_models.Pool] | None:
+    ) -> list[pool_models.Pool]:
         """
         Returns a list of pool data, with optional pagination
 
@@ -51,9 +51,6 @@ class PoolService:
         :return: a list of pool data, where skip < user_id <= limit
         """
         pools = db.query(pool_models.Pool).offset(skip).limit(limit).all()
-        print(f"pools: {pools}")
-        if len(pools) == 0:
-            return None
         return pools
 
     @classmethod

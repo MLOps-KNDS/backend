@@ -51,8 +51,6 @@ async def get_pools(
     :return: a list of pool data, where skip < pool_id < limit
     """
     pools = PoolService.get_pools(skip=skip, limit=limit, db=db)
-    if not pools:
-        raise HTTPException(status_code=404, detail="Pools not found!")
     return pools
 
 

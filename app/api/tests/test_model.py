@@ -93,8 +93,8 @@ def test_models_get(client):
 
     # Test for exception
     response = client.get(MODEL_ROUTE, params=params)
-    assert response.status_code == 404, response.text
-    assert response.json() == {"detail": "Models not found!"}
+    assert response.status_code == 200, response.text
+    assert response.json() == []
 
     test_model = model_schemas.ModelPut(
         name="test_name_1",

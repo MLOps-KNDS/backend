@@ -51,8 +51,6 @@ async def get_users(
     :return: a list of user data, where skip < user_id < limit
     """
     users = UserService.get_users(skip=skip, limit=limit, db=db)
-    if not users:
-        raise HTTPException(status_code=404, detail="Users not found!")
     return users
 
 
