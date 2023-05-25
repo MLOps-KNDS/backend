@@ -40,7 +40,7 @@ class UserService:
     @classmethod
     def get_users(
         cls, db: Session, skip: int = 0, limit: int = 100
-    ) -> list[user_models.User] | None:
+    ) -> list[user_models.User]:
         """
         Returns a list of user data, with optional pagination
 
@@ -52,8 +52,6 @@ class UserService:
         :return: a list of user data, where skip < user_id < limit
         """
         users = db.query(user_models.User).offset(skip).limit(limit).all()
-        if len(users) == 0:
-            return None
         return users
 
     @classmethod

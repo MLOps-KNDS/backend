@@ -51,8 +51,6 @@ async def get_tests(
     :return: a list of user data, where skip < test_id < limit
     """
     tests = TestService.get_tests(db=db, skip=skip, limit=limit)
-    if not tests:
-        raise HTTPException(status_code=404, detail="Tests not found!")
     return tests
 
 
