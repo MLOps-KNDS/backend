@@ -74,11 +74,6 @@ class ModelBuilder:
 
     def __push_image_to_gcr(self) -> str:
         client = docker.from_env()
-        client.login(
-            username="_json_key",
-            password=Constants.GCP_CREDENTIALS,
-            registry=Constants.GCP_CONTAINER_REGISTRY_URI,
-        )
         image_tag = f"{Constants.GCP_CONTAINER_REGISTRY_URI}/{self.name}"
         client.images.get(self.name).tag(image_tag)
 
