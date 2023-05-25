@@ -52,6 +52,8 @@ async def put_pool_model(
     if the specified pool ID does not exist in the database.
     :raise HTTPException: 404 status code with "Model not found!" message
     if the specified model ID does not exist in the database.
+    :raise HTTPException: 404 status code with "Model not found!" message
+    if the specified pool ID does not exist in the database.
 
     :return: the newly-inserted pool record
     """
@@ -59,6 +61,10 @@ async def put_pool_model(
         raise HTTPException(status_code=404, detail="Pool not found!")
     if not ModelService.get_model_by_id(db=db, model_id=model_id):
         raise HTTPException(status_code=404, detail="Model not found!")
+    if PoolModelService.get_pool_model_by_model_id(db=db, id=model_id):
+        raise HTTPException(
+            status_code=404, detail="Model already registered in the pool!"
+        )
     return PoolModelService.put_pool_model(
         db=db, pool_id=pool_id, model_id=model_id, data=pool_model_data
     )
@@ -118,6 +124,8 @@ async def delete_pool_model(pool_id: int, model_id: int, db: Session = Depends(g
     if the specified pool ID does not exist in the database.
     :raise HTTPException: 404 status code with "Model not found!" message
     if the specified pool ID does not exist in the database.
+    :raise HTTPException: 404 status code with "Model not found!" message
+    if the specified pool ID does not exist in the database.
 
     :return: a json with a "detail" key indicating success
     """
@@ -125,4 +133,6 @@ async def delete_pool_model(pool_id: int, model_id: int, db: Session = Depends(g
         raise HTTPException(status_code=404, detail="Pool not found!")
     if not ModelService.get_model_by_id(db=db, model_id=model_id):
         raise HTTPException(status_code=404, detail="Model not found!")
+    if not PoolModelService.get_pool_model_by_model_id(db=db, id=model_id):
+        raise HTTPException(status_code=404, detail="Model not found in the pool!")
     return PoolModelService.delete_pool_model(db=db, model_id=model_id, pool_id=pool_id)
