@@ -6,6 +6,7 @@ from .db.session import client, session
 USER_ROUTE = "/user"
 TEST_ROUTE = "/test"
 
+
 def create_user(client, email) -> int:
     # Create user first
     test_user = user_schemas.UserPut(
@@ -13,6 +14,7 @@ def create_user(client, email) -> int:
     )
     response = client.put(USER_ROUTE, json=dict(test_user))
     return response.json()["id"]
+
 
 def test_test_put(client):
     # Create user first
@@ -26,7 +28,7 @@ def test_test_put(client):
     )
 
     response = client.put(TEST_ROUTE, json=dict(test_test))
-    
+
     assert response.status_code == 201, response.text
     assert "id" in response.json()
 
@@ -34,6 +36,7 @@ def test_test_put(client):
 
     assert response.status_code == 409, response.text
     assert response.json()["detail"] == "Name already registered"
+
 
 def test_test_get(client):
     # Create user first
@@ -58,6 +61,7 @@ def test_test_get(client):
     assert response.status_code == 404, response.text
     assert response.json()["detail"] == "Test not found!"
 
+
 def test_test_delete(client):
     # Create user first
     user_id = create_user(client, "test@test.com")
@@ -80,6 +84,7 @@ def test_test_delete(client):
     assert response.status_code == 404, response.text
     assert response.json()["detail"] == "Test not found!"
 
+
 def test_test_patch(client):
     # Create user first
     user_id = create_user(client, "test@test.com")
@@ -100,6 +105,13 @@ def test_test_patch(client):
         updated_by=user_id,
     )
 
+    response = client.patch(
+        f"{TEST_ROUTE}/{test_id}",
+        json=dict(test_schemas.TestPatch(name="test_name", updated_by=user_id)),
+    )
+    assert response.status_code == 409, response.text
+    assert response.json()["detail"] == "Name already registered"
+
     response = client.patch(f"{TEST_ROUTE}/{test_id}", json=dict(test_patch))
     assert response.status_code == 200, response.text
     assert response.json()["name"] == "test_name_patch"
@@ -109,16 +121,40 @@ def test_test_patch(client):
     assert response.status_code == 404, response.text
     assert response.json()["detail"] == "Test not found!"
 
+
 def test_tests_get(client):
+    params = {"skip": 0, "limit": 10}
     # Create user first
     user_id = create_user(client, "test@test.com")
 
     # Now create a test
-    test_test = test_schemas.TestPut(
-        name="test_name",
+    test_test_1 = test_schemas.TestPut(
+        name="test_name_1",
+        description="test_description",
+        created_by=user_id,
+    )
+    test_test_2 = test_schemas.TestPut(
+        name="test_name_2",
+        description="test_description",
+        created_by=user_id,
+    )
+    test_test_3 = test_schemas.TestPut(
+        name="test_name_3",
         description="test_description",
         created_by=user_id,
     )
 
-    
+    response_1 = client.put(TEST_ROUTE, json=dict(test_test_1))
+    response_2 = client.put(TEST_ROUTE, json=dict(test_test_2))
+    response_3 = client.put(TEST_ROUTE, json=dict(test_test_3))
 
+    excepted_response = [
+        response_1.json(),
+        response_2.json(),
+        response_3.json(),
+    ]
+
+    response = client.get(TEST_ROUTE, params=params)
+
+    assert response.status_code == 200, response.text
+    assert response.json() == excepted_response
