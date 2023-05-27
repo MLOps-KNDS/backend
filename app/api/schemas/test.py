@@ -13,6 +13,8 @@ class TestPut(BaseTest):
 
 
 class TestPatch(BaseTest):
+    name: Annotated[str | None, Field(description="Test name")] = None
+    description: Annotated[str | None, Field(description="Test description")] = None
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 
