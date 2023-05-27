@@ -1,10 +1,13 @@
 import os
+import base64
 
 
 class Constants:
     # Google Cloud
     GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
-    GCP_CREDENTIALS = os.environ.get("GCP_CREDENTIALS")
+    GCP_CREDENTIALS_ENCODED = os.environ.get("GCP_CREDENTIALS_ENCODED")
+    GCP_CREDENTIALS = base64.b64decode(GCP_CREDENTIALS_ENCODED).decode("utf-8")
+
     GCP_CONTAINER_REGISTRY_URI = f"gcr.io/{GCP_PROJECT_ID}"
 
     # MLflow
