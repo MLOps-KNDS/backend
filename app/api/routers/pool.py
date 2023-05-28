@@ -8,9 +8,11 @@ from sqlalchemy.orm import Session
 
 from schemas import pool as pool_schemas
 from services import PoolService, get_db
+from routers.pool_model import router as pool_model_router
 
 
 router = APIRouter(prefix="/pool", tags=["pool"])
+router.include_router(pool_model_router)
 
 
 @router.get("/{pool_id}", response_model=pool_schemas.Pool, status_code=200)

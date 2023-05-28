@@ -4,11 +4,11 @@ from sqlalchemy.orm import Session
 from schemas import pool_model as pool_model_schemas
 from services import PoolService, ModelService, PoolModelService, get_db
 
-router = APIRouter(prefix="/pool", tags=["pool-model"])
+router = APIRouter(prefix="/{pool_id}/model", tags=["pool-model"])
 
 
 @router.get(
-    "/{pool_id}/model",
+    "/",
     response_model=list[pool_model_schemas.PoolModelDetailed],
     status_code=200,
 )
@@ -30,7 +30,7 @@ async def get_pool_models(pool_id: int, db: Session = Depends(get_db)):
 
 
 @router.put(
-    "/{pool_id}/model/{model_id}",
+    "/{model_id}",
     response_model=pool_model_schemas.PoolModel,
     status_code=201,
 )
@@ -71,7 +71,7 @@ async def put_pool_model(
 
 
 @router.patch(
-    "/{pool_id}/model/{model_id}",
+    "/{model_id}",
     response_model=pool_model_schemas.PoolModel,
     status_code=200,
 )
@@ -110,7 +110,7 @@ async def patch_pool_model(
     )
 
 
-@router.delete("/{pool_id}/model/{model_id}", status_code=200)
+@router.delete("/{model_id}", status_code=200)
 async def delete_pool_model(pool_id: int, model_id: int, db: Session = Depends(get_db)):
     """
     Deletes the pool with the given ID.
