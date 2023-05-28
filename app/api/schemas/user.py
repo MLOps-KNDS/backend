@@ -1,8 +1,6 @@
 from typing import Annotated
 from pydantic import BaseModel, Field, EmailStr
-
 from enum import Enum
-from models.user import UserRole
 
 
 class UserResourceType(Enum):
