@@ -12,7 +12,6 @@ from models import gate as gate_models
 
 
 class GateService:
-
     @classmethod
     def get_gate_by_id(cls, db: Session, id: int) -> gate_models.Gate | None:
         """
