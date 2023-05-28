@@ -7,7 +7,7 @@ from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from schemas.pool import Pool
-from services import get_db, GateService, PoolService
+from services import get_db, GateService, GatePoolService, PoolService
 
 
 router = APIRouter(prefix="/{gate_id}/pool", tags=["gate-pool"])
@@ -35,7 +35,7 @@ async def get_pools(
     """
     if not GateService.get_gate_by_id(db=db, id=gate_id):
         raise HTTPException(status_code=404, detail="Gate not found!")
-    pools = GateService.get_pools(db=db, gate_id=gate_id, skip=skip, limit=limit)
+    pools = GatePoolService.get_pools(db=db, gate_id=gate_id, skip=skip, limit=limit)
     return pools
 
 
@@ -66,10 +66,10 @@ async def put_pool_gate(
         raise HTTPException(status_code=404, detail="Gate not found!")
     if not PoolService.get_pool_by_id(db=db, id=pool_id):
         raise HTTPException(status_code=404, detail="Pool not found!")
-    if GateService.get_pool_by_id(db=db, gate_id=gate_id, pool_id=pool_id):
+    if GatePoolService.get_pool_by_id(db=db, gate_id=gate_id, pool_id=pool_id):
         raise HTTPException(status_code=409, detail="Pool already in gate!")
 
-    return GateService.put_pool_gate(db=db, gate_id=gate_id, pool_id=pool_id)
+    return GatePoolService.put_pool_gate(db=db, gate_id=gate_id, pool_id=pool_id)
 
 
 @router.delete("/{pool_id}", status_code=200)
@@ -92,7 +92,7 @@ async def delete_pool_gate(gate_id: int, pool_id: int, db: Session = Depends(get
         raise HTTPException(status_code=404, detail="Gate not found!")
     if not PoolService.get_pool_by_id(db=db, id=pool_id):
         raise HTTPException(status_code=404, detail="Pool not found!")
-    if not GateService.get_pool_by_id(db=db, gate_id=gate_id, pool_id=pool_id):
+    if not GatePoolService.get_pool_by_id(db=db, gate_id=gate_id, pool_id=pool_id):
         raise HTTPException(status_code=404, detail="Pool is not in gate!")
 
-    return GateService.delete_pool_gate(db=db, gate_id=gate_id, pool_id=pool_id)
+    return GatePoolService.delete_pool_gate(db=db, gate_id=gate_id, pool_id=pool_id)
