@@ -30,22 +30,22 @@ class GatePut(BaseGate):
     created_by: Annotated[int, Field(description="User ID of the creator")]
 
 
-class GatePatchAddPool(BaseModel):
-    pool_id: Annotated[int, Field(description="Pool ID")]
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
+# class GatePatchAddPool(BaseModel):
+#     pool_id: Annotated[int, Field(description="Pool ID")]
+#     updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 
-class GatePatchRemovePool(BaseModel):
-    pool_id: Annotated[int, Field(description="Pool ID")]
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
+# class GatePatchRemovePool(BaseModel):
+#     pool_id: Annotated[int, Field(description="Pool ID")]
+#     updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 
-class GatePatchAddUser(BaseModel):
-    user_id: Annotated[int, Field(description="User ID")]
-    role: Annotated[UserRole, Field(description="User role")]
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
+# class GatePatchAddUser(BaseModel):
+#     user_id: Annotated[int, Field(description="User ID")]
+#     role: Annotated[UserRole, Field(description="User role")]
+#     updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 
-class GatePatchRemoveUser(BaseModel):
-    user_id: Annotated[int, Field(description="User ID")]
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
+# class GatePatchRemoveUser(BaseModel):
+#     user_id: Annotated[int, Field(description="User ID")]
+#     updated_by: Annotated[int, Field(description="User ID of the last updater")]
