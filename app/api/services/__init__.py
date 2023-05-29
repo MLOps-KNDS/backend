@@ -5,4 +5,5 @@ from services.gate import GateService  # noqa: F401
 from services.model import ModelService  # noqa: F401
 from services.test import TestService  # noqa: F401
 from services.model_details import ModelDetailsService  # noqa: F401
+from services.gate_pool import GatePoolService  # noqa: F401
 from services.pool_model import PoolModelService  # noqa: F401
