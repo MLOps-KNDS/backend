@@ -79,7 +79,7 @@ class ModelDetailsService:
         db_model_details = cls.get_model_details_by_model_id(db, model_id)
         if db_model_details is None:
             return None
-        for field, value in model_details:
+        for field, value in model_details.dict(exclude_none=True).items():
             setattr(db_model_details, field, value)
         db.commit()
         db.refresh(db_model_details)
