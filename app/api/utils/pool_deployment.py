@@ -11,8 +11,8 @@ class PoolDeployment:
     def __init__(
         self,
         pool_models: list[pool_model_schemas.PoolModelDetailed],
+        gateways_names: list[str],
         pool_name: str,
-        gatewaway_name: str,
     ) -> None:
         """
         :param models: list of models to which the user will be redirected to
@@ -20,7 +20,7 @@ class PoolDeployment:
         """
 
         self.pool_models = pool_models
-        self.gatewaway_name = gatewaway_name
+        self.gateways_names = gateways_names
         self.name = pool_name
 
         config.load_incluster_config()
@@ -29,7 +29,7 @@ class PoolDeployment:
         custom_api = client.CustomObjectsApi()
 
         body = IstioVirtualServiceGenerator(
-            self.pool_models, self.name, self.gatewaway_name
+            self.pool_models, self.gateways_names, self.name
         )
         body = body.generate()
 

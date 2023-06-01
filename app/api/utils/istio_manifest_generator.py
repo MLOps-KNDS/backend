@@ -6,17 +6,17 @@ from .constants import Constants
 class IstioVirtualServiceGenerator:
     def __init__(
         self,
+        name: str,
+        gateways_names: list[str],
         models: list[pool_model_schemas.PoolModel],
-        pool_name: str,
-        gatewaway_name: str,
     ) -> None:
         """
         :param models: list of models to which the user will be redirected to
         :param pool_name: name of the pool
         """
+        self.name = name
+        self.gateways_names = gateways_names
         self.pool_models = models
-        self.gateaway_name = gatewaway_name
-        self.name = pool_name
 
     def generate(self) -> dict:
         """
@@ -27,7 +27,7 @@ class IstioVirtualServiceGenerator:
             {
                 "destination": {
                     "host": model.name,
-                    "port": {"number": Constants.K8S_SERVICE_PORT},
+                    "port": {"number": Constants.ISTIO_VIRTUAL_SERVICE_PORT},
                 },
                 "weight": model.weight,
             }
@@ -37,12 +37,13 @@ class IstioVirtualServiceGenerator:
         body = {
             "apiVersion": "networking.istio.io/v1alpha3",
             "kind": "VirtualService",
-            "metadata": {"name": self.name, "namespace": f"pool-config-{self.name}"},
+            "metadata": {
+                "name": self.name,
+                "namespace": Constants.K8S_NAMESPACE_MODELS,
+            },
             "spec": {
                 "hosts": ["*"],
-                "gateways": [
-                    f"gateaway-config-{self.gateaway_name}/{self.gateaway_name}"
-                ],
+                "gateways": [gateway for gateway in self.gateways_names],
                 "http": [{"route": model_routes}],
             },
         }
@@ -50,20 +51,20 @@ class IstioVirtualServiceGenerator:
 
 
 class IstioGatewayGenerator:
-    def __init__(self, pools: list[pool_schemas.Pool], gateaway_name: str) -> None:
+    def __init__(self, pools: list[pool_schemas.Pool], gateway_name: str) -> None:
         """
-        :param gateaway_name: name of the gateaway
+        :param gateway_name: name of the gateway
         :param pools: list of pools to which the user will be redirected to
         """
-        self.name = gateaway_name
+        self.name = gateway_name
         self.pools = pools
 
     def generate(self) -> dict:
         """
-        :return: Istio Gateaway manifest
+        :return: Istio Gateway manifest
         """
 
-        gateaway_servers = {
+        gateway_servers = {
             "port": {
                 "number": Constants.K8S_DEPLOYMENT_PORT,
                 "name": "http",
@@ -77,11 +78,11 @@ class IstioGatewayGenerator:
             "kind": "Gateway",
             "metadata": {
                 "name": self.name,
-                "namespace": f"gateaway-config-{self.name}",
+                "namespace": Constants.K8S_NAMESPACE_MODELS,
             },
             "spec": {
                 "selector": {"app": "ingressgateway"},
-                "servers": gateaway_servers,
+                "servers": gateway_servers,
             },
         }
         return body

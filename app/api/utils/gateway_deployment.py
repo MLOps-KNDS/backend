@@ -3,17 +3,17 @@ from schemas import pool as pool_schemas
 from .istio_manifest_generator import IstioGatewayGenerator
 
 
-class GateawayDeployment:
+class GatewayDeployment:
     """
-    Creates gateaway for a our gate
+    Creates gateway for a our gate
     """
 
-    def __init__(self, pools: list[pool_schemas.Pool], gateaway_name: str) -> None:
+    def __init__(self, pools: list[pool_schemas.Pool], gateway_name: str) -> None:
         """
-        :param gateaway_name: name of the gateaway
+        :param gateway_name: name of the gateway
         """
 
-        self.name = gateaway_name
+        self.name = gateway_name
         self.pools = pools
 
         config.load_incluster_config()
@@ -27,7 +27,7 @@ class GateawayDeployment:
         custom_api.create_namespaced_custom_object(
             group="networking.istio.io/v1alpha3",
             version="v1alpha3",
-            namespace=f"gateaway-config-{self.name}",
+            namespace=f"gateway-config-{self.name}",
             plural="gateways",
             body=body,
         )
