@@ -9,3 +9,4 @@ email-validator==2.0.0
 kubernetes==26.1.0
 authlib==1.2.0
 httpx==0.24.0
+pyjwt==2.7.0
