@@ -9,9 +9,10 @@ from schemas import model as model_schemas
 from models.model import Status
 from services import ModelService, ModelDetailsService, get_db
 from routers.model_details import router as model_details_router
+from auth.jwt_bearer import JWTBearer
 
 
-router = APIRouter(prefix="/model", tags=["model"])
+router = APIRouter(prefix="/model", tags=["model"], dependencies=[Depends(JWTBearer())])
 router.include_router(model_details_router)
 
 

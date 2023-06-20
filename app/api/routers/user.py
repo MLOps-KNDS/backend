@@ -8,9 +8,10 @@ from sqlalchemy.orm import Session
 
 from schemas import user as user_schemas
 from services import UserService, get_db
+from auth.jwt_bearer import JWTBearer
 
 
-router = APIRouter(prefix="/user", tags=["user"])
+router = APIRouter(prefix="/user", tags=["user"], dependencies=[Depends(JWTBearer())])
 
 
 @router.get("/{user_id}", response_model=user_schemas.User, status_code=200)

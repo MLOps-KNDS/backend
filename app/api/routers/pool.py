@@ -8,9 +8,10 @@ from sqlalchemy.orm import Session
 
 from schemas import pool as pool_schemas
 from services import PoolService, get_db
+from auth.jwt_bearer import JWTBearer
 
 
-router = APIRouter(prefix="/pool", tags=["pool"])
+router = APIRouter(prefix="/pool", tags=["pool"], dependencies=[Depends(JWTBearer())])
 
 
 @router.get("/{pool_id}", response_model=pool_schemas.Pool, status_code=200)

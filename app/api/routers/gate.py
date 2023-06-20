@@ -10,9 +10,10 @@ from sqlalchemy.orm import Session
 from schemas import gate as gate_schemas
 from schemas.pool import Pool
 from services import GateService, get_db, PoolService
+from auth.jwt_bearer import JWTBearer
 
 
-router = APIRouter(prefix="/gate", tags=["gate"])
+router = APIRouter(prefix="/gate", tags=["gate"], dependencies=[Depends(JWTBearer())])
 
 
 @router.get("/{gate_id}", response_model=gate_schemas.Gate, status_code=200)

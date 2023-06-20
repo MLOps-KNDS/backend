@@ -1,12 +1,14 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException, Request
-from starlette.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuth
-
-# from sqlalchemy.orm import Session # TODO: Uncomment this line when using database
+from auth.jwt_handler import create_jwt_token
+from sqlalchemy.orm import Session
 
 
 from config.config import settings
+from services.user import UserService
+from services import get_db
+from schemas.user import UserPut
 
 
 _logger = logging.getLogger(__name__)
@@ -24,28 +26,32 @@ oauth.register(
 )
 
 
-async def get_current_user(request: Request):
-    if request.session.get("user"):
-        return request.session["user"]
-    raise HTTPException(401, "Unauthorized")
+def user_login(token: dict, db: Session):
+    user_email = token.get("userinfo").get("email")
+    user = UserService.get_user_by_email(db, user_email)
+    if not user:
+        user = UserService.put_user(
+            db,
+            UserPut(
+                name=token.get("userinfo").get("given_name"),
+                surname=token.get("userinfo").get("family_name"),
+                email=user_email,
+            ),
+        )
+        _logger.info(f"User {user_email} created")
+    else:
+        _logger.info(f"User {user_email} already exists")
 
-
-@router.get("/me")
-async def me(user=Depends(get_current_user)):
-    return user
+    return create_jwt_token(user.id)
 
 
 @router.get("/auth")
-async def auth(request: Request):
-    _logger.info("Authenticating user")
+async def auth(request: Request, db: Session = Depends(get_db)):
     token = await oauth.google.authorize_access_token(request)
     user = token.get("userinfo")
     if user:
-        _logger.info(f"User {user} authenticated")
-        bearer_token = token.get("id_token")
-        user.update({"token": bearer_token})
-        request.session["user"] = dict(user)
-    return RedirectResponse(url="/me")
+        return user_login(token, db)
+    raise HTTPException(status_code=400, detail="User not authenticated")
 
 
 @router.get("/login")
@@ -53,9 +59,3 @@ async def login(request: Request):
     redirect_uri = request.url_for("auth")
     _logger.info(f"Redirect URI: {redirect_uri}")
     return await oauth.google.authorize_redirect(request, str(redirect_uri))
-
-
-@router.get("/logout")
-async def logout(request: Request):
-    request.session.pop("user", None)
-    return RedirectResponse(url="/")
