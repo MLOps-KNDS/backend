@@ -1,7 +1,8 @@
 import schemas.gate as gate_schemas
 import schemas.pool as pool_schemas
 import schemas.user as user_schemas
-from .db.session import client, session
+from .db.session import session
+from .conftest import client
 
 USER_ROUTE = "/user"
 GATE_ROUTE = "/gate"

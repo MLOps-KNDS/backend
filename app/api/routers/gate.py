@@ -12,7 +12,7 @@ from routers.gate_pool import router as gate_pool_router
 from auth.jwt_bearer import JWTBearer
 
 
-router = APIRouter(prefix="/gate", tags=["gate"], dependencies=[Depends(JWTBearer())])
+router = APIRouter(prefix="/gate", tags=["gate"], dependencies=[Depends(JWTBearer)])
 router.include_router(gate_pool_router)
 
 

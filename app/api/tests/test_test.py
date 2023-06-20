@@ -1,7 +1,8 @@
 import schemas.user as user_schemas
 import schemas.test as test_schemas
 
-from .db.session import client, session
+from .db.session import session
+from .conftest import client
 
 USER_ROUTE = "/user"
 TEST_ROUTE = "/test"

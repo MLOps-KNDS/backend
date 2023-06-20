@@ -36,3 +36,6 @@ class JWTBearer(HTTPBearer):
         if decode_token:
             return True
         return False
+
+
+authenticate = JWTBearer()

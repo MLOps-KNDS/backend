@@ -1,7 +1,8 @@
 import schemas.model as model_schemas
 import schemas.user as user_schemas
 import schemas.model_details as model_details_schemas
-from .db.session import client, session
+from .db.session import session
+from .conftest import client
 
 USER_ROUTE = "/user"
 MODEL_ROUTE = "/model"

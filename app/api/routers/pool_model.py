@@ -3,8 +3,11 @@ from sqlalchemy.orm import Session
 
 from schemas import pool_model as pool_model_schemas
 from services import PoolService, ModelService, PoolModelService, get_db
+from auth.jwt_bearer import JWTBearer
 
-router = APIRouter(prefix="/{pool_id}/model", tags=["pool-model"])
+router = APIRouter(
+    prefix="/{pool_id}/model", tags=["pool-model"], dependencies=[Depends(JWTBearer)]
+)
 
 
 @router.get(

@@ -12,7 +12,7 @@ from routers.pool_model import router as pool_model_router
 from auth.jwt_bearer import JWTBearer
 
 
-router = APIRouter(prefix="/pool", tags=["pool"], dependencies=[Depends(JWTBearer())])
+router = APIRouter(prefix="/pool", tags=["pool"], dependencies=[Depends(JWTBearer)])
 router.include_router(pool_model_router)
 
 

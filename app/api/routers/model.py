@@ -12,7 +12,7 @@ from routers.model_details import router as model_details_router
 from auth.jwt_bearer import JWTBearer
 
 
-router = APIRouter(prefix="/model", tags=["model"], dependencies=[Depends(JWTBearer())])
+router = APIRouter(prefix="/model", tags=["model"], dependencies=[Depends(JWTBearer)])
 router.include_router(model_details_router)
 
 

@@ -8,7 +8,7 @@ from auth.jwt_bearer import JWTBearer
 router = APIRouter(
     prefix="/{model_id}/details",
     tags=["model-details"],
-    dependencies=[Depends(JWTBearer())],
+    dependencies=[Depends(JWTBearer)],
 )
 
 

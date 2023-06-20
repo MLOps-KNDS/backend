@@ -11,7 +11,7 @@ from services import TestService, get_db
 from auth.jwt_bearer import JWTBearer
 
 
-router = APIRouter(prefix="/test", tags=["test"], dependencies=[Depends(JWTBearer())])
+router = APIRouter(prefix="/test", tags=["test"], dependencies=[Depends(JWTBearer)])
 
 
 @router.get("/{test_id}", response_model=test_schema.Test, status_code=200)
