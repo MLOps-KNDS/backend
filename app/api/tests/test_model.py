@@ -93,13 +93,13 @@ def test_models_get(client):
 
     # Test for exception
     response = client.get(MODEL_ROUTE, params=params)
-    assert response.status_code == 404, response.text
-    assert response.json() == {"detail": "Models not found!"}
+    assert response.status_code == 200, response.text
+    assert response.json() == []
 
     test_model = model_schemas.ModelPut(
         name="test_name_1",
         description="test_description_1",
-        status=model_schemas.Status.ACTIVE,
+        status=model_schemas.ModelStatus.ACTIVE,
         created_by=user_id,
     )
     response_model_1 = client.put(MODEL_ROUTE, json=dict(test_model))
@@ -107,7 +107,7 @@ def test_models_get(client):
     test_model = model_schemas.ModelPut(
         name="test_name_2",
         description="test_description_2",
-        status=model_schemas.Status.INACTIVE,
+        status=model_schemas.ModelStatus.INACTIVE,
         created_by=user_id,
     )
     response_model_2 = client.put(MODEL_ROUTE, json=dict(test_model))
@@ -131,7 +131,7 @@ def test_model_get(client):
     test_model = model_schemas.ModelPut(
         name="test_name",
         description="test_description",
-        status=model_schemas.Status.ACTIVE,
+        status=model_schemas.ModelStatus.ACTIVE,
         created_by=user_id,
     )
     response = client.put(MODEL_ROUTE, json=dict(test_model))
@@ -157,7 +157,7 @@ def test_model_delete(client):
     test_model = model_schemas.ModelPut(
         name="test_name",
         description="test_description",
-        status=model_schemas.Status.ACTIVE,
+        status=model_schemas.ModelStatus.ACTIVE,
         created_by=user_id,
     )
     response = client.put(MODEL_ROUTE, json=dict(test_model))
@@ -186,7 +186,7 @@ def test_model_build(
     response = client.put(USER_ROUTE, json=dict(test_user))
     user_id = response.json()["id"]
 
-    test_model = model_schemas.PutModel(
+    test_model = model_schemas.ModelPut(
         name="test_name",
         description="test_description",
         created_by=user_id,
@@ -197,7 +197,7 @@ def test_model_build(
     response = client.post(f"{MODEL_ROUTE}/{model_id}/build")
     assert response.status_code == 406
 
-    test_model_details = model_details_schemas.PatchModelDetails(
+    test_model_details = model_details_schemas.ModelDetailsPatch(
         artifact_uri="/test/test/model"
     )
     response = client.patch(

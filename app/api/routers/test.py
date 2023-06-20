@@ -52,8 +52,6 @@ async def get_tests(
     :return: a list of user data, where skip < test_id < limit
     """
     tests = TestService.get_tests(db=db, skip=skip, limit=limit)
-    if not tests:
-        raise HTTPException(status_code=404, detail="Tests not found!")
     return tests
 
 
@@ -116,4 +114,4 @@ async def delete_test(test_id: int, db: Session = Depends(get_db)):
     test = TestService.get_test_by_id(db=db, id=test_id)
     if not test:
         raise HTTPException(status_code=404, detail="Test not found!")
-    return TestService.delete_test(db=db, test=test)
+    return TestService.delete_test(db=db, id=test_id)

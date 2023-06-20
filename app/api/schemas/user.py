@@ -1,17 +1,9 @@
 from typing import Annotated
 from pydantic import BaseModel, Field, EmailStr
-
-from schemas.commons import BaseEnum
-
-
-class Role(BaseEnum):
-    OWNER = "owner"
-    ADMIN = "admin"
-    READER = "reader"
-    WRITER = "writer"
+from enum import Enum
 
 
-class ResourceType(BaseEnum):
+class UserResourceType(Enum):
     MODEL = "model"
     TEST = "test"
     POOL = "pool"
@@ -41,17 +33,3 @@ class User(BaseUser):
 
     class Config:
         orm_mode = True
-
-
-class BaseUserRole(BaseModel):
-    user_id: Annotated[int, Field(description="User ID")]
-    resource_type: Annotated[ResourceType, Field(description="Resource type")]
-    resource_id: Annotated[int, Field(description="Resource ID")]
-
-
-class UserPatchRole(BaseUserRole):
-    role: Annotated[Role, Field(description="User role")]
-
-
-class UserDeleteRole(BaseUserRole):
-    pass

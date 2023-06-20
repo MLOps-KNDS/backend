@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 
 from models import model as model_models
-from models.model import Status
+from models.model import ModelStatus
 from schemas import model as model_schemas
 from utils import ModelDeployment, ModelBuilder
 from .model_details import ModelDetailsService
@@ -41,7 +41,7 @@ class ModelService:
     @classmethod
     def get_models(
         cls, db: Session, skip: int = 0, limit: int = 100
-    ) -> list[model_models.Model] | None:
+    ) -> list[model_models.Model]:
         """
         Returns list of models with pagination
 
@@ -51,8 +51,6 @@ class ModelService:
         :return: list of retrieved models
         """
         models = db.query(model_models.Model).offset(skip).limit(limit).all()
-        if len(models) == 0:
-            return None
         return models
 
     @classmethod
@@ -71,7 +69,7 @@ class ModelService:
         db_model.updated_by = model.created_by
         db_model.created_at = creation_time
         db_model.updated_at = creation_time
-        db_model.status = Status.INACTIVE
+        db_model.status = ModelStatus.INACTIVE
         db.add(db_model)
         db.commit()
         db.refresh(db_model)
@@ -102,7 +100,7 @@ class ModelService:
 
     @classmethod
     def change_model_status(
-        cls, db: Session, model_id: int, status: Status
+        cls, db: Session, model_id: int, status: ModelStatus
     ) -> model_models.Model:
         """
         Changes the status of a model in the database

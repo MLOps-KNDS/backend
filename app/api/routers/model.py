@@ -6,7 +6,7 @@ from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from schemas import model as model_schemas
-from models.model import Status
+from models.model import ModelStatus
 from services import ModelService, ModelDetailsService, get_db
 from routers.model_details import router as model_details_router
 from auth.jwt_bearer import JWTBearer
@@ -54,8 +54,6 @@ async def get_models(
     :return: a list of model data, where skip < model_id < limit
     """
     models = ModelService.get_models(db=db, skip=skip, limit=limit)
-    if not models:
-        raise HTTPException(status_code=404, detail="Models not found!")
     return models
 
 
@@ -101,7 +99,7 @@ async def activate_model(
     if not db_model:
         raise HTTPException(status_code=404, detail="Model not found!")
 
-    if db_model.status == Status.ACTIVE:
+    if db_model.status == ModelStatus.ACTIVE:
         raise HTTPException(status_code=409, detail="Model already active!")
 
     db_model_details = ModelDetailsService.get_model_details_by_model_id(db, model_id)
@@ -113,7 +111,9 @@ async def activate_model(
             status_code=406, detail="Model details are not complete! {key} is null}"
         )
 
-    ModelService.change_model_status(db=db, model_id=model_id, status=Status.ACTIVE)
+    ModelService.change_model_status(
+        db=db, model_id=model_id, status=ModelStatus.ACTIVE
+    )
     return ModelService.activate_model(
         name=db_model.name,
         model_details=db_model_details,
@@ -136,10 +136,12 @@ async def deactivate_model(model_id: int, db: Session = Depends(get_db)):
     model = ModelService.get_model_by_id(db=db, model_id=model_id)
     if not model:
         raise HTTPException(status_code=404, detail="Model not found!")
-    if model.status == Status.INACTIVE:
+    if model.status == ModelStatus.INACTIVE:
         raise HTTPException(status_code=409, detail="Model already inactive!")
 
-    ModelService.change_model_status(db=db, model_id=model_id, status=Status.INACTIVE)
+    ModelService.change_model_status(
+        db=db, model_id=model_id, status=ModelStatus.INACTIVE
+    )
     return ModelService.deactivate_model(name=model.name)
 
 

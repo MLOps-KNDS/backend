@@ -8,10 +8,12 @@ from sqlalchemy.orm import Session
 
 from schemas import pool as pool_schemas
 from services import PoolService, get_db
+from routers.pool_model import router as pool_model_router
 from auth.jwt_bearer import JWTBearer
 
 
 router = APIRouter(prefix="/pool", tags=["pool"], dependencies=[Depends(JWTBearer())])
+router.include_router(pool_model_router)
 
 
 @router.get("/{pool_id}", response_model=pool_schemas.Pool, status_code=200)
@@ -52,8 +54,6 @@ async def get_pools(
     :return: a list of pool data, where skip < pool_id < limit
     """
     pools = PoolService.get_pools(skip=skip, limit=limit, db=db)
-    if not pools:
-        raise HTTPException(status_code=404, detail="Pools not found!")
     return pools
 
 
