@@ -16,6 +16,8 @@ services:
       - POSTGRES_PASSWORD=postgres 
       - POSTGRES_HOST=database
       - GCP_PROJECT_ID=$GCP_PROJECT_ID
+      - GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
       - GCP_CREDENTIALS_ENCODED=$GCP_CREDENTIALS_ENCODED
   database: 
     image: postgres:latest

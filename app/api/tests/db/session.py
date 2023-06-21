@@ -11,8 +11,8 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 import pytest
 
-from main import app
 from services.deps import get_db
+from auth.jwt_bearer import authenticate
 from ..config.config import settings
 
 engine = sqlalchemy.create_engine(
@@ -55,11 +55,3 @@ def session():
 # previous session fixture. Instead of creating a new session in the
 # dependency override as before, it uses the one provided by the
 # session fixture.
-@pytest.fixture()
-def client(session):
-    def override_get_db():
-        yield session
-
-    app.dependency_overrides[get_db] = override_get_db
-    yield TestClient(app)
-    del app.dependency_overrides[get_db]

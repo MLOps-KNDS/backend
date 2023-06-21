@@ -7,10 +7,13 @@ from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from schemas.pool import Pool
+from auth.jwt_bearer import JWTBearer
 from services import get_db, GateService, GatePoolService, PoolService
 
 
-router = APIRouter(prefix="/{gate_id}/pool", tags=["gate-pool"])
+router = APIRouter(
+    prefix="/{gate_id}/pool", tags=["gate-pool"], dependencies=[Depends(JWTBearer)]
+)
 
 
 @router.get("/", response_model=list[Pool], status_code=200)

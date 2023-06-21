@@ -3,12 +3,16 @@ This is the main module.
 It contains the FastAPI app.
 """
 
+import time
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-import time
+from starlette.middleware.sessions import SessionMiddleware
+import logging
+import secrets
 
 from db.create import create_db
 from db.session import engine
+
 
 from routers import (
     user,
@@ -16,7 +20,10 @@ from routers import (
     gate,
     model,
     test,
+    login,
 )
+
+_logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -33,11 +40,15 @@ app = FastAPI(
     lifespan=init,
 )
 
+
+app.add_middleware(SessionMiddleware, secret_key=secrets.token_bytes(32))
+
 app.include_router(model.router)
 app.include_router(user.router)
 app.include_router(pool.router)
 app.include_router(gate.router)
 app.include_router(test.router)
+app.include_router(login.router)
 
 
 @app.get("/")

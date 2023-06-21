@@ -1,5 +1,6 @@
 from pydantic import BaseSettings, validator, PostgresDsn
 from typing import Optional, Dict, Any
+import secrets
 
 
 class Settings(BaseSettings):
@@ -8,6 +9,12 @@ class Settings(BaseSettings):
     POSTGRES_NAME: str = "postgres"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+
+    TOKEN_EXPIRE_SECONDS: int = 600  # 60 * 10 = 10 minutes
+    SECRET_KEY: str = secrets.token_hex(16)
+    ALGORITHM: str = "HS256"
 
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 

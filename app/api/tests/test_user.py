@@ -20,8 +20,8 @@ set on the test_config.config.settings.
 """
 
 import schemas.user as user_schemas
-from .db.session import client, session
-
+from .db.session import session
+from .conftest import client
 
 ROUTE = "/user/"
 
@@ -30,7 +30,9 @@ def test_user_put(client):
     test_user = user_schemas.UserPut(
         name="test_name", surname="test_surname", email="test_email@abc.com"
     )
-    response = client.put(ROUTE, json=dict(test_user))
+    response = client.put(
+        ROUTE, headers={"Authorization": "Bearer token"}, json=dict(test_user)
+    )
 
     assert response.status_code == 201, response.text
     assert "id" in response.json()
@@ -103,6 +105,7 @@ def test_user_delete(client):
         name="test_name", surname="test_surname", email="test_email@abc.com"
     )
     response = client.put(ROUTE, json=dict(test_user))
+    print(response.json())
     user_id = response.json()["id"]
 
     response = client.delete(f"{ROUTE}{user_id}")

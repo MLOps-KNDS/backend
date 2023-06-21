@@ -3,8 +3,13 @@ from sqlalchemy.orm import Session
 
 from schemas.model_details import ModelDetails, ModelDetailsPatch
 from services import ModelDetailsService, get_db
+from auth.jwt_bearer import JWTBearer
 
-router = APIRouter(prefix="/{model_id}/details", tags=["model-details"])
+router = APIRouter(
+    prefix="/{model_id}/details",
+    tags=["model-details"],
+    dependencies=[Depends(JWTBearer)],
+)
 
 
 @router.get("/", response_model=ModelDetails, status_code=200)

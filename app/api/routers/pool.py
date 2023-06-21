@@ -9,9 +9,10 @@ from sqlalchemy.orm import Session
 from schemas import pool as pool_schemas
 from services import PoolService, get_db
 from routers.pool_model import router as pool_model_router
+from auth.jwt_bearer import JWTBearer
 
 
-router = APIRouter(prefix="/pool", tags=["pool"])
+router = APIRouter(prefix="/pool", tags=["pool"], dependencies=[Depends(JWTBearer)])
 router.include_router(pool_model_router)
 
 
