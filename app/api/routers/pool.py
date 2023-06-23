@@ -10,9 +10,10 @@ from schemas import pool as pool_schemas
 from services import PoolService, get_db
 from routers.pool_model import router as pool_model_router
 from auth.jwt_bearer import JWTBearer
+from auth.jwt_handler import decode_jwt_token
 
 
-router = APIRouter(prefix="/pool", tags=["pool"], dependencies=[Depends(JWTBearer)])
+router = APIRouter(prefix="/pool", tags=["pool"], dependencies=[Depends(JWTBearer())])
 router.include_router(pool_model_router)
 
 
@@ -58,23 +59,33 @@ async def get_pools(
 
 
 @router.put("/", response_model=pool_schemas.Pool, status_code=201)
-async def put_pool(pool_data: pool_schemas.PoolPut, db: Session = Depends(get_db)):
+async def put_pool(
+    pool_data: pool_schemas.PoolPut,
+    db: Session = Depends(get_db),
+    credentials: str = Depends(JWTBearer()),
+):
     """
     Creates a new pool with the given information and returns the pool information.
 
     :param pool_data: the information of the new pool to be created.
     :param db: Database session
+    :param credentials: JWT token
 
     :return: the newly-inserted pool record
     """
     if PoolService.get_pool_by_name(db=db, name=pool_data.name):
         raise HTTPException(status_code=409, detail="Name already registered")
-    return PoolService.put_pool(db=db, pool_data=pool_data)
+    payload = decode_jwt_token(credentials)
+    user_id = payload.get("user_id")
+    return PoolService.put_pool(db=db, pool_data=pool_data, user_id=user_id)
 
 
 @router.patch("/{pool_id}", response_model=pool_schemas.Pool, status_code=200)
 async def patch_pool(
-    pool_id: int, pool_data: pool_schemas.PoolPatch, db: Session = Depends(get_db)
+    pool_id: int,
+    pool_data: pool_schemas.PoolPatch,
+    db: Session = Depends(get_db),
+    credentials: str = Depends(JWTBearer()),
 ):
     """
     Updates the information of an existing pool with the provided data and
@@ -94,7 +105,11 @@ async def patch_pool(
         raise HTTPException(status_code=404, detail="Pool not found!")
     if PoolService.get_pool_by_name(db=db, name=pool_data.name):
         raise HTTPException(status_code=409, detail="Name already registered")
-    return PoolService.patch_pool(db=db, id=pool_id, pool_data=pool_data)
+    payload = decode_jwt_token(credentials)
+    user_id = payload.get("user_id")
+    return PoolService.patch_pool(
+        db=db, id=pool_id, pool_data=pool_data, user_id=user_id
+    )
 
 
 @router.delete("/{pool_id}", status_code=200)
