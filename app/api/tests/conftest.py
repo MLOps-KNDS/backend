@@ -1,13 +1,15 @@
 import pytest
 import sqlalchemy
-from unittest.mock import patch
-from auth.jwt_bearer import JWTBearer
 from fastapi.testclient import TestClient
+from unittest.mock import patch
+import importlib
 
 import models
+from auth.jwt_bearer import JWTBearer
 from main import app
 from services import get_db
 from .db.session import engine
+import auth
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -19,6 +21,14 @@ def setup():
     # Set up the database
     models.Base.metadata.drop_all(bind=engine)
     models.Base.metadata.create_all(bind=engine)
+    with engine.connect() as conn:
+        conn.execute(
+            sqlalchemy.text(
+                "INSERT INTO core.user (name, surname, email) "
+                "VALUES ('test_name', 'test_surname', 'test@test.com')"
+            )
+        )
+        conn.commit()
     yield
     # Teardown the database
     models.Base.metadata.drop_all(bind=engine)
@@ -28,20 +38,33 @@ def setup():
         conn.commit()
 
 
+@pytest.fixture(autouse=True)
+def override_decode_jwt_token():
+    with patch('auth.jwt_handler.decode_jwt_token') as mock_decode_jwt_token:
+        def custom_decode_jwt_token(token):
+            return token
+        # mock_decode_jwt_token.side_effect = custom_decode_jwt_token
+        mock_decode_jwt_token.return_value = "1"
+        importlib.reload(auth.jwt_handler)
+        yield
+
+
+
 @pytest.fixture()
 def client(session):
     def override_get_db():
         yield session
 
-    def mock_authenticate():
-        with patch.object(JWTBearer, "__call__") as mock_call:
-            # Implement the desired behavior of the mocked __call__ method
-            mock_call.return_value = "mocked_token"
-
-            yield
+    class CustomJWTBearer(JWTBearer):
+        def __call__(self, request):
+            credentials = request.headers.get("Authorization")
+            token = credentials.split(" ")[1]
+            return token
+        def verify_jwt(self, jwtoken: str) -> bool:
+            return True
 
     app.dependency_overrides[get_db] = override_get_db
-    app.dependency_overrides[JWTBearer] = mock_authenticate
+    app.dependency_overrides[JWTBearer] = CustomJWTBearer()
     yield TestClient(app)
     del app.dependency_overrides[get_db]
     del app.dependency_overrides[JWTBearer]

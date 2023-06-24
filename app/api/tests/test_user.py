@@ -21,17 +21,22 @@ set on the test_config.config.settings.
 
 import schemas.user as user_schemas
 from .db.session import session
-from .conftest import client
+from .conftest import client, override_decode_jwt_token
+from auth.jwt_handler import decode_jwt_token
 
 ROUTE = "/user/"
 
 
 def test_user_put(client):
+
+    user_id = decode_jwt_token("1")
+    print("user_id", user_id)
+
     test_user = user_schemas.UserPut(
         name="test_name", surname="test_surname", email="test_email@abc.com"
     )
     response = client.put(
-        ROUTE, headers={"Authorization": "Bearer token"}, json=dict(test_user)
+        ROUTE, headers={"Authorization": "Bearer 1"}, json=dict(test_user)
     )
 
     assert response.status_code == 201, response.text
