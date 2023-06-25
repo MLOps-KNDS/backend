@@ -13,5 +13,9 @@ class MlflowServer(Base):
     updated_at = Column(DateTime, nullable=False)
     updated_by = Column(Integer, ForeignKey("user.id"))
 
-    creator = relationship("User", foreign_keys="MlflowServer.created_by", backref="created_mlflow_servers")
-    updater = relationship("User", foreign_keys="MlflowServer.updated_by", backref="updated_mlflow_servers")
+    creator = relationship(
+        "User", foreign_keys="MlflowServer.created_by", backref="created_mlflow_servers"
+    )
+    updater = relationship(
+        "User", foreign_keys="MlflowServer.updated_by", backref="updated_mlflow_servers"
+    )
