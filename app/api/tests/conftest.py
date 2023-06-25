@@ -9,8 +9,7 @@ from auth.jwt_bearer import JWTBearer
 from main import app
 from services import get_db
 from .db.session import engine
-import auth
-
+import auth.jwt_handler
 
 @pytest.fixture(scope="session", autouse=True)
 def setup():
@@ -37,19 +36,13 @@ def setup():
         conn.execute(sqlalchemy.text("DROP SCHEMA IF EXISTS core"))
         conn.commit()
 
-
 @pytest.fixture(autouse=True)
-def override_decode_jwt_token():
-    with patch('auth.jwt_handler.decode_jwt_token') as mock_decode_jwt_token:
-        def custom_decode_jwt_token(token):
-            return token
-        # mock_decode_jwt_token.side_effect = custom_decode_jwt_token
-        mock_decode_jwt_token.return_value = "1"
-        importlib.reload(auth.jwt_handler)
-        yield
+def override_decode_jwt_token(monkeypatch):
+    def custom_decode_jwt_token(token):
+        return {"user_id": int(token)}
 
-
-
+    monkeypatch.setattr(auth.jwt_handler, "decode_jwt_token", custom_decode_jwt_token)
+    
 @pytest.fixture()
 def client(session):
     def override_get_db():

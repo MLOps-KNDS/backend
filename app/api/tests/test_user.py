@@ -27,10 +27,13 @@ from auth.jwt_handler import decode_jwt_token
 ROUTE = "/user/"
 
 
-def test_user_put(client):
+def test_decode(client, override_decode_jwt_token):
+    token = "123456"
+    result = decode_jwt_token(token)
+    assert result == {"user_id": 123456}
 
-    user_id = decode_jwt_token("1")
-    print("user_id", user_id)
+
+def test_user_put(client, override_decode_jwt_token):
 
     test_user = user_schemas.UserPut(
         name="test_name", surname="test_surname", email="test_email@abc.com"
