@@ -20,6 +20,7 @@ from routers import (
     gate,
     model,
     test,
+    mlflow_server,
     login,
 )
 
@@ -49,6 +50,7 @@ app.include_router(pool.router)
 app.include_router(gate.router)
 app.include_router(test.router)
 app.include_router(login.router)
+app.include_router(mlflow_server.router)
 
 
 @app.get("/")
