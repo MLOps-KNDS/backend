@@ -10,9 +10,10 @@ from schemas import gate as gate_schemas
 from services import get_db, GateService
 from routers.gate_pool import router as gate_pool_router
 from auth.jwt_bearer import JWTBearer
+from auth.jwt_handler import decode_jwt_token
 
 
-router = APIRouter(prefix="/gate", tags=["gate"], dependencies=[Depends(JWTBearer)])
+router = APIRouter(prefix="/gate", tags=["gate"], dependencies=[Depends(JWTBearer())])
 router.include_router(gate_pool_router)
 
 
@@ -58,12 +59,17 @@ async def get_gates(
 
 
 @router.put("/", response_model=gate_schemas.Gate, status_code=201)
-async def put_gate(gate_data: gate_schemas.GatePut, db: Session = Depends(get_db)):
+async def put_gate(
+    gate_data: gate_schemas.GatePut,
+    db: Session = Depends(get_db),
+    credentials: str = Depends(JWTBearer()),
+):
     """
     Creates a new gate with the given information and returns the gate information.
 
     :param gate_data: the information of the new gate to be created.
     :param db: Database session
+    :param credentials: JWT token
 
     :raise HTTPException: 409 status code with "Name already registered"
     message if the provided name for gate already exists in the database
@@ -72,12 +78,17 @@ async def put_gate(gate_data: gate_schemas.GatePut, db: Session = Depends(get_db
     """
     if GateService.get_gate_by_name(db=db, name=gate_data.name):
         raise HTTPException(status_code=409, detail="Name already registered")
-    return GateService.put_gate(db=db, gate_data=gate_data)
+    payload = decode_jwt_token(credentials)
+    user_id = payload.get("user_id")
+    return GateService.put_gate(db=db, gate_data=gate_data, user_id=user_id)
 
 
 @router.patch("/{gate_id}", response_model=gate_schemas.Gate, status_code=200)
 async def patch_gate(
-    gate_id: int, gate_data: gate_schemas.GatePatch, db: Session = Depends(get_db)
+    gate_id: int,
+    gate_data: gate_schemas.GatePatch,
+    db: Session = Depends(get_db),
+    credentials: str = Depends(JWTBearer()),
 ):
     """
     Updates the information of an existing gate with the provided data and
@@ -86,6 +97,7 @@ async def patch_gate(
     :param gate_id: the gate ID to patch
     :param gate_data: the information of the new gate to be created.
     :param db: Database session
+    :param credentials: JWT token
 
     :raise HTTPException: 404 status code with "Gate not found!" message
     if the specified gate ID does not exist in the database.
@@ -99,7 +111,11 @@ async def patch_gate(
         raise HTTPException(status_code=404, detail="Gate not found!")
     if GateService.get_gate_by_name(db=db, name=gate_data.name):
         raise HTTPException(status_code=409, detail="Name already registered")
-    return GateService.patch_gate(db=db, gate_id=gate_id, gate_data=gate_data)
+    payload = decode_jwt_token(credentials)
+    user_id = payload.get("user_id")
+    return GateService.patch_gate(
+        db=db, gate_id=gate_id, gate_data=gate_data, user_id=user_id
+    )
 
 
 @router.delete("/{gate_id}", status_code=200)

@@ -12,7 +12,7 @@ from services import get_db, GateService, GatePoolService, PoolService
 
 
 router = APIRouter(
-    prefix="/{gate_id}/pool", tags=["gate-pool"], dependencies=[Depends(JWTBearer)]
+    prefix="/{gate_id}/pool", tags=["gate-pool"], dependencies=[Depends(JWTBearer())]
 )
 
 

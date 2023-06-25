@@ -4,16 +4,20 @@ functions for handling model-related requests.
 """
 from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
+import logging
 
 from schemas import model as model_schemas
 from models.model import ModelStatus
 from services import ModelService, ModelDetailsService, get_db
 from routers.model_details import router as model_details_router
 from auth.jwt_bearer import JWTBearer
+from auth.jwt_handler import decode_jwt_token
 
 
-router = APIRouter(prefix="/model", tags=["model"], dependencies=[Depends(JWTBearer)])
+router = APIRouter(prefix="/model", tags=["model"], dependencies=[Depends(JWTBearer())])
 router.include_router(model_details_router)
+
+_logger = logging.getLogger(__name__)
 
 
 @router.get("/{model_id}", response_model=model_schemas.Model, status_code=200)
@@ -58,7 +62,11 @@ async def get_models(
 
 
 @router.put("/", response_model=model_schemas.Model, status_code=201)
-async def put_model(model_data: model_schemas.ModelPut, db: Session = Depends(get_db)):
+async def put_model(
+    model_data: model_schemas.ModelPut,
+    db: Session = Depends(get_db),
+    credentials=Depends(JWTBearer()),
+):
     """
     Creates a new model with the given information and returns the model information.
 
@@ -70,9 +78,11 @@ async def put_model(model_data: model_schemas.ModelPut, db: Session = Depends(ge
 
     :return: the newly-inserted model record
     """
+    payload = decode_jwt_token(credentials)
+    user_id = payload.get("user_id")
     if ModelService.get_model_by_name(db=db, name=model_data.name):
         raise HTTPException(status_code=409, detail="Name already registered")
-    result = ModelService.put_model(db=db, model=model_data)
+    result = ModelService.put_model(db=db, model=model_data, user_id=user_id)
     ModelDetailsService.put_model_details(db, result.id)
     return result
 
@@ -150,6 +160,7 @@ async def patch_model(
     model_id: int,
     model_data: model_schemas.ModelPatch,
     db: Session = Depends(get_db),
+    credentials: str = Depends(JWTBearer()),
 ):
     """
     Allows updating a model by it's id
@@ -157,6 +168,8 @@ async def patch_model(
     :param model_id: id of model to update
     :param model_data: JSON fields with new values to update a model
     model is not found
+    :param db: Database session
+    :param credentials: JWT token
 
     :raise HTTPException: 404 status code with "Model not found!" message
     if the specified gate ID does not exist in the database.
@@ -165,11 +178,15 @@ async def patch_model(
 
     :return: updated model
     """
+    payload = decode_jwt_token(credentials)
+    user_id = payload.get("user_id")
     if not ModelService.get_model_by_id(db, model_id):
         raise HTTPException(status_code=404, detail="Model not found!")
     if ModelService.get_model_by_name(db=db, name=model_data.name):
         raise HTTPException(status_code=409, detail="Name already registered")
-    return ModelService.patch_model(db=db, model_id=model_id, model=model_data)
+    return ModelService.patch_model(
+        db=db, model_id=model_id, model=model_data, user_id=user_id
+    )
 
 
 @router.delete("/{model_id}", status_code=200)
