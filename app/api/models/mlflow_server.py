@@ -1,10 +1,4 @@
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    ForeignKey,
-    DateTime
-)
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 
 from models.base_class import Base
 

@@ -13,7 +13,9 @@ from models import mlflow_server as mlflow_server_models
 
 class MlflowServerService:
     @classmethod
-    def get_mlflow_server_by_id(cls, db: Session, id: int) -> mlflow_server_models.MlflowServer | None:
+    def get_mlflow_server_by_id(
+        cls, db: Session, id: int
+    ) -> mlflow_server_models.MlflowServer | None:
         """
         Returns the mlflow server data found by gate id
 
@@ -22,10 +24,16 @@ class MlflowServerService:
 
         :return: the mlflow server data corresponding to the given ID or None if not found
         """
-        return db.query(mlflow_server_models.MlflowServer).filter(mlflow_server_models.MlflowServer.id == id).first()
+        return (
+            db.query(mlflow_server_models.MlflowServer)
+            .filter(mlflow_server_models.MlflowServer.id == id)
+            .first()
+        )
 
     @classmethod
-    def get_mlflow_server_by_name(cls, db: Session, name: str) -> mlflow_server_models.MlflowServer | None:
+    def get_mlflow_server_by_name(
+        cls, db: Session, name: str
+    ) -> mlflow_server_models.MlflowServer | None:
         """
         Returns the mlflow server data found by gate name
 
@@ -34,7 +42,11 @@ class MlflowServerService:
 
         :return: the mlflow server data corresponding to the given name or None if not found
         """
-        return db.query(mlflow_server_models.MlflowServer).filter(mlflow_server_models.MlflowServer.name == name).first()
+        return (
+            db.query(mlflow_server_models.MlflowServer)
+            .filter(mlflow_server_models.MlflowServer.name == name)
+            .first()
+        )
 
     @classmethod
     def get_mlflow_servers(
@@ -49,11 +61,15 @@ class MlflowServerService:
 
         :return: a list of mlflow server data, where skip < mlflow_server_id < limit
         """
-        models = db.query(mlflow_server_models.MlflowServer).offset(skip).limit(limit).all()
+        models = (
+            db.query(mlflow_server_models.MlflowServer).offset(skip).limit(limit).all()
+        )
         return models
 
     @classmethod
-    def put_mlflow_server(cls, db: Session, mlflow_server_data: mlflow_server_schemas.MlflowServerPut) -> mlflow_server_models.MlflowServer:
+    def put_mlflow_server(
+        cls, db: Session, mlflow_server_data: mlflow_server_schemas.MlflowServerPut
+    ) -> mlflow_server_models.MlflowServer:
         """
         Inserts a new mlflow server record into the database
 
@@ -74,7 +90,10 @@ class MlflowServerService:
 
     @classmethod
     def patch_mlflow_server(
-        cls, db: Session, mlflow_server_id: int, mlflow_server_data: mlflow_server_schemas.MlflowServerPatch
+        cls,
+        db: Session,
+        mlflow_server_id: int,
+        mlflow_server_data: mlflow_server_schemas.MlflowServerPatch,
     ) -> mlflow_server_models.MlflowServer:
         """
         Updates an existing mlflow server record in the database
@@ -85,7 +104,9 @@ class MlflowServerService:
 
         :return: the updated mlflow server record
         """
-        db_mlflow_server = MlflowServerService.get_mlflow_server_by_id(db=db, id=mlflow_server_id)
+        db_mlflow_server = MlflowServerService.get_mlflow_server_by_id(
+            db=db, id=mlflow_server_id
+        )
         for key, value in mlflow_server_data.dict(exclude_none=True).items():
             setattr(db_mlflow_server, key, value)
         db_mlflow_server.updated_at = datetime.utcnow()
@@ -104,6 +125,8 @@ class MlflowServerService:
 
         :return: a json with a "detail" key indicating success
         """
-        db.query(mlflow_server_models.MlflowServer).filter(mlflow_server_models.MlflowServer.id == id).delete()
+        db.query(mlflow_server_models.MlflowServer).filter(
+            mlflow_server_models.MlflowServer.id == id
+        ).delete()
         db.commit()
         return JSONResponse({"detail": "Mlflow server deleted successfully!"})

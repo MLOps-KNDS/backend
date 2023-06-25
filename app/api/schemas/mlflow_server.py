@@ -10,7 +10,9 @@ class MlflowServerBase(BaseModel):
 
 class MlflowServerPatch(MlflowServerBase):
     name: Annotated[str | None, Field(description="MLflow server name")] = None
-    description: Annotated[str | None, Field(description="MLflow server description")] = None
+    description: Annotated[
+        str | None, Field(description="MLflow server description")
+    ] = None
     updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 

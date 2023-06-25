@@ -11,10 +11,16 @@ from services import get_db, MlflowServerService
 from auth.jwt_bearer import JWTBearer
 
 
-router = APIRouter(prefix="/mlflow-server", tags=["mlflow-server"], dependencies=[Depends(JWTBearer)])
+router = APIRouter(
+    prefix="/mlflow-server", tags=["mlflow-server"], dependencies=[Depends(JWTBearer)]
+)
 
 
-@router.get("/{mlflow_server_id}", response_model=mlflow_server_schemas.MlflowServer, status_code=200)
+@router.get(
+    "/{mlflow_server_id}",
+    response_model=mlflow_server_schemas.MlflowServer,
+    status_code=200,
+)
 async def get_mlflow_server(mlflow_server_id: int, db: Session = Depends(get_db)):
     """
     Retrieves the information of a specific mlflow server by ID.
@@ -27,13 +33,17 @@ async def get_mlflow_server(mlflow_server_id: int, db: Session = Depends(get_db)
 
     :return: the mlflow server data corresponding to the given ID
     """
-    mlflow_server = MlflowServerService.get_mlflow_server_by_id(db=db, id=mlflow_server_id)
+    mlflow_server = MlflowServerService.get_mlflow_server_by_id(
+        db=db, id=mlflow_server_id
+    )
     if not mlflow_server:
         raise HTTPException(status_code=404, detail="Mlflow server not found!")
     return mlflow_server
 
 
-@router.get("/", response_model=list[mlflow_server_schemas.MlflowServer], status_code=200)
+@router.get(
+    "/", response_model=list[mlflow_server_schemas.MlflowServer], status_code=200
+)
 async def get_mlflow_servers(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=0),
@@ -51,12 +61,17 @@ async def get_mlflow_servers(
 
     :return: a list of mlflow server data, where skip < mlflow_server_id < limit
     """
-    mlflow_servers = MlflowServerService.get_mlflow_servers(skip=skip, limit=limit, db=db)
+    mlflow_servers = MlflowServerService.get_mlflow_servers(
+        skip=skip, limit=limit, db=db
+    )
     return mlflow_servers
 
 
 @router.put("/", response_model=mlflow_server_schemas.MlflowServer, status_code=201)
-async def put_mlflow_server(mlflow_server_data: mlflow_server_schemas.MlflowServerPut, db: Session = Depends(get_db)):
+async def put_mlflow_server(
+    mlflow_server_data: mlflow_server_schemas.MlflowServerPut,
+    db: Session = Depends(get_db),
+):
     """
     Creates a new mlflow server with the given information and returns the mlflow server information.
 
@@ -68,14 +83,24 @@ async def put_mlflow_server(mlflow_server_data: mlflow_server_schemas.MlflowServ
 
     :return: the newly-inserted mlflow server record
     """
-    if MlflowServerService.get_mlflow_server_by_name(db=db, name=mlflow_server_data.name):
+    if MlflowServerService.get_mlflow_server_by_name(
+        db=db, name=mlflow_server_data.name
+    ):
         raise HTTPException(status_code=409, detail="Name already registered")
-    return MlflowServerService.put_mlflow_server(db=db, mlflow_server_data=mlflow_server_data)
+    return MlflowServerService.put_mlflow_server(
+        db=db, mlflow_server_data=mlflow_server_data
+    )
 
 
-@router.patch("/{mlflow_server_id}", response_model=mlflow_server_schemas.MlflowServer, status_code=200)
+@router.patch(
+    "/{mlflow_server_id}",
+    response_model=mlflow_server_schemas.MlflowServer,
+    status_code=200,
+)
 async def patch_mlflow_server(
-    mlflow_server_id: int, mlflow_server_data: mlflow_server_schemas.MlflowServerPatch, db: Session = Depends(get_db)
+    mlflow_server_id: int,
+    mlflow_server_data: mlflow_server_schemas.MlflowServerPatch,
+    db: Session = Depends(get_db),
 ):
     """
     Updates the information of an existing mlflow server with the provided data and
@@ -95,9 +120,13 @@ async def patch_mlflow_server(
     gate = MlflowServerService.get_mlflow_server_by_id(db=db, id=mlflow_server_id)
     if not gate:
         raise HTTPException(status_code=404, detail="Mlflow server not found!")
-    if MlflowServerService.get_mlflow_server_by_name(db=db, name=mlflow_server_data.name):
+    if MlflowServerService.get_mlflow_server_by_name(
+        db=db, name=mlflow_server_data.name
+    ):
         raise HTTPException(status_code=409, detail="Name already registered")
-    return MlflowServerService.patch_mlflow_server(db=db, mlflow_server_id=mlflow_server_id, mlflow_server_data=mlflow_server_data)
+    return MlflowServerService.patch_mlflow_server(
+        db=db, mlflow_server_id=mlflow_server_id, mlflow_server_data=mlflow_server_data
+    )
 
 
 @router.delete("/{mlflow_server_id}", status_code=200)
