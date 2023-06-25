@@ -9,10 +9,13 @@ from sqlalchemy.orm import Session
 from schemas import mlflow_server as mlflow_server_schemas
 from services import get_db, MlflowServerService
 from auth.jwt_bearer import JWTBearer
+from auth.jwt_handler import decode_jwt_token
 
 
 router = APIRouter(
-    prefix="/mlflow-server", tags=["mlflow-server"], dependencies=[Depends(JWTBearer)]
+    prefix="/mlflow-server", 
+    tags=["mlflow-server"], 
+    dependencies=[Depends(JWTBearer())]
 )
 
 
@@ -71,6 +74,7 @@ async def get_mlflow_servers(
 async def put_mlflow_server(
     mlflow_server_data: mlflow_server_schemas.MlflowServerPut,
     db: Session = Depends(get_db),
+    credentials: str = Depends(JWTBearer()),
 ):
     """
     Creates a new mlflow server with the given information
@@ -88,8 +92,10 @@ async def put_mlflow_server(
         db=db, name=mlflow_server_data.name
     ):
         raise HTTPException(status_code=409, detail="Name already registered")
+    payload = decode_jwt_token(credentials)
+    user_id = payload.get("user_id")
     return MlflowServerService.put_mlflow_server(
-        db=db, mlflow_server_data=mlflow_server_data
+        db=db, mlflow_server_data=mlflow_server_data, user_id=user_id
     )
 
 
@@ -102,6 +108,7 @@ async def patch_mlflow_server(
     mlflow_server_id: int,
     mlflow_server_data: mlflow_server_schemas.MlflowServerPatch,
     db: Session = Depends(get_db),
+    credentials: str = Depends(JWTBearer()),
 ):
     """
     Updates the information of an existing mlflow server with the provided data and
@@ -125,8 +132,10 @@ async def patch_mlflow_server(
         db=db, name=mlflow_server_data.name
     ):
         raise HTTPException(status_code=409, detail="Name already registered")
+    payload = decode_jwt_token(credentials)
+    user_id = payload.get("user_id")
     return MlflowServerService.patch_mlflow_server(
-        db=db, mlflow_server_id=mlflow_server_id, mlflow_server_data=mlflow_server_data
+        db=db, mlflow_server_id=mlflow_server_id, mlflow_server_data=mlflow_server_data, user_id=user_id
     )
 
 

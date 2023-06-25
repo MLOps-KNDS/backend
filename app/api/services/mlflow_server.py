@@ -71,7 +71,9 @@ class MlflowServerService:
 
     @classmethod
     def put_mlflow_server(
-        cls, db: Session, mlflow_server_data: mlflow_server_schemas.MlflowServerPut
+        cls, db: Session, 
+        mlflow_server_data: mlflow_server_schemas.MlflowServerPut, 
+        user_id: int
     ) -> mlflow_server_models.MlflowServer:
         """
         Inserts a new mlflow server record into the database
@@ -81,15 +83,16 @@ class MlflowServerService:
 
         :return: the newly-inserted mlflow server record
         """
-        db_gate = mlflow_server_models.MlflowServer(**mlflow_server_data.dict())
+        db_mlflow_server = mlflow_server_models.MlflowServer(**mlflow_server_data.dict())
         creation_time = datetime.utcnow()
-        db_gate.updated_by = db_gate.created_by
-        db_gate.created_at = creation_time
-        db_gate.updated_at = creation_time
-        db.add(db_gate)
+        db_mlflow_server.created_by = user_id
+        db_mlflow_server.updated_by = user_id
+        db_mlflow_server.created_at = creation_time
+        db_mlflow_server.updated_at = creation_time
+        db.add(db_mlflow_server)
         db.commit()
-        db.refresh(db_gate)
-        return db_gate
+        db.refresh(db_mlflow_server)
+        return db_mlflow_server
 
     @classmethod
     def patch_mlflow_server(
@@ -97,6 +100,7 @@ class MlflowServerService:
         db: Session,
         mlflow_server_id: int,
         mlflow_server_data: mlflow_server_schemas.MlflowServerPatch,
+        user_id: int,
     ) -> mlflow_server_models.MlflowServer:
         """
         Updates an existing mlflow server record in the database
@@ -112,6 +116,7 @@ class MlflowServerService:
         )
         for key, value in mlflow_server_data.dict(exclude_none=True).items():
             setattr(db_mlflow_server, key, value)
+        db_mlflow_server.updated_by = user_id
         db_mlflow_server.updated_at = datetime.utcnow()
         db.add(db_mlflow_server)
         db.commit()

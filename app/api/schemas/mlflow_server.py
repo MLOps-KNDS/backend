@@ -13,7 +13,6 @@ class MlflowServerPatch(MlflowServerBase):
     description: Annotated[
         str | None, Field(description="MLflow server description")
     ] = None
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 
 class MlflowServer(MlflowServerBase):
@@ -28,4 +27,4 @@ class MlflowServer(MlflowServerBase):
 
 
 class MlflowServerPut(MlflowServerBase):
-    created_by: Annotated[int, Field(description="User ID of the creator")]
+    ...
