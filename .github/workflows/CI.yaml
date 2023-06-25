@@ -81,6 +81,14 @@ jobs:
   #         POSTGRES_PASSWORD: postgres
   #         POSTGRES_USER: postgres
   #         POSTGRES_DB: postgres
+  #     - name: Check test coverage
+  #       run: |
+  #         coverage_threshold=85
+  #         coverage_result=$(awk -F " " '/^TOTAL/ {print substr($NF, 1, length($NF)-1)}' pytest-coverage.txt)
+  #         if (( $(echo "$coverage_result < $coverage_threshold" | bc -l) )); then
+  #           echo "Test coverage is below the threshold ($coverage_result%). Blocking PR merge."
+  #           exit 1
+  #         fi
 
   #     - name: Publish test report as an artifact
   #       if: always()
