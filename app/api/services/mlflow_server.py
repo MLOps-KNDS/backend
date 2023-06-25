@@ -22,7 +22,8 @@ class MlflowServerService:
         :param db: Database session
         :param id: the mlflow server ID to retrieve
 
-        :return: the mlflow server data corresponding to the given ID or None if not found
+        :return: the mlflow server data corresponding to the given ID 
+        or None if not found
         """
         return (
             db.query(mlflow_server_models.MlflowServer)
@@ -40,7 +41,8 @@ class MlflowServerService:
         :param db: Database session
         :param name: the mlflow server name to retrieve
 
-        :return: the mlflow server data corresponding to the given name or None if not found
+        :return: the mlflow server data corresponding to the given name 
+        or None if not found
         """
         return (
             db.query(mlflow_server_models.MlflowServer)
@@ -57,7 +59,8 @@ class MlflowServerService:
 
         :param db: Database session
         :param skip: (optional) the number of records to skip (default: 0)
-        :param limit: (optional) the maximum number of records to retrieve (default: 100)
+        :param limit: (optional) the maximum number of records to retrieve 
+        (default: 100)
 
         :return: a list of mlflow server data, where skip < mlflow_server_id < limit
         """
