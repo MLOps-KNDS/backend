@@ -71,9 +71,10 @@ class MlflowServerService:
 
     @classmethod
     def put_mlflow_server(
-        cls, db: Session, 
-        mlflow_server_data: mlflow_server_schemas.MlflowServerPut, 
-        user_id: int
+        cls,
+        db: Session,
+        mlflow_server_data: mlflow_server_schemas.MlflowServerPut,
+        user_id: int,
     ) -> mlflow_server_models.MlflowServer:
         """
         Inserts a new mlflow server record into the database
@@ -83,7 +84,9 @@ class MlflowServerService:
 
         :return: the newly-inserted mlflow server record
         """
-        db_mlflow_server = mlflow_server_models.MlflowServer(**mlflow_server_data.dict())
+        db_mlflow_server = mlflow_server_models.MlflowServer(
+            **mlflow_server_data.dict()
+        )
         creation_time = datetime.utcnow()
         db_mlflow_server.created_by = user_id
         db_mlflow_server.updated_by = user_id

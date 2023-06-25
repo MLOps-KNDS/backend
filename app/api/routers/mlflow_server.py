@@ -13,9 +13,7 @@ from auth.jwt_handler import decode_jwt_token
 
 
 router = APIRouter(
-    prefix="/mlflow-server", 
-    tags=["mlflow-server"], 
-    dependencies=[Depends(JWTBearer())]
+    prefix="/mlflow-server", tags=["mlflow-server"], dependencies=[Depends(JWTBearer())]
 )
 
 
@@ -135,7 +133,10 @@ async def patch_mlflow_server(
     payload = decode_jwt_token(credentials)
     user_id = payload.get("user_id")
     return MlflowServerService.patch_mlflow_server(
-        db=db, mlflow_server_id=mlflow_server_id, mlflow_server_data=mlflow_server_data, user_id=user_id
+        db=db,
+        mlflow_server_id=mlflow_server_id,
+        mlflow_server_data=mlflow_server_data,
+        user_id=user_id,
     )
 
 
