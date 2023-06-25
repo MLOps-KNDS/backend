@@ -7,14 +7,19 @@ with each start of the program.
 
 import logging
 from sqlalchemy import Engine, text
+from .session import engine, SessionLocal
 
 
 import models
+from services import UserService
+# from services import MlflowServerService
+from schemas import user as user_schemas
+# from schemas import mlflow_server as mlflow_server_schemas
 
 _logger = logging.getLogger(__name__)
 
 
-def create_db(engine: Engine) -> dict:
+def create_db() -> dict:
     """Creates all tables from ORM models
 
     :param db: Database session
@@ -35,4 +40,31 @@ def create_db(engine: Engine) -> dict:
         raise e
     else:
         _logger.info("Creating database from ORM models finished")
+
+    # Insert initial data
+    _logger.info("Inserting initial data...")
+    try:
+        db = SessionLocal()
+        # Super user
+        user = user_schemas.UserPut(
+            name="SYSTEM",
+            surname="SYSTEM",
+            email="system@sysetm.com",
+        )
+        db_user = UserService.put_user(db, user)
+        _logger.info("Created system user")
+        # mlflow_server = mlflow_server_schemas.MlflowServerPut(
+        #     name="SYSTEM",
+        #     tracking_uri="http://mlflow:80",
+        # )
+        # db_mlflow_server = MlflowServerService.put_mlflow_server(
+        #     db, mlflow_server, db_user.id
+        # )
+        _logger.info("Created system mlflow server")
+
+    except Exception as e:
+        _logger.error(f"Inserting initial data failed with error {e}")
+        raise e
+    finally:
+        db.close()
         return {"status": "ok"}
