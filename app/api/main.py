@@ -39,16 +39,15 @@ app = FastAPI(
     description="Backend Service for the ML Platform",
     version="0.1.0",
     lifespan=init,
-    routes=[
-        model.router,
-        user.router,
-        pool.router,
-        gate.router,
-        test.router,
-        login.router,
-        mlflow_server.router
-    ],
 )
+
+app.include_router(user.router)
+app.include_router(pool.router)
+app.include_router(gate.router)
+app.include_router(model.router)
+app.include_router(test.router)
+app.include_router(mlflow_server.router)
+app.include_router(login.router)
 
 app.add_middleware(SessionMiddleware, secret_key=secrets.token_bytes(32))
 
