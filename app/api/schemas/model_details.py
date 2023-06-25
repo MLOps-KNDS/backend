@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 
 
 class ModelDetailsBase(BaseModel):
+    mlflow_server_id: Annotated[int | None, Field(description="MLflow server ID")]
     artifact_uri: Annotated[
         str | None, Field(description="Path to the model artifact")
     ] = None

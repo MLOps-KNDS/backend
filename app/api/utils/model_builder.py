@@ -22,12 +22,14 @@ class ModelBuilder:
     >>> model_builder.push()
     """
 
-    def __init__(self, name: str, artifact_uri: str) -> None:
+    def __init__(self, name: str, mlflow_tracking_uri: str, artifact_uri: str) -> None:
         """
         :param name: name of the docker image
+        :param mlflow_tracking_uri: uri of the mlflow server
         :param artifact_uri: uri of the model's artifact
         """
         self.name: str = name
+        self.mlflow_tracking_uri: str = mlflow_tracking_uri
         self.artifact_uri: str = artifact_uri
         self.is_built: bool = False
 
@@ -66,6 +68,7 @@ class ModelBuilder:
             raise e
 
     def __build_mlflow_image(self) -> None:
+        mlflow.set_tracking_uri(self.mlflow_tracking_uri)
         mlflow.models.build_docker(
             model_uri=self.artifact_uri,
             name=self.name,

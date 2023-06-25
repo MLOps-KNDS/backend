@@ -19,6 +19,7 @@ from routers import (
     gate,
     model,
     test,
+    mlflow_server,
     login,
 )
 
@@ -45,6 +46,7 @@ app = FastAPI(
         gate.router,
         test.router,
         login.router,
+        mlflow_server.router
     ],
 )
 
