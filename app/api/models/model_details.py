@@ -31,6 +31,5 @@ class ModelDetails(Base):
     mlflow_server = relationship(
         "MlflowServer",
         foreign_keys="ModelDetails.mlflow_server_id",
-        back_populates="model_details",
         uselist=False,
     )

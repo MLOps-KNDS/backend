@@ -189,6 +189,7 @@ class ModelService:
         """
         model_builder = ModelBuilder(
             name=name,
+            mlflow_tracking_uri=model_details.mlflow_server.tracking_uri,
             artifact_uri=model_details.artifact_uri,
         )
         model_builder.build()
