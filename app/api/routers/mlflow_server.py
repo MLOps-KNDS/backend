@@ -73,7 +73,7 @@ async def put_mlflow_server(
     db: Session = Depends(get_db),
 ):
     """
-    Creates a new mlflow server with the given information 
+    Creates a new mlflow server with the given information
     and returns the mlflow server information.
 
     :param mlflow_server_data: the information of the new mlflow server to be created.
