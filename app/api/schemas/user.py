@@ -28,8 +28,5 @@ class UserPatch(BaseUser):
 class User(BaseUser):
     id: Annotated[int, Field(description="User ID")]
 
-    # here we have to implement the class that represents the
-    # User class in models.user module
-
     class Config:
         orm_mode = True

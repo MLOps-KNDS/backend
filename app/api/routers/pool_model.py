@@ -6,7 +6,7 @@ from services import PoolService, ModelService, PoolModelService, get_db
 from auth.jwt_bearer import JWTBearer
 
 router = APIRouter(
-    prefix="/{pool_id}/model", tags=["pool-model"], dependencies=[Depends(JWTBearer)]
+    prefix="/{pool_id}/model", tags=["pool-model"], dependencies=[Depends(JWTBearer())]
 )
 
 
