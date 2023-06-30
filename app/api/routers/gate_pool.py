@@ -6,7 +6,7 @@ functions for handling gate-model-related requests.
 from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from schemas.pool import Pool
+from schemas import gate_pool as gate_pool_schemas
 from auth.jwt_bearer import JWTBearer
 from services import get_db, GateService, GatePoolService, PoolService
 
@@ -16,8 +16,8 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=list[Pool], status_code=200)
-async def get_pools(
+@router.get("/", response_model=list[gate_pool_schemas.GatePool], status_code=200)
+async def get_gate_pools(
     gate_id: int,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=0),
@@ -38,11 +38,13 @@ async def get_pools(
     """
     if not GateService.get_gate_by_id(db=db, id=gate_id):
         raise HTTPException(status_code=404, detail="Gate not found!")
-    pools = GatePoolService.get_pools(db=db, gate_id=gate_id, skip=skip, limit=limit)
+    pools = GatePoolService.get_gate_pools(
+        db=db, gate_id=gate_id, skip=skip, limit=limit
+    )
     return pools
 
 
-@router.put("/{pool_id}", status_code=201)
+@router.put("/{pool_id}", response_model=gate_pool_schemas.GatePool, status_code=201)
 async def put_pool_gate(
     gate_id: int,
     pool_id: int,
@@ -69,7 +71,9 @@ async def put_pool_gate(
         raise HTTPException(status_code=404, detail="Gate not found!")
     if not PoolService.get_pool_by_id(db=db, id=pool_id):
         raise HTTPException(status_code=404, detail="Pool not found!")
-    if GatePoolService.get_pool_by_id(db=db, gate_id=gate_id, pool_id=pool_id):
+    if GatePoolService.get_gate_pool_by_pool_id(
+        db=db, gate_id=gate_id, pool_id=pool_id
+    ):
         raise HTTPException(status_code=409, detail="Pool already in gate!")
 
     return GatePoolService.put_pool_gate(db=db, gate_id=gate_id, pool_id=pool_id)
@@ -95,7 +99,9 @@ async def delete_pool_gate(gate_id: int, pool_id: int, db: Session = Depends(get
         raise HTTPException(status_code=404, detail="Gate not found!")
     if not PoolService.get_pool_by_id(db=db, id=pool_id):
         raise HTTPException(status_code=404, detail="Pool not found!")
-    if not GatePoolService.get_pool_by_id(db=db, gate_id=gate_id, pool_id=pool_id):
-        raise HTTPException(status_code=404, detail="Pool is not in gate!")
+    if not GatePoolService.get_gate_pool_by_pool_id(
+        db=db, gate_id=gate_id, pool_id=pool_id
+    ):
+        raise HTTPException(status_code=404, detail="Pool is not in the gate!")
 
     return GatePoolService.delete_pool_gate(db=db, gate_id=gate_id, pool_id=pool_id)
