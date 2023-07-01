@@ -1,20 +1,19 @@
 from schemas import pool_model as pool_model_schemas
-from schemas import pool as pool_schemas
 from .constants import Constants
 
 
 class IstioVirtualServiceGenerator:
     def __init__(
         self,
-        name: str,
+        pool_name: str,
         gateways_names: list[str],
-        models: list[pool_model_schemas.PoolModel],
+        models: list[pool_model_schemas.PoolModelDetailed],
     ) -> None:
         """
         :param models: list of models to which the user will be redirected to
         :param pool_name: name of the pool
         """
-        self.name = name
+        self.pool_name = pool_name
         self.gateways_names = gateways_names
         self.pool_models = models
 
@@ -31,14 +30,14 @@ class IstioVirtualServiceGenerator:
                 },
                 "weight": model.weight,
             }
-            for model in self.models
+            for model in self.pool_models
         ]
 
         body = {
             "apiVersion": "networking.istio.io/v1alpha3",
             "kind": "VirtualService",
             "metadata": {
-                "name": self.name,
+                "name": self.pool_name,
                 "namespace": Constants.K8S_NAMESPACE_MODELS,
             },
             "spec": {
@@ -51,13 +50,13 @@ class IstioVirtualServiceGenerator:
 
 
 class IstioGatewayGenerator:
-    def __init__(self, pools: list[pool_schemas.Pool], gateway_name: str) -> None:
+    def __init__(self, gateway_name: str, pool_names: list[str]) -> None:
         """
         :param gateway_name: name of the gateway
         :param pools: list of pools to which the user will be redirected to
         """
         self.name = gateway_name
-        self.pools = pools
+        self.pool_names = pool_names
 
     def generate(self) -> dict:
         """
@@ -70,7 +69,7 @@ class IstioGatewayGenerator:
                 "name": "http",
                 "protocol": "HTTP",
             },
-            "hosts": [f"*/{pool.name}" for pool in self.pools],
+            "hosts": [f"*/{pool_name}" for pool_name in self.pool_names],
         }
 
         body = {
@@ -82,7 +81,7 @@ class IstioGatewayGenerator:
             },
             "spec": {
                 "selector": {"app": "ingressgateway"},
-                "servers": gateway_servers,
+                "servers": [gateway_servers],
             },
         }
         return body

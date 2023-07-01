@@ -1,6 +1,6 @@
 from kubernetes import client, config
-from schemas import pool as pool_schemas
 from .istio_manifest_generator import IstioGatewayGenerator
+from .constants import Constants
 
 
 class GatewayDeployment:
@@ -8,26 +8,27 @@ class GatewayDeployment:
     Creates gateway for a our gate
     """
 
-    def __init__(self, pools: list[pool_schemas.Pool], gateway_name: str) -> None:
+    def __init__(self, gateway_name: str, pool_names: list[str]) -> None:
         """
         :param gateway_name: name of the gateway
+        :param pool_names: list of pools to which the user will be redirected to
         """
 
-        self.name = gateway_name
-        self.pools = pools
+        self.gateway_name = gateway_name
+        self.pool_names = pool_names
 
         config.load_incluster_config()
 
     def deploy(self):
         custom_api = client.CustomObjectsApi()
 
-        body = IstioGatewayGenerator(self.name, self.pools)
+        body = IstioGatewayGenerator(self.gateway_name, self.pool_names)
         body = body.generate()
 
         custom_api.create_namespaced_custom_object(
             group="networking.istio.io/v1alpha3",
             version="v1alpha3",
-            namespace=f"gateway-config-{self.name}",
-            plural="gateways",
+            namespace=Constants.K8S_NAMESPACE_MODELS,
+            plural="gateway",
             body=body,
         )

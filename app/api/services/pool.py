@@ -54,17 +54,22 @@ class PoolService:
         return pools
 
     @classmethod
-    def put_pool(cls, db: Session, pool_data: pool_schemas.PoolPut) -> pool_models.Pool:
+    def put_pool(
+        cls, db: Session, pool_data: pool_schemas.PoolPut, user_id: int
+    ) -> pool_models.Pool:
         """
         Inserts a new pool record into the database
 
+        :param db: Database session
         :param pool_data: the user data to insert
+        :param user_id: the user ID of the user inserting the record
 
         :return: the newly-inserted pool record
         """
         db_pool = pool_models.Pool(**pool_data.dict())
         creation_time = datetime.utcnow()
-        db_pool.updated_by = db_pool.created_by
+        db_pool.created_by = user_id
+        db_pool.updated_by = user_id
         db_pool.created_at = creation_time
         db_pool.updated_at = creation_time
         db.add(db_pool)
@@ -74,19 +79,21 @@ class PoolService:
 
     @classmethod
     def patch_pool(
-        cls, db: Session, id: int, pool_data: pool_schemas.PoolPatch
+        cls, db: Session, id: int, pool_data: pool_schemas.PoolPatch, user_id: int
     ) -> pool_models.Pool:
         """
         Updates an existing pool record in the database
 
+        :param db: Database session
         :param pool_data: the pool data to update
+        :param user_id: the user ID of the user updating the record
 
         :return: the updated pool record
         """
         db_pool = PoolService.get_pool_by_id(db=db, id=id)
         for key, value in pool_data.dict(exclude_none=True).items():
             setattr(db_pool, key, value)
-        db_pool.updated_by = pool_data.updated_by
+        db_pool.updated_by = user_id
         db_pool.updated_at = datetime.utcnow()
         db.add(db_pool)
         db.commit()

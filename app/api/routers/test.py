@@ -8,9 +8,11 @@ from sqlalchemy.orm import Session
 
 from schemas import test as test_schema
 from services import TestService, get_db
+from auth.jwt_bearer import JWTBearer
+from auth.jwt_handler import decode_jwt_token
 
 
-router = APIRouter(prefix="/test", tags=["test"])
+router = APIRouter(prefix="/test", tags=["test"], dependencies=[Depends(JWTBearer())])
 
 
 @router.get("/{test_id}", response_model=test_schema.Test, status_code=200)
@@ -55,12 +57,17 @@ async def get_tests(
 
 
 @router.put("/", response_model=test_schema.Test, status_code=201)
-async def put_test(test_data: test_schema.TestPut, db: Session = Depends(get_db)):
+async def put_test(
+    test_data: test_schema.TestPut,
+    db: Session = Depends(get_db),
+    credentials: str = Depends(JWTBearer()),
+):
     """
     Creates a new test with the given information and returns the test information.
 
     :param test_data: the information of the new test to be created.
     :param db: Database session
+    :param credentials: JWT token
 
     :raise HTTPException: 409 status code with "Name already registered"
     message if the provided name already exists in the database.
@@ -69,12 +76,17 @@ async def put_test(test_data: test_schema.TestPut, db: Session = Depends(get_db)
     """
     if TestService.get_test_by_name(db=db, name=test_data.name):
         raise HTTPException(status_code=409, detail="Name already registered")
-    return TestService.put_test(db=db, test_data=test_data)
+    payload = decode_jwt_token(credentials)
+    user_id = payload.get("user_id")
+    return TestService.put_test(db=db, test_data=test_data, user_id=user_id)
 
 
 @router.patch("/{test_id}", response_model=test_schema.Test, status_code=200)
 async def patch_test(
-    test_id: int, test_data: test_schema.TestPatch, db: Session = Depends(get_db)
+    test_id: int,
+    test_data: test_schema.TestPatch,
+    db: Session = Depends(get_db),
+    credentials: str = Depends(JWTBearer()),
 ):
     """
     Updates a test with the given information and returns the test information.
@@ -94,7 +106,11 @@ async def patch_test(
         raise HTTPException(status_code=404, detail="Test not found!")
     if TestService.get_test_by_name(db=db, name=test_data.name):
         raise HTTPException(status_code=409, detail="Name already registered")
-    return TestService.patch_test(db=db, id=test_id, test_data=test_data)
+    payload = decode_jwt_token(credentials)
+    user_id = payload.get("user_id")
+    return TestService.patch_test(
+        db=db, id=test_id, test_data=test_data, user_id=user_id
+    )
 
 
 @router.delete("/{test_id}", status_code=200)

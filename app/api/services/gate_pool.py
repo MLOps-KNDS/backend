@@ -1,8 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 
-from schemas.pool import Pool
-from models import gate as gate_models
+from models import gate as gate_pool_models
 
 
 class GatePoolService:
@@ -11,7 +10,43 @@ class GatePoolService:
     """
 
     @classmethod
-    def get_pools(cls, db: Session, gate_id: int, skip: int, limit: int) -> list[Pool]:
+    def get_gate_pool_by_pool_id(
+        cls, db: Session, gate_id: int, pool_id: int
+    ) -> gate_pool_models.GatePool:
+        """
+        Returns the pool in the given gate pool data found by pool ID
+
+        :param gate_id: the given gate pool ID to where to look for the pool ID
+        :param pool_id: the pool ID to retrieve
+
+        :return: the gate pool data corresponding to the given IDs or None if not found
+        """
+        return (
+            db.query(gate_pool_models.GatePool)
+            .filter(gate_pool_models.GatePool.gate_id == gate_id)
+            .filter(gate_pool_models.GatePool.pool_id == pool_id)
+            .first()
+        )
+
+    @classmethod
+    def get_gate_pool_by_id(cls, db: Session, id: int) -> gate_pool_models.GatePool:
+        """
+        Returns the gate pool data found by ID
+
+        :param id: the gate pool ID to retrieve
+
+        :return: the gate pool data corresponding to the given ID or None if not found
+        """
+        return (
+            db.query(gate_pool_models.GatePool)
+            .filter(gate_pool_models.GatePool.gate_id == id)
+            .first()
+        )
+
+    @classmethod
+    def get_gate_pools(
+        cls, db: Session, gate_id: int, skip: int, limit: int
+    ) -> list[gate_pool_models.GatePool]:
         """
         Returns a list of gate pools, with optional pagination
 
@@ -24,18 +59,19 @@ class GatePoolService:
         :return: a list of gate pools, where skip < GatePool.id < limit
         """
         gate_pools = (
-            db.query(gate_models.GatePool)
-            .filter(gate_models.GatePool.gate_id == gate_id)
-            .order_by(gate_models.GatePool.id)
+            db.query(gate_pool_models.GatePool)
+            .filter(gate_pool_models.GatePool.gate_id == gate_id)
             .offset(skip)
             .limit(limit)
             .all()
         )
-        pools = [record.pool for record in gate_pools]
-        return pools
+
+        return gate_pools
 
     @classmethod
-    def put_pool_gate(cls, db: Session, gate_id: int, pool_id: int) -> JSONResponse:
+    def put_pool_gate(
+        cls, db: Session, gate_id: int, pool_id: int
+    ) -> gate_pool_models.GatePool:
         """
         Inserts a new gate pool record into the database
 
@@ -45,11 +81,11 @@ class GatePoolService:
 
         :return: JSONResponse with a "detail" key indicating success
         """
-        db_gate_pool = gate_models.GatePool(pool_id=pool_id, gate_id=gate_id)
+        db_gate_pool = gate_pool_models.GatePool(pool_id=pool_id, gate_id=gate_id)
         db.add(db_gate_pool)
         db.commit()
         db.refresh(db_gate_pool)
-        return JSONResponse(status_code=201, content={"detail": "success"})
+        return db_gate_pool
 
     @classmethod
     def delete_pool_gate(
@@ -67,33 +103,8 @@ class GatePoolService:
 
         :return: JSONResponse with a "detail" key indicating success
         """
-        db.query(gate_models.GatePool).filter(
-            gate_models.GatePool.gate_id == gate_id,
-            gate_models.GatePool.pool_id == pool_id,
-        ).delete()
+        db.query(gate_pool_models.GatePool).filter(
+            gate_pool_models.GatePool.gate_id == gate_id
+        ).filter(gate_pool_models.GatePool.pool_id == pool_id).delete()
         db.commit()
-        return JSONResponse(
-            status_code=200, content={"detail": "Pool deleted successfully!"}
-        )
-
-    @classmethod
-    def get_pool_by_id(
-        cls, db: Session, gate_id: int, pool_id: int
-    ) -> gate_models.GatePool | None:
-        """
-        Returns the gate pool data found by gate id and pool id
-
-        :param db: Database session
-        :param gate_id: the gate ID to retrieve
-        :param pool_id: the pool ID to retrieve
-
-        :return: the gate pool data corresponding to the given ID or None if not found
-        """
-        return (
-            db.query(gate_models.GatePool)
-            .filter(
-                gate_models.GatePool.gate_id == gate_id,
-                gate_models.GatePool.pool_id == pool_id,
-            )
-            .first()
-        )
+        return JSONResponse(content={"detail": "success"})

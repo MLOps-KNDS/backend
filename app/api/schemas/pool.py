@@ -9,11 +9,12 @@ class BasePool(BaseModel):
 
 
 class PoolPut(BasePool):
-    created_by: Annotated[int, Field(description="User ID of the creator")]
+    pass
 
 
 class PoolPatch(BasePool):
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
+    name: Annotated[str | None, Field(description="Pool name")] = None
+    description: Annotated[str | None, Field(description="Pool description")] = None
 
 
 class Pool(BasePool):

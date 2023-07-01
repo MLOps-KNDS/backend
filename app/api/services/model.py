@@ -55,18 +55,20 @@ class ModelService:
 
     @classmethod
     def put_model(
-        cls, db: Session, model: model_schemas.ModelPut
+        cls, db: Session, model: model_schemas.ModelPut, user_id: int
     ) -> model_models.Model:
         """
         Creates a new model and adds it to the database
 
         :param db: Database sessoin
         :param model: model data to add to the database
+        :param user_id: id of the user who created the model
         :return: created model
         """
         db_model = model_models.Model(**model.dict())
         creation_time = datetime.utcnow()
-        db_model.updated_by = model.created_by
+        db_model.created_by = user_id
+        db_model.updated_by = user_id
         db_model.created_at = creation_time
         db_model.updated_at = creation_time
         db_model.status = ModelStatus.INACTIVE
@@ -77,7 +79,7 @@ class ModelService:
 
     @classmethod
     def patch_model(
-        cls, db: Session, model_id: int, model: model_schemas.ModelPatch
+        cls, db: Session, model_id: int, model: model_schemas.ModelPatch, user_id: int
     ) -> model_models.Model:
         """
         Updates an existing model in the database
@@ -85,13 +87,14 @@ class ModelService:
         :param db: Database session
         :param model_id: id of a model to update
         :param model: model data to update an existing model with
+        :param user_id: id of the user who updated the model
         :return: updated model
         """
         update_data = model.dict(exclude_unset=True)
         db_model = ModelService.get_model_by_id(db, model_id)
         for key, val in update_data.items():
             setattr(db_model, key, val)
-        db_model.updated_by = model.updated_by
+        db_model.updated_by = user_id
         db_model.updated_at = datetime.utcnow()
         db.add(db_model)
         db.commit()
@@ -189,6 +192,7 @@ class ModelService:
         """
         model_builder = ModelBuilder(
             name=name,
+            mlflow_tracking_uri=model_details.mlflow_server.tracking_uri,
             artifact_uri=model_details.artifact_uri,
         )
         model_builder.build()

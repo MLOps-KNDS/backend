@@ -9,13 +9,12 @@ class BaseTest(BaseModel):
 
 
 class TestPut(BaseTest):
-    created_by: Annotated[int, Field(description="User ID of the creator")]
+    pass
 
 
 class TestPatch(BaseTest):
     name: Annotated[str | None, Field(description="Test name")] = None
     description: Annotated[str | None, Field(description="Test description")] = None
-    updated_by: Annotated[int, Field(description="User ID of the last updater")]
 
 
 class Test(BaseTest):

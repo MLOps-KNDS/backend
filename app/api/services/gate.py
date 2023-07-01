@@ -54,18 +54,22 @@ class GateService:
         return models
 
     @classmethod
-    def put_gate(cls, db: Session, gate_data: gate_schemas.GatePut) -> gate_models.Gate:
+    def put_gate(
+        cls, db: Session, gate_data: gate_schemas.GatePut, user_id: int
+    ) -> gate_models.Gate:
         """
         Inserts a new gate record into the database
 
         :param db: Database session
         :param gate_data: the gate data to insert
+        :param user_id: the user ID of the user inserting the gate
 
         :return: the newly-inserted gate record
         """
         db_gate = gate_models.Gate(**gate_data.dict())
         creation_time = datetime.utcnow()
-        db_gate.updated_by = db_gate.created_by
+        db_gate.created_by = user_id
+        db_gate.updated_by = user_id
         db_gate.created_at = creation_time
         db_gate.updated_at = creation_time
         db.add(db_gate)
@@ -75,7 +79,7 @@ class GateService:
 
     @classmethod
     def patch_gate(
-        cls, db: Session, gate_id: int, gate_data: gate_schemas.GatePatch
+        cls, db: Session, gate_id: int, gate_data: gate_schemas.GatePatch, user_id: int
     ) -> gate_models.Gate:
         """
         Updates an existing gate record in the database
@@ -83,6 +87,7 @@ class GateService:
         :param db: Database session
         :param gate_id: the gate ID to patch
         :param gate_data: the gate data to update
+        :param user_id: the user ID of the user updating the gate
 
         :return: the updated gate record
         """
@@ -90,6 +95,7 @@ class GateService:
         for key, value in gate_data.dict(exclude_none=True).items():
             setattr(db_gate, key, value)
         db_gate.updated_at = datetime.utcnow()
+        db_gate.updated_by = user_id
         db.add(db_gate)
         db.commit()
         db.refresh(db_gate)

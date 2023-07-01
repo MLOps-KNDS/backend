@@ -7,3 +7,6 @@ docker==6.0.1
 mlflow==2.3.1
 email-validator==2.0.0
 kubernetes==26.1.0
+authlib==1.2.0
+httpx==0.24.0
+pyjwt==2.7.0

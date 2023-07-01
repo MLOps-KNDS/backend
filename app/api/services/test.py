@@ -50,17 +50,22 @@ class TestService:
         return tests
 
     @classmethod
-    def put_test(cls, db: Session, test_data: test_schemas.TestPut) -> test_models.Test:
+    def put_test(
+        cls, db: Session, test_data: test_schemas.TestPut, user_id: int
+    ) -> test_models.Test:
         """
         Inserts a new test record into the database
 
+        :param db: Database session
         :param test_data: the user data to insert
+        :param user_id: the user ID of the user inserting the record
 
         :return: the newly-inserted test record
         """
         db_test = test_models.Test(**test_data.dict())
         creation_time = datetime.utcnow()
-        db_test.updated_by = db_test.created_by
+        db_test.created_by = user_id
+        db_test.updated_by = user_id
         db_test.created_at = creation_time
         db_test.updated_at = creation_time
         db.add(db_test)
@@ -70,19 +75,21 @@ class TestService:
 
     @classmethod
     def patch_test(
-        cls, db: Session, id: int, test_data: test_schemas.TestPatch
+        cls, db: Session, id: int, test_data: test_schemas.TestPatch, user_id: int
     ) -> test_models.Test:
         """
         Updates an existing test record in the database
 
+        :param db: Database session
         :param test_data: the test data to update
+        :param user_id: the user ID of the user updating the record
 
         :return: the updated test record
         """
         db_test = TestService.get_test_by_id(db=db, id=id)
         for key, value in test_data.dict(exclude_none=True).items():
             setattr(db_test, key, value)
-        db_test.updated_by = test_data.updated_by
+        db_test.updated_by = user_id
         db_test.updated_at = datetime.utcnow()
         db.add(db_test)
         db.commit()
