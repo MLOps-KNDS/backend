@@ -62,7 +62,7 @@ class PoolModelService:
         pool_id: int,
         model_id: int,
         data: pool_model_schemas.PoolPutModel,
-    ) -> JSONResponse:
+    ) -> pool_model_models.PoolModel:
         """
         Inserts a new model record into the pool in the database
 
@@ -90,7 +90,7 @@ class PoolModelService:
         pool_id: int,
         model_id: int,
         data: pool_model_schemas.PoolPatchModel,
-    ) -> JSONResponse:
+    ) -> pool_model_models.PoolModel:
         """
         Inserts a new model record into the pool in the database
 
