@@ -56,7 +56,7 @@ def create_db() -> dict:
         # System mlflow server
         mlflow_server = mlflow_server_schemas.MlflowServerPut(
             name="SYSTEM",
-            tracking_uri="http://mlflow:80",
+            tracking_uri="http://tyro-mlflow:80",
         )
         MlflowServerService.put_mlflow_server(db, mlflow_server, db_user.id)
         _logger.info("Created system mlflow server")

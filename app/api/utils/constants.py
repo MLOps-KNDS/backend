@@ -12,6 +12,7 @@ class Constants:
 
     # MLflow
     MLFLOW_ENV_MANAGER = os.environ.get("MLFLOW_ENV_MANAGER", "conda")
+    MLFLOW_BASE_IMAGE_NAME = "mlflow-models-base"
 
     # Kubernetes cluster
     K8S_NAMESPACE_MODELS = "tyro-models"
