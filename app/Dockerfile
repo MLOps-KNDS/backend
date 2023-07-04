@@ -8,7 +8,7 @@ WORKDIR /app
 # Install docker
 RUN curl -fsSL https://get.docker.com | sh
 
-RUN conda create -n virtualenv python=3.10
+RUN conda create -n virtualenv python=3.11
 
 COPY requirements.txt .
 
