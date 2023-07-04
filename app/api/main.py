@@ -11,6 +11,7 @@ import logging
 import secrets
 
 from db.create import create_db
+from utils.model_builder import ModelBuilder
 
 
 from routers import (
@@ -31,6 +32,7 @@ async def init(app: FastAPI):
     time.sleep(5)
     # Create the database tables with initial data
     create_db()
+    ModelBuilder.build_base_image()
     yield
 
 

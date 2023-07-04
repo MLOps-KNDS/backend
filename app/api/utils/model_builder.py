@@ -48,6 +48,22 @@ class ModelBuilder:
             )
             raise e
 
+    @classmethod
+    def build_base_image(cls) -> None:
+        """
+        Builds a base docker image with mlflow server.
+        """
+        try:
+            _logger.info("Building a base mlflow docker image...")
+            mlflow.models.build_docker(
+                name=Constants.MLFLOW_BASE_IMAGE_NAME,
+                env_manager=Constants.MLFLOW_ENV_MANAGER,
+            )
+            _logger.info("Building a base mlflow docker image finished.")
+        except Exception as e:
+            _logger.error(f"Building a base mlflow docker image failed with error: {e}")
+            raise e
+
     def push(self) -> str:
         """
         Pushes the docker image to Google Container Registry.
