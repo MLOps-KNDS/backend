@@ -111,7 +111,7 @@ class ModelDeployment:
                     name=self.name,
                     namespace=Constants.K8S_NAMESPACE_MODELS,
                 )
-                if service_status.status.load_balancer.ingress:
+                if not service_status.status.load_balancer:
                     _logger.info(f"Service with name {self.name} created!")
                     break
                 num_checks += 1
