@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
 
-    TOKEN_EXPIRE_SECONDS: int = 600  # 60 * 10 = 10 minutes
+    TOKEN_EXPIRE_SECONDS: int = 3600  # 60 * 60 = 60 minutes
     SECRET_KEY: str = secrets.token_hex(16)
     ALGORITHM: str = "HS256"
 
