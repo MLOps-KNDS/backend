@@ -263,3 +263,7 @@ class ModelDeployment:
                 f"name {name} to be deleted..."
             )
             time.sleep(5 * num_checks)
+        if num_checks == max_checks:
+            raise PingLimitReached(
+                f"Deployment and service with name {name} not deleted in time!"
+            )
