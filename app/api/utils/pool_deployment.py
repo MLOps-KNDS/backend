@@ -1,6 +1,7 @@
 from kubernetes import client, config
 from schemas import pool_model as pool_model_schemas
 from .istio_manifest_generator import IstioVirtualServiceGenerator
+from .constants import Constants
 
 
 class PoolDeployment:
@@ -36,7 +37,7 @@ class PoolDeployment:
         custom_api.create_namespaced_custom_object(
             group="networking.istio.io/v1alpha3",
             version="v1alpha3",
-            namespace=f"pool-config-{self.name}",
+            namespace=Constants.K8S_NAMESPACE_MODELS,
             plural="virtualservices",
             body=body,
         )
