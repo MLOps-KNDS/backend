@@ -22,7 +22,7 @@ class ModelDeployment:
         :param name: Name of the deployment and service. Must be unique
         :param model_details: Model details
         """
-        self.name: str = name
+        self.name: str = Constants.K8S_MODEL_PREFIX + name
         self.image_tag: str = model_details.image_tag
         self.replicas: int = model_details.replicas
         self.cpu_limit: str = model_details.cpu_limit

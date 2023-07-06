@@ -4,8 +4,6 @@ import mlflow
 
 from utils.constants import Constants
 
-MODEL_IMAGE_NAME_PREFIX = "tyro-model-"
-
 
 _logger = logging.getLogger(__name__)
 
@@ -22,7 +20,7 @@ class ModelBuilder:
         :param mlflow_tracking_uri: uri of the mlflow server
         :param artifact_uri: uri of the model's artifact
         """
-        self.name: str = MODEL_IMAGE_NAME_PREFIX + name
+        self.name: str = Constants.K8S_MODEL_PREFIX + name
         self.mlflow_tracking_uri: str = mlflow_tracking_uri
         self.artifact_uri: str = artifact_uri
         self.is_built: bool = False
