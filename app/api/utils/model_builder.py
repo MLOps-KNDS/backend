@@ -16,12 +16,7 @@ class ModelBuilder:
     Allows to push it to Google Container Registry.
     """
 
-    def __init__(
-        self, 
-        name: str, 
-        mlflow_tracking_uri: str, 
-        artifact_uri: str
-    ) -> None:
+    def __init__(self, name: str, mlflow_tracking_uri: str, artifact_uri: str) -> None:
         """
         :param name: name of the docker image
         :param mlflow_tracking_uri: uri of the mlflow server

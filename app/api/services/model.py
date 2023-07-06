@@ -158,11 +158,17 @@ class ModelService:
         )
 
         try:
-            ModelService.change_model_status(db, model_details.model_id, ModelStatus.DEPLOYING)
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.DEPLOYING
+            )
             model_deployment.deploy()
-            ModelService.change_model_status(db, model_details.model_id, ModelStatus.DEPLOYED)
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.DEPLOYED
+            )
         except Exception as e:
-            ModelService.change_model_status(db, model_details.model_id, ModelStatus.DEPLOY_FAILED)
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.DEPLOY_FAILED
+            )
             raise JSONResponse(status_code=500, content={"detail": str(e)})
 
         return JSONResponse({"detail": "model deployed"})
@@ -186,7 +192,9 @@ class ModelService:
             ModelDeployment.delete(name)
             ModelService.change_model_status(db, model_id, ModelStatus.INACTIVE)
         except Exception as e:
-            ModelService.change_model_status(db, model_id, ModelStatus.DEACTIVATION_FAILED)
+            ModelService.change_model_status(
+                db, model_id, ModelStatus.DEACTIVATION_FAILED
+            )
             raise JSONResponse(status_code=500, content={"detail": str(e)})
 
         return JSONResponse(status_code=200, content={"detail": "model deactivated"})
@@ -213,19 +221,31 @@ class ModelService:
         )
 
         try:
-            ModelService.change_model_status(db, model_details.model_id, ModelStatus.BUILDING)
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.BUILDING
+            )
             model_builder.build()
-            ModelService.change_model_status(db, model_details.model_id, ModelStatus.BUILT)
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.BUILT
+            )
         except Exception as e:
-            ModelService.change_model_status(db, model_details.model_id, ModelStatus.BUILD_FAILED)
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.BUILD_FAILED
+            )
             return JSONResponse(status_code=500, content={"detail": str(e)})
-        
+
         try:
-            ModelService.change_model_status(db, model_details.model_id, ModelStatus.PUSHING)
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.PUSHING
+            )
             image_tag = model_builder.push()
-            ModelService.change_model_status(db, model_details.model_id, ModelStatus.PUSHED)
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.PUSHED
+            )
         except Exception as e:
-            ModelService.change_model_status(db, model_details.model_id, ModelStatus.PUSH_FAILED)
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.PUSH_FAILED
+            )
             return JSONResponse(status_code=500, content={"detail": str(e)})
 
         db_model_details = ModelDetailsService.get_model_details_by_model_id(
