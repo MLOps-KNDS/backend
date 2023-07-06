@@ -136,16 +136,14 @@ class ModelService:
         return JSONResponse({"detail": "model deleted"})
 
     @classmethod
-    def deploy_model(
+    def activate_model(
         cls,
-        db: Session,
         name: str,
         model_details: dict,
     ) -> JSONResponse:
         """
         Deploys a model to a kubernetes cluster
 
-        :param db: Database session
         :param name: name of model to deploy
         :param model_details: model details
 
@@ -156,7 +154,8 @@ class ModelService:
             name=name,
             model_details=model_details,
         )
-
+        model_deployment.deploy()
+        
         try:
             ModelService.change_model_status(
                 db, model_details.model_id, ModelStatus.DEPLOYING
@@ -176,17 +175,17 @@ class ModelService:
     @classmethod
     def deactivate_model(
         cls,
-        db: Session,
-        model_id: int,
         name: str,
     ) -> JSONResponse:
         """
         Deactivates a model from a kubernetes cluster
+
         :param name: name of model to deactivate
 
 
         :return: JSON respose indicating succesful deactivation
         """
+        
         try:
             ModelService.change_model_status(db, model_id, ModelStatus.DEACTIVATING)
             ModelDeployment.delete(name)

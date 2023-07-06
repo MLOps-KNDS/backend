@@ -12,6 +12,14 @@ class ModelBuilder:
     """
     Builds a docker image from model's artifact.
     Allows to push it to Google Container Registry.
+
+    Example:
+    >>> model_builder = ModelBuilder(
+    >>>    name="test2",
+    >>>    artifact_uri="runs://f7b2b1e1d1e84b3e8b2b1e1d1e8bb3e8/model",
+    >>> )
+    >>> model_builder.build()
+    >>> model_builder.push()
     """
 
     def __init__(self, name: str, mlflow_tracking_uri: str, artifact_uri: str) -> None:
