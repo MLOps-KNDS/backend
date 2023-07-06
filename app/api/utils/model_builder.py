@@ -4,6 +4,8 @@ import mlflow
 
 from utils.constants import Constants
 
+MODEL_IMAGE_NAME_PREFIX = "tyro-model-"
+
 
 _logger = logging.getLogger(__name__)
 
@@ -12,23 +14,20 @@ class ModelBuilder:
     """
     Builds a docker image from model's artifact.
     Allows to push it to Google Container Registry.
-
-    Example:
-    >>> model_builder = ModelBuilder(
-    >>>    name="test2",
-    >>>    artifact_uri="runs://f7b2b1e1d1e84b3e8b2b1e1d1e8bb3e8/model",
-    >>> )
-    >>> model_builder.build()
-    >>> model_builder.push()
     """
 
-    def __init__(self, name: str, mlflow_tracking_uri: str, artifact_uri: str) -> None:
+    def __init__(
+        self, 
+        name: str, 
+        mlflow_tracking_uri: str, 
+        artifact_uri: str
+    ) -> None:
         """
         :param name: name of the docker image
         :param mlflow_tracking_uri: uri of the mlflow server
         :param artifact_uri: uri of the model's artifact
         """
-        self.name: str = name
+        self.name: str = MODEL_IMAGE_NAME_PREFIX + name
         self.mlflow_tracking_uri: str = mlflow_tracking_uri
         self.artifact_uri: str = artifact_uri
         self.is_built: bool = False

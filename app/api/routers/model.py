@@ -87,8 +87,8 @@ async def put_model(
     return result
 
 
-@router.post("/{model_id}/activate", status_code=200)
-async def activate_model(
+@router.post("/{model_id}/deploy", status_code=200)
+async def deploy_model(
     model_id: int,
     db: Session = Depends(get_db),
 ):
@@ -121,10 +121,8 @@ async def activate_model(
             status_code=406, detail="Model details are not complete! {key} is null}"
         )
 
-    ModelService.change_model_status(
-        db=db, model_id=model_id, status=ModelStatus.ACTIVE
-    )
-    return ModelService.activate_model(
+    return ModelService.deploy_model(
+        db=db,
         name=db_model.name,
         model_details=db_model_details,
     )
@@ -202,8 +200,12 @@ async def delete_model(model_id: int, db: Session = Depends(get_db)):
 
     :return: a json with a "detail" key indicating success
     """
-    if not ModelService.get_model_by_id(db=db, model_id=model_id):
+    model = ModelService.get_model_by_id(db=db, model_id=model_id)
+    if not model:
         raise HTTPException(status_code=404, detail="Model not found!")
+    if model.status != ModelStatus.INACTIVE:
+        raise HTTPException(status_code=409, detail="Model is not inactive!")
+
     ModelDetailsService.delete_model_details(db, model_id)
     return ModelService.delete_model(db=db, model_id=model_id)
 

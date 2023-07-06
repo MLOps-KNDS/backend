@@ -6,8 +6,22 @@ from models.base_class import Base
 
 
 class ModelStatus(str, enum.Enum):
-    ACTIVE = "active"
     INACTIVE = "inactive"
+
+    BUILDING = "building"
+    BUILT = "built"
+    BUILD_FAILED = "build_failed"
+
+    PUSHING = "pushing"
+    PUSHED = "pushed"
+    PUSH_FAILED = "push_failed"
+
+    DEPLOYING = "deploying"
+    DEPLOYED = "deployed"
+    DEPLOY_FAILED = "deploy_failed"
+
+    DEACTIVATING = "deactivating"
+    DEACTIVATION_FAILED = "deactivation_failed"
 
 
 class Model(Base):
