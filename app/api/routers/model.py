@@ -147,9 +147,6 @@ async def deactivate_model(model_id: int, db: Session = Depends(get_db)):
     if model.status == ModelStatus.INACTIVE:
         raise HTTPException(status_code=409, detail="Model already inactive!")
 
-    ModelService.change_model_status(
-        db=db, model_id=model_id, status=ModelStatus.INACTIVE
-    )
     return ModelService.deactivate_model(name=model.name)
 
 
