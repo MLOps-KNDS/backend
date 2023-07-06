@@ -109,9 +109,6 @@ async def deploy_model(
     if not db_model:
         raise HTTPException(status_code=404, detail="Model not found!")
 
-    if db_model.status == ModelStatus.ACTIVE:
-        raise HTTPException(status_code=409, detail="Model already active!")
-
     db_model_details = ModelDetailsService.get_model_details_by_model_id(db, model_id)
     if not db_model_details:
         raise HTTPException(status_code=404, detail="Model details not found!")
