@@ -1,10 +1,8 @@
 import logging
 from kubernetes import client, config
-import time
 
 from utils.constants import Constants
 from models import ModelDetails
-from config.exceptions import PingLimitReached
 
 _logger = logging.getLogger(__name__)
 
@@ -51,90 +49,18 @@ class ModelDeployment:
             raise e
 
     def __deploy_to_k8s(self) -> None:
-        v1_apps = client.AppsV1Api()
-        _logger.info(f"Creating deployment with name: {self.name}...")
-        try:
-            deployment = self.__create_deployment()
-            v1_apps.create_namespaced_deployment(
-                namespace=Constants.K8S_NAMESPACE_MODELS, body=deployment
-            )
-            max_checks = 10
-            num_checks = 0
-
-            # Check deployment status
-            while num_checks < max_checks:
-                deployment_status = v1_apps.read_namespaced_deployment_status(
-                    name=self.name,
-                    namespace=Constants.K8S_NAMESPACE_MODELS,
-                )
-                _logger.info(
-                    f"Ping status for deployment with name {self.name}: "
-                    "{deployment_status.status.ready_replicas}"
-                    "/{deployment_status.status.replicas}"
-                )
-                if (
-                    deployment_status.status.ready_replicas
-                    == deployment_status.status.replicas
-                ):
-                    _logger.info(f"Deployment with name {self.name} created!")
-                    break
-                num_checks += 1
-                _logger.info(
-                    f"Waiting for {2*num_checks} seconds for deployment with "
-                    "name {self.name} to be created..."
-                )
-                time.sleep(2 * num_checks)
-            if num_checks == max_checks:
-                raise PingLimitReached(
-                    f"Deployment with name {self.name} not created in time!"
-                )
-        except Exception as e:
-            _logger.error(
-                f"Creation of deployment with name: {self.name} failed with error: {e}!"
-                "\nAborting process!"
-            )
-            raise e
-
-        v1_core = client.CoreV1Api()
-        _logger.info(f"Creating service with name: {self.name}...")
-        try:
-            service = self.__create_service()
-            v1_core.create_namespaced_service(
-                namespace=Constants.K8S_NAMESPACE_MODELS, body=service
-            )
-            max_checks = 10
-            num_checks = 0
-
-            # Check service status
-            while num_checks < max_checks:
-                service_status = v1_core.read_namespaced_service_status(
-                    name=self.name,
-                    namespace=Constants.K8S_NAMESPACE_MODELS,
-                )
-                if not service_status.status.load_balancer:
-                    _logger.info(f"Service with name {self.name} created!")
-                    break
-                num_checks += 1
-                _logger.info(
-                    f"Waiting for {2*num_checks} seconds for service with "
-                    "name {self.name} to be created..."
-                )
-                time.sleep(2 * num_checks)
-            if num_checks == max_checks:
-                raise PingLimitReached(
-                    f"Service with name {self.name} not created in time!"
-                )
-        except Exception as e:
-            _logger.error(
-                f"Creation of service with name: {self.name} failed with error: {e}!"
-                "\nAborting process!"
-            )
-            v1_apps.delete_namespaced_deployment(
-                name=self.name, namespace=Constants.K8S_NAMESPACE_MODELS
-            )
-            raise e
-        else:
-            _logger.info(f"Service with name {self.name} created!")
+        v1 = client.AppsV1Api()
+        deployment = self.__create_deployment()
+        service = self.__create_service()
+        v1.create_namespaced_deployment(
+            namespace=Constants.K8S_NAMESPACE_MODELS, body=deployment
+        )
+        _logger.info(f"Deployment with name {self.name} ready")
+        v1 = client.CoreV1Api()
+        v1.create_namespaced_service(
+            namespace=Constants.K8S_NAMESPACE_MODELS, body=service
+        )
+        _logger.info(f"Service with name {self.name} ready")
 
     def __create_deployment(self) -> client.V1Deployment:
         container = client.V1Container(
@@ -196,10 +122,10 @@ class ModelDeployment:
         :raises: Any exception which may occur
         :param name: Name of the deployment and service
         """
-        v1_apps = client.AppsV1Api()
+        v1 = client.AppsV1Api()
         try:
             _logger.info(f"Deleteing deployment with name {name}...")
-            v1_apps.delete_namespaced_deployment(
+            v1.delete_namespaced_deployment(
                 name=name, namespace=Constants.K8S_NAMESPACE_MODELS
             )
             _logger.info(f"Deleteing deployment with name {name} finished.")
@@ -209,61 +135,13 @@ class ModelDeployment:
             )
             raise e
 
-        v1_core = client.CoreV1Api()
+        v1 = client.CoreV1Api()
         try:
             _logger.info(f"Deleteing service with name {name}...")
-            v1_core.delete_namespaced_service(
+            v1.delete_namespaced_service(
                 name=name, namespace=Constants.K8S_NAMESPACE_MODELS
             )
             _logger.info(f"Deleteing service with name {name} finished.")
         except Exception as e:
             _logger.error(f"Deleteing service with name {name} failed with error: {e}")
             raise
-
-        # Wait for deployment and service deletion
-        max_checks = 10
-        num_checks = 0
-
-        while num_checks < max_checks:
-            try:
-                # Check if deployment exists
-                v1_apps.read_namespaced_deployment(
-                    name=name, namespace=Constants.K8S_NAMESPACE_MODELS
-                )
-            except client.exceptions.ApiException as e:
-                if e.status == 404:
-                    deployment_deleted = True
-                else:
-                    raise
-            else:
-                deployment_deleted = False
-
-            try:
-                # Check if service exists
-                v1_core.read_namespaced_service(
-                    name=name, namespace=Constants.K8S_NAMESPACE_MODELS
-                )
-            except client.exceptions.ApiException as e:
-                if e.status == 404:
-                    service_deleted = True
-                else:
-                    raise
-            else:
-                service_deleted = False
-
-            if deployment_deleted and service_deleted:
-                _logger.info(
-                    f"Deployment and service with name {name} deleted successfully!"
-                )
-                return
-
-            num_checks += 1
-            _logger.info(
-                f"Waiting for {5*num_checks} seconds for deployment and service with "
-                f"name {name} to be deleted..."
-            )
-            time.sleep(5 * num_checks)
-        if num_checks == max_checks:
-            raise PingLimitReached(
-                f"Deployment and service with name {name} not deleted in time!"
-            )
