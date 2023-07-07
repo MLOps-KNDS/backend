@@ -28,7 +28,7 @@ class ModelBuilder:
         :param mlflow_tracking_uri: uri of the mlflow server
         :param artifact_uri: uri of the model's artifact
         """
-        self.name: str = name
+        self.name: str = Constants.K8S_MODEL_PREFIX + name
         self.mlflow_tracking_uri: str = mlflow_tracking_uri
         self.artifact_uri: str = artifact_uri
         self.is_built: bool = False

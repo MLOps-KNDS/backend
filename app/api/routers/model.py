@@ -87,8 +87,8 @@ async def put_model(
     return result
 
 
-@router.post("/{model_id}/activate", status_code=200)
-async def activate_model(
+@router.post("/{model_id}/deploy", status_code=200)
+async def deploy_model(
     model_id: int,
     db: Session = Depends(get_db),
 ):
@@ -109,9 +109,6 @@ async def activate_model(
     if not db_model:
         raise HTTPException(status_code=404, detail="Model not found!")
 
-    if db_model.status == ModelStatus.ACTIVE:
-        raise HTTPException(status_code=409, detail="Model already active!")
-
     db_model_details = ModelDetailsService.get_model_details_by_model_id(db, model_id)
     if not db_model_details:
         raise HTTPException(status_code=404, detail="Model details not found!")
@@ -121,10 +118,8 @@ async def activate_model(
             status_code=406, detail="Model details are not complete! {key} is null}"
         )
 
-    ModelService.change_model_status(
-        db=db, model_id=model_id, status=ModelStatus.ACTIVE
-    )
-    return ModelService.activate_model(
+    return ModelService.deploy_model(
+        db=db,
         name=db_model.name,
         model_details=db_model_details,
     )
@@ -149,10 +144,7 @@ async def deactivate_model(model_id: int, db: Session = Depends(get_db)):
     if model.status == ModelStatus.INACTIVE:
         raise HTTPException(status_code=409, detail="Model already inactive!")
 
-    ModelService.change_model_status(
-        db=db, model_id=model_id, status=ModelStatus.INACTIVE
-    )
-    return ModelService.deactivate_model(name=model.name)
+    return ModelService.deactivate_model(db=db, model_id=model_id, name=model.name)
 
 
 @router.patch("/{model_id}", response_model=model_schemas.Model, status_code=200)
