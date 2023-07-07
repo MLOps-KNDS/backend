@@ -155,7 +155,7 @@ class ModelService:
             model_details=model_details,
         )
         model_deployment.deploy()
-        
+
         try:
             ModelService.change_model_status(
                 db, model_details.model_id, ModelStatus.DEPLOYING
@@ -185,7 +185,7 @@ class ModelService:
 
         :return: JSON respose indicating succesful deactivation
         """
-        
+
         try:
             ModelService.change_model_status(db, model_id, ModelStatus.DEACTIVATING)
             ModelDeployment.delete(name)
