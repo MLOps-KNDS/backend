@@ -136,8 +136,9 @@ class ModelService:
         return JSONResponse({"detail": "model deleted"})
 
     @classmethod
-    def activate_model(
+    def deploy_model(
         cls,
+        db: Session,
         name: str,
         model_details: dict,
     ) -> JSONResponse:
@@ -156,11 +157,27 @@ class ModelService:
         )
         model_deployment.deploy()
 
-        return JSONResponse({"detail": "model activated"})
+        try:
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.DEPLOYING
+            )
+            model_deployment.deploy()
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.DEPLOYED
+            )
+        except Exception as e:
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.DEPLOY_FAILED
+            )
+            raise JSONResponse(status_code=500, content={"detail": str(e)})
+
+        return JSONResponse({"detail": "model deployed"})
 
     @classmethod
     def deactivate_model(
         cls,
+        db: Session,
+        model_id: int,
         name: str,
     ) -> JSONResponse:
         """
@@ -172,7 +189,16 @@ class ModelService:
         :return: JSON respose indicating succesful deactivation
         """
 
-        ModelDeployment.delete(name)
+        try:
+            ModelService.change_model_status(db, model_id, ModelStatus.DEACTIVATING)
+            ModelDeployment.delete(name)
+            ModelService.change_model_status(db, model_id, ModelStatus.INACTIVE)
+        except Exception as e:
+            ModelService.change_model_status(
+                db, model_id, ModelStatus.DEACTIVATION_FAILED
+            )
+            raise JSONResponse(status_code=500, content={"detail": str(e)})
+
         return JSONResponse(status_code=200, content={"detail": "model deactivated"})
 
     @classmethod
@@ -195,8 +221,34 @@ class ModelService:
             mlflow_tracking_uri=model_details.mlflow_server.tracking_uri,
             artifact_uri=model_details.artifact_uri,
         )
-        model_builder.build()
-        image_tag = model_builder.push()
+
+        try:
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.BUILDING
+            )
+            model_builder.build()
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.BUILT
+            )
+        except Exception as e:
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.BUILD_FAILED
+            )
+            return JSONResponse(status_code=500, content={"detail": str(e)})
+
+        try:
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.PUSHING
+            )
+            image_tag = model_builder.push()
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.PUSHED
+            )
+        except Exception as e:
+            ModelService.change_model_status(
+                db, model_details.model_id, ModelStatus.PUSH_FAILED
+            )
+            return JSONResponse(status_code=500, content={"detail": str(e)})
 
         db_model_details = ModelDetailsService.get_model_details_by_model_id(
             db, model_details.model_id
