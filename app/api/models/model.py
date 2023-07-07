@@ -7,7 +7,7 @@ from models.base_class import Base
 
 class ModelStatus(str, enum.Enum):
     INACTIVE = "inactive"
-    
+
     BUILT = "built"
     BUILDING = "building"
     BUILD_FAILED = "build_failed"
