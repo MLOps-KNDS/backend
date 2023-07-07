@@ -136,8 +136,9 @@ class ModelService:
         return JSONResponse({"detail": "model deleted"})
 
     @classmethod
-    def activate_model(
+    def deploy_model(
         cls,
+        db: Session,
         name: str,
         model_details: dict,
     ) -> JSONResponse:
@@ -175,6 +176,8 @@ class ModelService:
     @classmethod
     def deactivate_model(
         cls,
+        db: Session,
+        model_id: int,
         name: str,
     ) -> JSONResponse:
         """
