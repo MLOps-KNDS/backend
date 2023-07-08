@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 from datetime import datetime
+import logging
 
 from models import model as model_models
 from models.model import ModelStatus
@@ -8,6 +9,9 @@ from schemas import model as model_schemas
 from utils import ModelDeployment, ModelBuilder
 from .model_details import ModelDetailsService
 from utils.constants import Constants
+
+
+_logger = logging.getLogger(__name__)
 
 
 class ModelService:
@@ -169,9 +173,10 @@ class ModelService:
             ModelService.change_model_status(
                 db, model_details.model_id, ModelStatus.DEPLOY_FAILED
             )
-            return JSONResponse(status_code=500, content={"detail": str(e)})
-
-        return JSONResponse({"detail": "model deployed"})
+            _logger.error(
+                f"Error while deploying model: {e}. "
+                f"Model_details {model_details.to_dict()}"
+            )
 
     @classmethod
     async def deactivate_model(
@@ -197,9 +202,7 @@ class ModelService:
             ModelService.change_model_status(
                 db, model_id, ModelStatus.DEACTIVATION_FAILED
             )
-            return JSONResponse(status_code=500, content={"detail": str(e)})
-
-        return JSONResponse(status_code=200, content={"detail": "model deactivated"})
+            _logger.error(f"Error while deactivating model: {e}. Model_id {model_id}")
 
     @classmethod
     async def build_model(
@@ -234,7 +237,10 @@ class ModelService:
             ModelService.change_model_status(
                 db, model_details.model_id, ModelStatus.BUILD_FAILED
             )
-            return JSONResponse(status_code=500, content={"detail": str(e)})
+            _logger.error(
+                f"Error while building model: {e}. "
+                f"Model_details {model_details.to_dict()}"
+            )
 
         try:
             ModelService.change_model_status(
@@ -248,7 +254,10 @@ class ModelService:
             ModelService.change_model_status(
                 db, model_details.model_id, ModelStatus.PUSH_FAILED
             )
-            return JSONResponse(status_code=500, content={"detail": str(e)})
+            _logger.error(
+                f"Error while pushing model: {e}. "
+                f"Model_details {model_details.to_dict()}"
+            )
 
         db_model_details = ModelDetailsService.get_model_details_by_model_id(
             db, model_details.model_id
@@ -259,7 +268,4 @@ class ModelService:
         db.commit()
         db.refresh(db_model_details)
 
-        return JSONResponse(
-            status_code=200,
-            content={"detail": "Model image built and pushed with tag: " + image_tag},
-        )
+        _logger.info(f"Model {name} built and pushed successfully with tag {image_tag}")

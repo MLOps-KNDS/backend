@@ -9,13 +9,17 @@ _logger = logging.getLogger(__name__)
 
 
 class NamespacedPinger:
+    """
+    Pings services in a given namespace using kubernetes api.
+    """
+
     def __init__(
         self,
         name: str,
         namespace: str,
-        ping_callback,
-        predicate,
-        error_callback,
+        ping_callback: callable[str, str],
+        predicate: callable[str],
+        error_callback: callable[str, str],
         ping_amount: int,
     ) -> None:
         config.load_incluster_config()
@@ -29,9 +33,10 @@ class NamespacedPinger:
 
     def ping(self) -> bool:
         """
-        Pings a service until it is ready.
+        Pings a service and logs every action.
 
-        :return: True if the service is ready
+        :return: True if the service is ready, false if service
+        doesn't exist
 
         :raises: PingLimitReached if the service is not ready in given time
         """
@@ -57,7 +62,7 @@ class NamespacedPinger:
                     f"Error while pinging {self.name} in namespace {self.namespace}: "
                     f"{e}"
                 )
-                self.error_callback(self.name, self.namespace)
+                self.error_callback(self.name, self.namespace, api_response)
                 raise e
             _logger.info(
                 f"{self.name} in namespace {self.namespace} is not ready yet"
@@ -67,7 +72,7 @@ class NamespacedPinger:
         _logger.error(
             f"{self.name} in namespace {self.namespace} didn't respond in given time!"
         )
-        self.error_callback(self.name, self.namespace)
+        self.error_callback(self.name, self.namespace, api_response)
         raise PingLimitReached(
             self.ping_amount,
             f"{self.name} in namespace {self.namespace} didn't respond in given time!",
@@ -114,7 +119,34 @@ class NamespacedPinger:
         return True
 
     @classmethod
-    def deployment_error_callback(cls, name: str, namespace: str):
-        # todo: gater logs from pods
+    def deployment_error_callback(
+        cls, name: str, namespace: str, api_response: V1PodList
+    ):
+        """
+        Deletes a deployment and logs why the deployment failed
+
+        :param name: Name of the deployment
+        :param namespace: Namespace of the deployment
+        """
         v1 = client.AppsV1Api()
+        for pod in api_response.items:
+            _logger.error(
+                f"Pod {pod.metadata.name} in namespace {namespace} is in state "
+                f"{pod.status.phase}."
+            )
+            if pod.status.phase == "Pending":
+                _logger.error(
+                    f"Reason {pod.status.container_statuses[0].state.waiting.reason}. "
+                    f"Message {pod.status.container_statuses[0].state.waiting.message}"
+                )
+            if pod.status.phase == "Failed":
+                _logger.error(
+                    "Reason "
+                    f"{pod.status.container_statuses[0].state.terminated.reason}. "
+                    "Message "
+                    f"{pod.status.container_statuses[0].state.terminated.message}"
+                )
+
+        _logger.error(f"Deleting deployment {name} in namespace {namespace}...")
         v1.delete_namespaced_deployment(name=name, namespace=namespace)
+        _logger.error(f"Deleting deployment {name} in namespace {namespace} finished")
