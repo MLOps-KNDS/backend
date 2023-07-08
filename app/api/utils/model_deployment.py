@@ -1,10 +1,10 @@
 import logging
 from kubernetes import client, config
+import time
 
 from utils.constants import Constants
+from utils.cluster_pingers import NamespacedPinger
 from models import ModelDetails
-from config.exceptions import PingLimitReached
-from utils import DeploymentPing, ServicePing
 
 _logger = logging.getLogger(__name__)
 
@@ -51,48 +51,31 @@ class ModelDeployment:
             raise e
 
     def __deploy_to_k8s(self) -> None:
-        v1_apps = client.AppsV1Api()
-        _logger.info(f"Creating deployment with name: {self.name}...")
-        try:
-            deployment = self.__create_deployment()
-            v1_apps.create_namespaced_deployment(
-                namespace=Constants.K8S_NAMESPACE_MODELS, body=deployment
+        v1 = client.AppsV1Api()
+        deployment = self.__create_deployment()
+        service = self.__create_service()
+        v1.create_namespaced_deployment(
+            namespace=Constants.K8S_NAMESPACE_MODELS, body=deployment
+        )
+        time.sleep(5)
+        deployment_pinger = NamespacedPinger(
+            self.name,
+            Constants.K8S_NAMESPACE_MODELS,
+            NamespacedPinger.deployment_ping,
+            NamespacedPinger.deployment_predicate,
+            NamespacedPinger.deployment_error_callback,
+            Constants.K8S_PING_LIMIT,
+        )
+        if not deployment_pinger.ping():
+            raise Exception(
+                f"Deployment with name {self.name} didn't respond in given time!"
             )
-            if DeploymentPing.ping(self.name, Constants.K8S_NAMESPACE_MODELS):
-                _logger.info(f"Deployment with name {self.name} created!")
-            else:
-                raise PingLimitReached(
-                    f"Deployment with name {self.name} not created in time!"
-                )
-        except Exception as e:
-            _logger.error(
-                f"Creation of deployment with name: {self.name} failed with error: {e}!"
-                "\nAborting process!"
-            )
-            raise e
-
-        v1_core = client.CoreV1Api()
-        _logger.info(f"Creating service with name: {self.name}...")
-        try:
-            service = self.__create_service()
-            v1_core.create_namespaced_service(
-                namespace=Constants.K8S_NAMESPACE_MODELS, body=service
-            )
-            if ServicePing.ping(self.name, Constants.K8S_NAMESPACE_MODELS):
-                _logger.info(f"Service with name {self.name} created!")
-            else:
-                raise PingLimitReached(
-                    f"Service with name {self.name} not created in time!"
-                )
-        except Exception as e:
-            _logger.error(
-                f"Creation of service with name: {self.name} failed with error: {e}!"
-                "\nAborting process!"
-            )
-            self.__delete_deployment(self.name, Constants.K8S_NAMESPACE_MODELS)
-            raise e
-        else:
-            _logger.info(f"Service with name {self.name} created!")
+        _logger.info(f"Deployment with name {self.name} ready")
+        v1 = client.CoreV1Api()
+        v1.create_namespaced_service(
+            namespace=Constants.K8S_NAMESPACE_MODELS, body=service
+        )
+        _logger.info(f"Service with name {self.name} ready")
 
     def __create_deployment(self) -> client.V1Deployment:
         container = client.V1Container(
@@ -108,14 +91,14 @@ class ModelDeployment:
         )
 
         template = client.V1PodTemplateSpec(
-            metadata=client.V1ObjectMeta(labels={"model": self.name}),
+            metadata=client.V1ObjectMeta(labels={"app": self.name}),
             spec=client.V1PodSpec(containers=[container]),
         )
 
         spec = client.V1DeploymentSpec(
             replicas=self.replicas,
             template=template,
-            selector=client.V1LabelSelector(match_labels={"model": self.name}),
+            selector=client.V1LabelSelector(match_labels={"app": self.name}),
         )
 
         deployment = client.V1Deployment(
@@ -134,7 +117,7 @@ class ModelDeployment:
         )
 
         spec = client.V1ServiceSpec(
-            selector={"model": self.name},
+            selector={"app": self.name},
             ports=[port],
         )
 
@@ -154,52 +137,26 @@ class ModelDeployment:
         :raises: Any exception which may occur
         :param name: Name of the deployment and service
         """
-        cls.__delete_deployment(name, Constants.K8S_NAMESPACE_MODELS)
-
-        cls.__delete_service(name, Constants.K8S_NAMESPACE_MODELS)
-
-        deployment_deleted = DeploymentPing.ping(name, Constants.K8S_NAMESPACE_MODELS)
-        service_deleted = ServicePing.ping(name, Constants.K8S_NAMESPACE_MODELS)
-
-        if deployment_deleted and service_deleted:
-            _logger.info(
-                f"Deployment and service with name {name} deleted successfully!"
-            )
-            return
-        else:
-            raise PingLimitReached(
-                f"Deployment and service with name {name} not deleted in time!"
-            )
-
-    @classmethod
-    def __delete_deployment(
-        cls, deployment_name: str, deployment_namespace: str
-    ) -> None:
-        v1_apps = client.AppsV1Api()
+        v1 = client.AppsV1Api()
         try:
-            _logger.info(f"Deleteing deployment with name {deployment_name}...")
-            v1_apps.delete_namespaced_deployment(
-                name=deployment_name, namespace=deployment_namespace
+            _logger.info(f"Deleteing deployment with name {name}...")
+            v1.delete_namespaced_deployment(
+                name=name, namespace=Constants.K8S_NAMESPACE_MODELS
             )
-            _logger.info(f"Deleteing deployment with name {deployment_name} finished.")
+            _logger.info(f"Deleteing deployment with name {name} finished.")
         except Exception as e:
             _logger.error(
-                f"Deleteing deployment with name {deployment_name} failed "
-                f"with error: {e}"
+                f"Deleteing deployment with name {name} failed with error: {e}"
             )
-            raise
+            raise e
 
-    @classmethod
-    def __delete_service(cls, service_name: str, service_namespace: str) -> None:
-        v1_core = client.CoreV1Api()
+        v1 = client.CoreV1Api()
         try:
-            _logger.info(f"Deleteing service with name {service_name}...")
-            v1_core.delete_namespaced_service(
-                name=service_name, namespace=service_namespace
+            _logger.info(f"Deleteing service with name {name}...")
+            v1.delete_namespaced_service(
+                name=name, namespace=Constants.K8S_NAMESPACE_MODELS
             )
-            _logger.info(f"Deleteing service with name {service_name} finished.")
+            _logger.info(f"Deleteing service with name {name} finished.")
         except Exception as e:
-            _logger.error(
-                f"Deleteing service with name {service_name} failed with error: {e}"
-            )
+            _logger.error(f"Deleteing service with name {name} failed with error: {e}")
             raise

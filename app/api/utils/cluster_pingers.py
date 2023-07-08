@@ -1,92 +1,120 @@
 import logging
-from kubernetes import client
-import requests
+from kubernetes import client, config
+from kubernetes.client import V1PodList
 import time
 
-from config.exceptions import PingLimitReached
+from utils.exception import PingLimitReached, ErrImagePull, EmptyList
 
 _logger = logging.getLogger(__name__)
 
 
-class DeploymentPing:
-    @classmethod
-    def ping(cls, deployment_name: str, deployment_namespace: str) -> bool:
-        v1_apps = client.AppsV1Api()
-        try:
-            max_checks = 10
-            num_checks = 0
+class NamespacedPinger:
+    def __init__(
+        self,
+        name: str,
+        namespace: str,
+        ping_callback,
+        predicate,
+        error_callback,
+        ping_amount: int,
+    ) -> None:
+        config.load_incluster_config()
 
-            # Check deployment status
-            while num_checks < max_checks:
-                deployment_status = v1_apps.read_namespaced_deployment_status(
-                    name=deployment_name,
-                    namespace=deployment_namespace,
+        self.name = name  # Assumed to be already with prefix (e.g. "tyro-model-")
+        self.namespace = namespace
+        self.ping_callback = ping_callback
+        self.predicate = predicate
+        self.error_callback = error_callback
+        self.ping_amount = ping_amount
+
+    def ping(self) -> bool:
+        """
+        Pings a service until it is ready.
+
+        :return: True if the service is ready
+
+        :raises: PingLimitReached if the service is not ready in given time
+        """
+        _logger.info(f"Pinging service {self.name} in namespace {self.namespace}...")
+        for i in range(self.ping_amount):
+            _logger.info(
+                f"Pinging service {self.name} in namespace {self.namespace} "
+                f"{i+1}/{self.ping_amount}..."
+            )
+            api_response = self.ping_callback(name=self.name, namespace=self.namespace)
+            try:
+                if self.predicate(api_response):
+                    _logger.info(f"{self.name} in namespace {self.namespace} is ready!")
+                    return True
+            except EmptyList as e:
+                _logger.error(
+                    f"Pinging {self.name} in namespace {self.namespace} returned "
+                    f"empty list: {e}"
                 )
-                _logger.info(
-                    f"Ping status for deployment with name {deployment_name}: "
-                    f"{deployment_status.status.ready_replicas}"
-                    f"/{deployment_status.status.replicas}"
+                return False
+            except ErrImagePull as e:
+                _logger.error(
+                    f"Error while pinging {self.name} in namespace {self.namespace}: "
+                    f"{e}"
                 )
+                self.error_callback(self.name, self.namespace)
+                raise e
+            _logger.info(
+                f"{self.name} in namespace {self.namespace} is not ready yet"
+                f" waiting for {1*i} seconds..."
+            )
+            time.sleep(5 * i)
+        _logger.error(
+            f"{self.name} in namespace {self.namespace} didn't respond in given time!"
+        )
+        self.error_callback(self.name, self.namespace)
+        raise PingLimitReached(
+            self.ping_amount,
+            f"{self.name} in namespace {self.namespace} didn't respond in given time!",
+        )
+
+    @classmethod
+    def deployment_ping(cls, name: str, namespace: str) -> V1PodList:
+        """
+        Returns a list of pods for a given deployment
+
+        :param name: Name of the deployment
+        :param namespace: Namespace of the deployment
+        :return: List of pods
+        """
+        config.load_incluster_config()
+        v1 = client.CoreV1Api()
+        return v1.list_namespaced_pod(namespace=namespace, label_selector=f"app={name}")
+
+    @classmethod
+    def deployment_predicate(cls, api_response: V1PodList) -> bool:
+        """
+        Checks if all pods are running
+
+        :param api_response: Response from kubernetes api
+        :return: True if all pods are running, false otherwise
+        """
+        if len(api_response.items) == 0:
+            raise EmptyList("Empty list")
+        # Check if everypod is running
+        for pod in api_response.items:
+            if pod.status.phase == "Pending":
+                # Error list should be expanded
                 if (
-                    deployment_status.status.ready_replicas
-                    == deployment_status.status.replicas
+                    pod.status.container_statuses[0].state.waiting.reason
+                    == "ErrImagePull"
                 ):
-                    _logger.info(f"Deployment with name {deployment_name} responded!")
-                    return True
-                num_checks += 1
-                _logger.info(
-                    f"Waiting for {2*num_checks} seconds for deployment with "
-                    f"name {deployment_name} to respond..."
-                )
-                time.sleep(2 * num_checks)
-            if num_checks == max_checks:
-                raise PingLimitReached(
-                    f"Deployment with name {deployment_name} didn't respond in time!"
-                )
-        except Exception as e:
-            _logger.error(
-                f"Pinging of deployment with name: {deployment_name} failed "
-                f"with error: {e}!"
-            )
-            raise e
+                    raise ErrImagePull(
+                        pod.status.container_statuses[0].image,
+                        "Image pull error: "
+                        f"{pod.status.container_statuses[0].state.waiting.message}",
+                    )
+            if pod.status.phase != "Running":
+                return False
+        return True
 
-        return False
-
-
-class ServicePing:
     @classmethod
-    def ping(cls, service_name: str, service_namespace: str):
-        v1_core = client.CoreV1Api()
-        try:
-            max_checks = 10
-            num_checks = 0
-
-            service = v1_core.read_namespaced_service(
-                name=service_name, namespace=service_namespace
-            )
-            service_endpoint = service.spec.cluster_ip
-            service_port = service.spec.ports[0].port
-            # Construct the service URL
-            service_url = f"http://{service_endpoint}:{service_port}"
-
-            # Check service status
-            while num_checks < max_checks:
-                # Perform an HTTP GET request to the service endpoint
-                response = requests.get(service_url)
-                # Check the response status code
-                if response.status_code == 200:
-                    return True
-                num_checks += 1
-                _logger.info(
-                    f"Waiting for {2*num_checks} seconds for service with "
-                    f"name {service_name} to respond..."
-                )
-                time.sleep(2 * num_checks)
-
-        except Exception as e:
-            _logger.error(
-                f"Pinging of service with name: {service_name} failed "
-                f"with error: {e}!"
-            )
-            raise e
-        return False
+    def deployment_error_callback(cls, name: str, namespace: str):
+        # todo: gater logs from pods
+        v1 = client.AppsV1Api()
+        v1.delete_namespaced_deployment(name=name, namespace=namespace)

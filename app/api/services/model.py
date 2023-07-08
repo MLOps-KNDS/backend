@@ -7,6 +7,7 @@ from models.model import ModelStatus
 from schemas import model as model_schemas
 from utils import ModelDeployment, ModelBuilder
 from .model_details import ModelDetailsService
+from utils.constants import Constants
 
 
 class ModelService:
@@ -136,7 +137,7 @@ class ModelService:
         return JSONResponse({"detail": "model deleted"})
 
     @classmethod
-    def deploy_model(
+    async def deploy_model(
         cls,
         db: Session,
         name: str,
@@ -155,7 +156,6 @@ class ModelService:
             name=name,
             model_details=model_details,
         )
-        model_deployment.deploy()
 
         try:
             ModelService.change_model_status(
@@ -169,12 +169,12 @@ class ModelService:
             ModelService.change_model_status(
                 db, model_details.model_id, ModelStatus.DEPLOY_FAILED
             )
-            raise JSONResponse(status_code=500, content={"detail": str(e)})
+            return JSONResponse(status_code=500, content={"detail": str(e)})
 
         return JSONResponse({"detail": "model deployed"})
 
     @classmethod
-    def deactivate_model(
+    async def deactivate_model(
         cls,
         db: Session,
         model_id: int,
@@ -191,18 +191,18 @@ class ModelService:
 
         try:
             ModelService.change_model_status(db, model_id, ModelStatus.DEACTIVATING)
-            ModelDeployment.delete(name)
+            ModelDeployment.delete(Constants.K8S_MODEL_PREFIX + name)
             ModelService.change_model_status(db, model_id, ModelStatus.INACTIVE)
         except Exception as e:
             ModelService.change_model_status(
                 db, model_id, ModelStatus.DEACTIVATION_FAILED
             )
-            raise JSONResponse(status_code=500, content={"detail": str(e)})
+            return JSONResponse(status_code=500, content={"detail": str(e)})
 
         return JSONResponse(status_code=200, content={"detail": "model deactivated"})
 
     @classmethod
-    def build_model(
+    async def build_model(
         cls,
         db: Session,
         name: str,
