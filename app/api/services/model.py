@@ -174,8 +174,7 @@ class ModelService:
                 db, model_details.model_id, ModelStatus.DEPLOY_FAILED
             )
             _logger.error(
-                f"Error while deploying model: {e}. "
-                f"Model_details {model_details.to_dict()}"
+                f"Error while deploying model: {e}. " f"Model_details {model_details}"
             )
 
     @classmethod
@@ -238,8 +237,7 @@ class ModelService:
                 db, model_details.model_id, ModelStatus.BUILD_FAILED
             )
             _logger.error(
-                f"Error while building model: {e}. "
-                f"Model_details {model_details.to_dict()}"
+                f"Error while building model: {e}. " f"Model_details {model_details}"
             )
 
         try:
@@ -255,8 +253,7 @@ class ModelService:
                 db, model_details.model_id, ModelStatus.PUSH_FAILED
             )
             _logger.error(
-                f"Error while pushing model: {e}. "
-                f"Model_details {model_details.to_dict()}"
+                f"Error while pushing model: {e}. " f"Model_details {model_details}"
             )
 
         db_model_details = ModelDetailsService.get_model_details_by_model_id(

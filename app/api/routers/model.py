@@ -2,7 +2,8 @@
 This module contains the API routes and their corresponding
 functions for handling model-related requests.
 """
-from fastapi import APIRouter, Query, Depends, HTTPException, JSONResponse
+from fastapi import APIRouter, Query, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 import logging
 import asyncio

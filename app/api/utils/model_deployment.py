@@ -58,12 +58,13 @@ class ModelDeployment:
             namespace=Constants.K8S_NAMESPACE_MODELS, body=deployment
         )
         time.sleep(5)
+        args = {"name": self.name, "namespace": Constants.K8S_NAMESPACE_MODELS}
         deployment_pinger = Pinger(
-            self.name,
-            Constants.K8S_NAMESPACE_MODELS,
             Pinger.deployment_ping,
+            args,
             Pinger.deployment_predicate,
             Pinger.deployment_error_callback,
+            args,
             Constants.K8S_PING_LIMIT,
         )
         if not deployment_pinger.ping():

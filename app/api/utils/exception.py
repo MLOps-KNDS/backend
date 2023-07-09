@@ -54,3 +54,11 @@ class EmptyList(Exception):
         message="Empty list",
     ) -> None:
         super().__init__(message)
+
+
+class ErrImageNeverPull(Exception):
+    def __init__(
+        self,
+        message="Image never pulled! Checkout imagePullPolicy or image tag!",
+    ) -> None:
+        super().__init__(message)
