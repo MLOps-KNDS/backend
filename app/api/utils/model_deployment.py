@@ -3,7 +3,7 @@ from kubernetes import client, config
 import time
 
 from utils.constants import Constants
-from utils.cluster_pingers import NamespacedPinger
+from utils.cluster_pingers import Pinger
 from models import ModelDetails
 
 _logger = logging.getLogger(__name__)
@@ -58,12 +58,12 @@ class ModelDeployment:
             namespace=Constants.K8S_NAMESPACE_MODELS, body=deployment
         )
         time.sleep(5)
-        deployment_pinger = NamespacedPinger(
+        deployment_pinger = Pinger(
             self.name,
             Constants.K8S_NAMESPACE_MODELS,
-            NamespacedPinger.deployment_ping,
-            NamespacedPinger.deployment_predicate,
-            NamespacedPinger.deployment_error_callback,
+            Pinger.deployment_ping,
+            Pinger.deployment_predicate,
+            Pinger.deployment_error_callback,
             Constants.K8S_PING_LIMIT,
         )
         if not deployment_pinger.ping():

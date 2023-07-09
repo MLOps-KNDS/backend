@@ -8,7 +8,7 @@ from utils.exception import PingLimitReached, ErrImagePull, EmptyList
 _logger = logging.getLogger(__name__)
 
 
-class NamespacedPinger:
+class Pinger:
     """
     Pings services in a given namespace using kubernetes api.
     """
