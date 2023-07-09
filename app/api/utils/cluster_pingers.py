@@ -66,7 +66,7 @@ class Pinger:
                 raise e
             _logger.info(
                 f"{self.name} in namespace {self.namespace} is not ready yet"
-                f" waiting for {1*i} seconds..."
+                f" waiting for {5*i} seconds..."
             )
             time.sleep(5 * i)
         _logger.error(
