@@ -3,14 +3,13 @@ from kubernetes import client, config
 from kubernetes.client import V1PodList
 import time
 from typing import Callable
-
-from utils.exception import PingLimitReached, ErrImagePull, EmptyList, ErrImageNeverPull
+from enum import Enum
 
 _logger = logging.getLogger(__name__)
 
 
 # Pod phases
-class PodPhase:
+class PodPhase(str, Enum):
     """
     Class to store pod phases
     """
@@ -23,7 +22,7 @@ class PodPhase:
 
 
 # Container states
-class ContainerState:
+class ContainerState(str, Enum):
     """
     Class to store container states
     """
@@ -33,7 +32,7 @@ class ContainerState:
     SUCCEEDED = "Succeeded"
 
 
-class Exceptions:
+class Exceptions(Exception, Enum):
     """
     Class to store exceptions
     """
@@ -68,37 +67,24 @@ class Pinger:
     def ping(self) -> bool:
         """
         Pings a resource and logs every action.
+        Uses callback functions to ping and check if the resource is responding.
+        In case of failure or no response uses callback function to log the error
+        and do something about it.
 
-        :return: True if the resource is ready, false if resource
-        doesn't exist
-
-        :raises: PingLimitReached if the resource is not ready in given time
+        :return: True if the resource responds, false otherwise
         """
         _logger.info("Pinging resource...")
-        for i in range(self.ping_amount):
-            _logger.info(f"Pinging resource {i+1}/{self.ping_amount}...")
+        for i in range(1, self.ping_amount + 1):
+            _logger.info(f"Pinging resource {i}/{self.ping_amount}...")
             api_response = self.ping_callback(**self.ping_callback_args)
-            try:
-                if self.predicate(api_response):
-                    _logger.info("Service responded!")
-                    return True
-            except EmptyList as e:
-                _logger.error(f"Pinging resource returned empty list: {e}")
-                return False
-            except ErrImagePull as e:
-                _logger.error(f"Error while pinging resource: {e}")
-                self.error_callback(
-                    **self.error_callback_args, api_response=api_response
-                )
-                raise e
-            _logger.info(f"Serivce is not ready yet waiting for {5 * i} seconds...")
+            if self.predicate(api_response):
+                _logger.info("Resource responded!")
+                return True
+            _logger.info(f"Resource is not responding waiting for {5 * i} seconds...")
             time.sleep(5 * i)
-        _logger.error("Service didn't respond in given time!")
+        _logger.error("Resource didn't respond in given time!")
         self.error_callback(**self.error_callback_args, api_response=api_response)
-        raise PingLimitReached(
-            self.ping_amount,
-            "Service didn't respond in given time!",
-        )
+        return False
 
     @classmethod
     def deployment_ping(cls, name: str, namespace: str) -> V1PodList:
@@ -120,32 +106,8 @@ class Pinger:
         :param api_response: Response from kubernetes api
         :return: True if all pods are running, false otherwise
         """
-        if len(api_response.items) == 0:
-            raise EmptyList("Empty list")
-        # Check if everypod is running
+        # Check if everypod is running. List assumed to be not empty
         for pod in api_response.items:
-            if pod.status.phase == "Pending":
-                # Error list should be expanded
-                if (
-                    pod.status.container_statuses[0].state.waiting.reason
-                    == "ErrImagePull"
-                ):
-                    raise ErrImagePull(
-                        pod.status.container_statuses[0].image,
-                        "Image pull error: "
-                        f"{pod.status.container_statuses[0].state.waiting.message}",
-                    )
-                if (
-                    pod.status.container_statuses[0].state.waiting.reason
-                    == "ErrImageNeverPull"
-                ):
-                    raise ErrImageNeverPull(
-                        pod.status.container_statuses[0].image,
-                        "Image never pull error: "
-                        f"{pod.status.container_statuses[0].state.waiting.message}. "
-                        "Checkout imagePullPolicy or image tag!",
-                    )
-
             if pod.status.phase != "Running":
                 return False
         return True
@@ -169,17 +131,26 @@ class Pinger:
 
             {
                 PodPhase.PENDING: lambda: _logger.error(
-                    f"Reason {pod.status.container_statuses[0].state.waiting.reason}. "
-                    f"Message {pod.status.container_statuses[0].state.waiting.message}"
+                    f"Reason: {pod.status.container_statuses[0].state.waiting.reason}. "
+                    f"Message: {pod.status.container_statuses[0].state.waiting.message}"
                 ),
                 PodPhase.FAILED: lambda: _logger.error(
-                    "Reason "
+                    "Reason: "
                     f"{pod.status.container_statuses[0].state.terminated.reason}. "
-                    "Message "
-                    f"{pod.status.container_statuses[0].state.terminated.message}"
+                    "Message: "
+                    f"{pod.status.container_statuses[0].state.terminated.message}."
                 ),
-            }.get(pod.status.phase, lambda: None)()
+            }.get(
+                pod.status.phase, lambda: _logger.error("Could not match pod's phase")
+            )()
 
         _logger.error(f"Deleting deployment {name} in namespace {namespace}...")
-        v1.delete_namespaced_deployment(name=name, namespace=namespace)
-        _logger.error(f"Deleting deployment {name} in namespace {namespace} finished")
+        try:
+            v1.delete_namespaced_deployment(name=name, namespace=namespace)
+        except Exception as e:
+            _logger.error(f"Deleting deployment {name} in namespace {namespace} failed")
+            raise e
+        else:
+            _logger.error(
+                f"Deleting deployment {name} in namespace {namespace} finished"
+            )
