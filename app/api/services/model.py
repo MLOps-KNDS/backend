@@ -5,6 +5,7 @@ import logging
 
 from models import model as model_models
 from models.model import ModelStatus
+from models.model_details import ModelDetails
 from schemas import model as model_schemas
 from utils import ModelDeployment, ModelBuilder
 from .model_details import ModelDetailsService
@@ -145,7 +146,7 @@ class ModelService:
         cls,
         db: Session,
         name: str,
-        model_details: dict,
+        model_details: ModelDetails,
     ) -> JSONResponse:
         """
         Deploys a model to a kubernetes cluster
@@ -174,7 +175,8 @@ class ModelService:
                 db, model_details.model_id, ModelStatus.DEPLOY_FAILED
             )
             _logger.error(
-                f"Error while deploying model: {e}. " f"Model_details {model_details}"
+                f"Error while deploying model: {e}. "
+                f"Model_details id: {model_details.id}"
             )
 
     @classmethod
@@ -208,7 +210,7 @@ class ModelService:
         cls,
         db: Session,
         name: str,
-        model_details: dict,
+        model_details: ModelDetails,
     ) -> JSONResponse:
         """
         Builds a docker image for a model and pushes it to a docker registry.
@@ -237,7 +239,7 @@ class ModelService:
                 db, model_details.model_id, ModelStatus.BUILD_FAILED
             )
             _logger.error(
-                f"Error while building model: {e}. " f"Model_details {model_details}"
+                f"Error while building model: {e}. Model_details id: {model_details.id}"
             )
 
         try:
