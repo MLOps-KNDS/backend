@@ -44,7 +44,7 @@ class Exceptions:
 
 class Pinger:
     """
-    Pings services in a given namespace using kubernetes api.
+    Pings resource using kubernetes api.
     """
 
     def __init__(
@@ -67,26 +67,26 @@ class Pinger:
 
     def ping(self) -> bool:
         """
-        Pings a service and logs every action.
+        Pings a resource and logs every action.
 
-        :return: True if the service is ready, false if service
+        :return: True if the resource is ready, false if resource
         doesn't exist
 
-        :raises: PingLimitReached if the service is not ready in given time
+        :raises: PingLimitReached if the resource is not ready in given time
         """
-        _logger.info("Pinging service...")
+        _logger.info("Pinging resource...")
         for i in range(self.ping_amount):
-            _logger.info(f"Pinging service {i+1}/{self.ping_amount}...")
+            _logger.info(f"Pinging resource {i+1}/{self.ping_amount}...")
             api_response = self.ping_callback(**self.ping_callback_args)
             try:
                 if self.predicate(api_response):
                     _logger.info("Service responded!")
                     return True
             except EmptyList as e:
-                _logger.error(f"Pinging service returned empty list: {e}")
+                _logger.error(f"Pinging resource returned empty list: {e}")
                 return False
             except ErrImagePull as e:
-                _logger.error(f"Error while pinging service: {e}")
+                _logger.error(f"Error while pinging resource: {e}")
                 self.error_callback(
                     **self.error_callback_args, api_response=api_response
                 )
