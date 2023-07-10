@@ -203,7 +203,7 @@ class ModelService:
             ModelService.change_model_status(
                 db, model_id, ModelStatus.DEACTIVATION_FAILED
             )
-            _logger.error(f"Error while deactivating model: {e}. Model_id {model_id}")
+            _logger.error(f"Error while deactivating model: {e}.")
 
     @classmethod
     async def build_model(
@@ -238,9 +238,7 @@ class ModelService:
             ModelService.change_model_status(
                 db, model_details.model_id, ModelStatus.BUILD_FAILED
             )
-            _logger.error(
-                f"Error while building model: {e}. Model_details id: {model_details.id}"
-            )
+            _logger.error(f"Error while building model: {e}.")
 
         try:
             ModelService.change_model_status(
@@ -254,9 +252,7 @@ class ModelService:
             ModelService.change_model_status(
                 db, model_details.model_id, ModelStatus.PUSH_FAILED
             )
-            _logger.error(
-                f"Error while pushing model: {e}. " f"Model_details {model_details}"
-            )
+            _logger.error(f"Error while pushing model: {e}.")
 
         db_model_details = ModelDetailsService.get_model_details_by_model_id(
             db, model_details.model_id

@@ -122,13 +122,22 @@ class Pinger:
         :param name: Name of the deployment
         :param namespace: Namespace of the deployment
         """
+        finished = False
         v1 = client.AppsV1Api()
         for pod in api_response.items:
             _logger.error(
                 f"Pod {pod.metadata.name} in namespace {namespace} is in state "
                 f"{pod.status.phase}."
             )
-
+            for condition in pod.status.conditions:
+                if condition.type == "PodScheduled" and condition.status == "False":
+                    _logger.error(
+                        "Pod is not scheduled. \n"
+                        f"Reason: {condition.reason}. Message: {condition.message}"
+                    )
+                    finished = True
+            if finished:
+                break
             {
                 PodPhase.PENDING: lambda: _logger.error(
                     f"Reason: {pod.status.container_statuses[0].state.waiting.reason}. "
