@@ -21,26 +21,6 @@ class PodPhase(str, Enum):
     UNKNOWN = "Unknown"
 
 
-# Container states
-class ContainerState(str, Enum):
-    """
-    Class to store container states
-    """
-
-    WAITING = "Waiting"
-    RUNNING = "Running"
-    SUCCEEDED = "Succeeded"
-
-
-class Exceptions(Exception, Enum):
-    """
-    Class to store exceptions
-    """
-
-    ERR_IMAGE_PULL = "ErrImagePull"
-    ERR_IMAGE_NEVER_PULL = "ErrImageNeverPull"
-
-
 class Pinger:
     """
     Pings resource using kubernetes api.
