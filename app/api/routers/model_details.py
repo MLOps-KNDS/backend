@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+import logging
 
 from schemas.model_details import ModelDetails, ModelDetailsPatch
-from services import ModelDetailsService, get_db
+from services import ModelDetailsService, get_db, MlflowServerService
 from auth.jwt_bearer import JWTBearer
 
 router = APIRouter(
@@ -10,6 +11,8 @@ router = APIRouter(
     tags=["model-details"],
     dependencies=[Depends(JWTBearer())],
 )
+
+_logger = logging.getLogger(__name__)
 
 
 @router.get("/", response_model=ModelDetails, status_code=200)
@@ -65,6 +68,16 @@ async def patch_model_details(
         if model_details:
             raise HTTPException(
                 status_code=400, detail="ModelDetails with the same tag already exists!"
+            )
+    if model_details_data.mlflow_server_id is not None:
+        _logger.info("Checking if mlflow server exists...")
+        ml_flow_server = MlflowServerService.get_mlflow_server_by_id(
+            db, model_details_data.mlflow_server_id
+        )
+        if ml_flow_server is None:
+            raise HTTPException(
+                status_code=400,
+                detail="Mlflow server with the given ID does not exist!",
             )
     model_details = ModelDetailsService.patch_model_details(
         db=db, model_id=model_id, model_details=model_details_data
