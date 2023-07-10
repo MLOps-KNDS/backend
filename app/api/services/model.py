@@ -1,12 +1,18 @@
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 from datetime import datetime
+import logging
 
 from models import model as model_models
 from models.model import ModelStatus
+from models.model_details import ModelDetails
 from schemas import model as model_schemas
 from utils import ModelDeployment, ModelBuilder
 from .model_details import ModelDetailsService
+from utils.constants import Constants
+
+
+_logger = logging.getLogger(__name__)
 
 
 class ModelService:
@@ -136,11 +142,11 @@ class ModelService:
         return JSONResponse({"detail": "model deleted"})
 
     @classmethod
-    def deploy_model(
+    async def deploy_model(
         cls,
         db: Session,
         name: str,
-        model_details: dict,
+        model_details: ModelDetails,
     ) -> JSONResponse:
         """
         Deploys a model to a kubernetes cluster
@@ -155,7 +161,6 @@ class ModelService:
             name=name,
             model_details=model_details,
         )
-        model_deployment.deploy()
 
         try:
             ModelService.change_model_status(
@@ -169,12 +174,13 @@ class ModelService:
             ModelService.change_model_status(
                 db, model_details.model_id, ModelStatus.DEPLOY_FAILED
             )
-            raise JSONResponse(status_code=500, content={"detail": str(e)})
-
-        return JSONResponse({"detail": "model deployed"})
+            _logger.error(
+                f"Error while deploying model: {e}. "
+                f"Model_details id: {model_details.id}"
+            )
 
     @classmethod
-    def deactivate_model(
+    async def deactivate_model(
         cls,
         db: Session,
         model_id: int,
@@ -191,22 +197,20 @@ class ModelService:
 
         try:
             ModelService.change_model_status(db, model_id, ModelStatus.DEACTIVATING)
-            ModelDeployment.delete(name)
+            ModelDeployment.delete(Constants.K8S_MODEL_PREFIX + name)
             ModelService.change_model_status(db, model_id, ModelStatus.INACTIVE)
         except Exception as e:
             ModelService.change_model_status(
                 db, model_id, ModelStatus.DEACTIVATION_FAILED
             )
-            raise JSONResponse(status_code=500, content={"detail": str(e)})
-
-        return JSONResponse(status_code=200, content={"detail": "model deactivated"})
+            _logger.error(f"Error while deactivating model: {e}.")
 
     @classmethod
-    def build_model(
+    async def build_model(
         cls,
         db: Session,
         name: str,
-        model_details: dict,
+        model_details: ModelDetails,
     ) -> JSONResponse:
         """
         Builds a docker image for a model and pushes it to a docker registry.
@@ -234,7 +238,7 @@ class ModelService:
             ModelService.change_model_status(
                 db, model_details.model_id, ModelStatus.BUILD_FAILED
             )
-            return JSONResponse(status_code=500, content={"detail": str(e)})
+            _logger.error(f"Error while building model: {e}.")
 
         try:
             ModelService.change_model_status(
@@ -248,7 +252,7 @@ class ModelService:
             ModelService.change_model_status(
                 db, model_details.model_id, ModelStatus.PUSH_FAILED
             )
-            return JSONResponse(status_code=500, content={"detail": str(e)})
+            _logger.error(f"Error while pushing model: {e}.")
 
         db_model_details = ModelDetailsService.get_model_details_by_model_id(
             db, model_details.model_id
@@ -259,7 +263,4 @@ class ModelService:
         db.commit()
         db.refresh(db_model_details)
 
-        return JSONResponse(
-            status_code=200,
-            content={"detail": "Model image built and pushed with tag: " + image_tag},
-        )
+        _logger.info(f"Model {name} built and pushed successfully with tag {image_tag}")

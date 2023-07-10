@@ -1,7 +1,9 @@
 import logging
 from kubernetes import client, config
+import time
 
 from utils.constants import Constants
+from utils.cluster_pingers import Pinger
 from models import ModelDetails
 
 _logger = logging.getLogger(__name__)
@@ -55,6 +57,20 @@ class ModelDeployment:
         v1.create_namespaced_deployment(
             namespace=Constants.K8S_NAMESPACE_MODELS, body=deployment
         )
+        time.sleep(5)
+        args = {"name": self.name, "namespace": Constants.K8S_NAMESPACE_MODELS}
+        deployment_pinger = Pinger(
+            Pinger.deployment_ping,
+            args,
+            Pinger.deployment_predicate,
+            Pinger.deployment_error_callback,
+            args,
+            Constants.K8S_PING_LIMIT,
+        )
+        if not deployment_pinger.ping():
+            raise Exception(
+                f"Deployment with name {self.name} didn't respond in given time!"
+            )
         _logger.info(f"Deployment with name {self.name} ready")
         v1 = client.CoreV1Api()
         v1.create_namespaced_service(
@@ -76,14 +92,14 @@ class ModelDeployment:
         )
 
         template = client.V1PodTemplateSpec(
-            metadata=client.V1ObjectMeta(labels={"model": self.name}),
+            metadata=client.V1ObjectMeta(labels={"app": self.name}),
             spec=client.V1PodSpec(containers=[container]),
         )
 
         spec = client.V1DeploymentSpec(
             replicas=self.replicas,
             template=template,
-            selector=client.V1LabelSelector(match_labels={"model": self.name}),
+            selector=client.V1LabelSelector(match_labels={"app": self.name}),
         )
 
         deployment = client.V1Deployment(
@@ -102,7 +118,7 @@ class ModelDeployment:
         )
 
         spec = client.V1ServiceSpec(
-            selector={"model": self.name},
+            selector={"app": self.name},
             ports=[port],
         )
 

@@ -3,8 +3,10 @@ This module contains the API routes and their corresponding
 functions for handling model-related requests.
 """
 from fastapi import APIRouter, Query, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 import logging
+import asyncio
 
 from schemas import model as model_schemas
 from models.model import ModelStatus
@@ -118,11 +120,14 @@ async def deploy_model(
             status_code=406, detail="Model details are not complete! {key} is null}"
         )
 
-    return ModelService.deploy_model(
-        db=db,
-        name=db_model.name,
-        model_details=db_model_details,
+    asyncio.create_task(
+        ModelService.deploy_model(
+            db=db,
+            name=db_model.name,
+            model_details=db_model_details,
+        )
     )
+    return JSONResponse({"detail": "Deploy started!"})
 
 
 @router.post("/{model_id}/deactivate", status_code=200)
@@ -144,7 +149,10 @@ async def deactivate_model(model_id: int, db: Session = Depends(get_db)):
     if model.status == ModelStatus.INACTIVE:
         raise HTTPException(status_code=409, detail="Model already inactive!")
 
-    return ModelService.deactivate_model(db=db, model_id=model_id, name=model.name)
+    asyncio.create_task(
+        ModelService.deactivate_model(db=db, model_id=model_id, name=model.name)
+    )
+    return JSONResponse({"detail": "Deactivation started!"})
 
 
 @router.patch("/{model_id}", response_model=model_schemas.Model, status_code=200)
@@ -225,8 +233,11 @@ async def build_model(model_id: int, db: Session = Depends(get_db)):
     if db_model_details.artifact_uri is None:
         raise HTTPException(status_code=406, detail="No artifact URI specified!")
 
-    return ModelService.build_model(
-        db=db,
-        name=db_model.name,
-        model_details=db_model_details,
+    asyncio.create_task(
+        ModelService.build_model(
+            db=db,
+            name=db_model.name,
+            model_details=db_model_details,
+        )
     )
+    return JSONResponse({"detail": "Build started!"})
