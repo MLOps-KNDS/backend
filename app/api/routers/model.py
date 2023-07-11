@@ -111,13 +111,6 @@ async def deploy_model(
     db_model = ModelService.get_model_by_id(db=db, model_id=model_id)
     if not db_model:
         raise HTTPException(status_code=404, detail="Model not found!")
-    if db_model.status == ModelStatus.DEPLOYED:
-        raise HTTPException(status_code=409, detail="Model already deployed!")
-    if (
-        db_model.status != ModelStatus.PUSHED
-        and db_model.status != ModelStatus.INACTIVE
-    ):
-        raise HTTPException(status_code=409, detail="Model is not pushed!")
 
     db_model_details = ModelDetailsService.get_model_details_by_model_id(db, model_id)
     if not db_model_details:
