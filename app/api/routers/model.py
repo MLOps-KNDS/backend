@@ -101,8 +101,6 @@ async def deploy_model(
     :param db: Database session
 
     :raise HTTPException: 404 status code with "Model not found!"
-    :raise HTTPException: 409 status code with "Model already active!"
-    :raise HTTPException: 409 status code with "Model is not pushed!"
     :raise HTTPException: 404 status code with "Model details not found!"
     :raise HTTPException: 406 status code with "Model details are not complete!"
 
