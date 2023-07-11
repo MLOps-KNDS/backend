@@ -15,11 +15,14 @@ class ModelDetails(Base):
     mlflow_server_id = Column(Integer, ForeignKey("mlflow_server.id"))
     artifact_uri = Column(String(255))
     image_tag = Column(String(255))
-    replicas = Column(Integer)
+    min_replicas = Column(Integer)
+    max_replicas = Column(Integer)
     cpu_request = Column(String(255))
     cpu_limit = Column(String(255))
+    cpu_utilization = Column(Integer)
     memory_request = Column(String(255))
     memory_limit = Column(String(255))
+    memory_utilization = Column(Integer)
 
     model = relationship(
         "Model",
