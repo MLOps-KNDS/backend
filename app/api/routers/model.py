@@ -101,7 +101,6 @@ async def deploy_model(
     :param db: Database session
 
     :raise HTTPException: 404 status code with "Model not found!"
-    :raise HTTPException: 409 status code with "Model already active!"
     :raise HTTPException: 404 status code with "Model details not found!"
     :raise HTTPException: 406 status code with "Model details are not complete!"
 
@@ -140,6 +139,7 @@ async def deactivate_model(model_id: int, db: Session = Depends(get_db)):
 
     :raise HTTPException: 404 status code with "Model not found!" message
     :raise HTTPException: 409 status code with "Model already inactive!" message
+    :raise HTTPException: 409 status code with "Model is not deployed!" message
 
     :return: a json with a "detail" key indicating success
     """
@@ -148,6 +148,8 @@ async def deactivate_model(model_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Model not found!")
     if model.status == ModelStatus.INACTIVE:
         raise HTTPException(status_code=409, detail="Model already inactive!")
+    if model.status != ModelStatus.DEPLOYED:
+        raise HTTPException(status_code=409, detail="Model is not deployed!")
 
     asyncio.create_task(
         ModelService.deactivate_model(db=db, model_id=model_id, name=model.name)
@@ -217,6 +219,7 @@ async def build_model(model_id: int, db: Session = Depends(get_db)):
     :param db: Database session
 
     :raise HTTPException: 404 status code with "Model not found!"
+    :raise HTTPException: 409 status code with "Model is not inactive!"
     :raise HTTPException: 404 status code with "Model details not found!"
     :raise HTTPException: 406 status code with "Model details are not complete!"
 
@@ -225,6 +228,8 @@ async def build_model(model_id: int, db: Session = Depends(get_db)):
     db_model = ModelService.get_model_by_id(db=db, model_id=model_id)
     if not db_model:
         raise HTTPException(status_code=404, detail="Model not found!")
+    if db_model.status != ModelStatus.INACTIVE:
+        raise HTTPException(status_code=409, detail="Model is not inactive!")
 
     db_model_details = ModelDetailsService.get_model_details_by_model_id(db, model_id)
     if not db_model_details:
