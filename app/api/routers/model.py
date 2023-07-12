@@ -114,10 +114,17 @@ async def deploy_model(
     if not db_model_details:
         raise HTTPException(status_code=404, detail="Model details not found!")
 
-    if any(value is None for value in db_model_details.__dict__.values()):
-        raise HTTPException(
-            status_code=406, detail="Model details are not complete! {key} is null}"
-        )
+    for item in db_model_details.__dict__.items():
+        if item[0] in ["cpu_utilization", "memory_utilization", "max_replicas"]:
+            continue
+        if item[1] is None:
+            raise HTTPException(
+                status_code=406, detail="Model details are not complete!"
+            )
+    if (
+        db_model_details.cpu_utilization or db_model_details.memory_utilization
+    ) and not db_model_details.max_replicas:
+        raise HTTPException(status_code=406, detail="Model details are not complete!")
 
     asyncio.create_task(
         ModelService.deploy_model(
